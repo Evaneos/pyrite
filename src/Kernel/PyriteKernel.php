@@ -26,6 +26,7 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use Pyrite\Stack\Template;
 
 class PyriteKernel implements HttpKernelInterface, TerminableInterface
 {
@@ -91,17 +92,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             throw new HttpException(Response::HTTP_METHOD_NOT_ALLOWED);
         }
 
-        $stack = $this->buildStack($parameters);
+        $this->stack = $this->getStack($parameters);
         
-        if ($stack->count() == 0) {
-            throw new HttpException(Response::HTTP_NOT_IMPLEMENTED);
-        }
-        
-        $stack->rewind();
-        
-        $this->stack = new StackedHttpKernel($stack->current(), (array)$stack);
-        
-        return $httpStacked->handle($request, $type, $catch);
+        return $this->stack->handle($request, $type, $catch);
     }
     
     public function terminate(Request $request, Response $response)
@@ -138,28 +131,16 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     /**
      * Build a stack for a specific route
      * 
+     * Using template stack for better reusability
+     * 
      * @param array $routeParameters Parameters of the route
      * 
      * @return \SplStack
      */
-    protected function buildStack($routeParameters)
+    protected function getStack($routeParameters)
     {
-        $stack        = new \SplStack();
-        $stackWrapped = null;
-        
-        foreach ($routeParameters['dispatch'] as $stackDispatchedName => $parameters) {
-            $stackDispatched = $this->container->get($stackDispatchedName);
-            
-            if (!$stackDispatched instanceof StackDispatched) {
-                throw new \RuntimeException(sprintf("Object of class %s is not an instance of \Pyrite\StackDispatched", get_class($stackDispatched)), Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
-
-            $stackDispatched->setStackWrapped($stackWrapped);
-            $stackDispatched->setParameters($parameters);
-            
-            $stackWrapped = $stackDispatched;
-            $stack->push($stackDispatched);
-        }
+        $stack = new Template(array_keys($routeParameters['dispach']), $this->container);
+        $stack->setParameters($routeParameters['dispach']);
         
         return $stack;
     }
