@@ -154,7 +154,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     {
         $route = $this->routeCollection->get($routeParameters['_route']);
         
-        $factory = new StackedHttpKernel($this->container, array_keys($route->getOption('dispatch')));
+        $factory = new StackedHttpKernel($this->container, array_keys($route->getOption('dispatch')), 'pyrite.root_kernel');
         list($name, $stack) = $factory->register(null, $routeParameters['_route'], $route->getOption('dispatch'));
         
         //Bind this stack to container ?

@@ -83,7 +83,7 @@ class StackedHttpKernel implements HttpKernelFactory
         $factory = $this->container->get($serviceName);
         
         if (!$factory instanceof HttpKernelFactory) {
-            throw new \RuntimeException("Object of class %s does not implement \Pyrite\Factory\HttpKernelFactory interface", get_class($factory));
+            throw new \RuntimeException(sprintf("Object of class %s does not implement Pyrite\Factory\HttpKernelFactory interface", get_class($factory)));
         }
         
         return $factory;

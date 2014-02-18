@@ -33,9 +33,11 @@ class Controller implements HttpKernelInterface, TerminableInterface
      */
     private $app;
     
-    public function __construct(Container $container)
+    public function __construct($controller, $method, HttpKernelInterface $app = null)
     {
-        $this->container = $container;
+        $this->app        = $app;
+        $this->controller = $controller;
+        $this->method     = $method;
     }
 
     /**
@@ -43,6 +45,7 @@ class Controller implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
     {
+        $method   = $this->method;
         $response = $this->controller->$method($request);
         
         if ($response instanceof Response) {

@@ -35,8 +35,13 @@ class Controller implements HttpKernelFactory
         }
         
         //Register
-        $service = new ControllerStack($app, $controller, $method);
+        $service = new ControllerStack($controller, $method, $app);
         
-        return array($name, $service);
+        return array($this->getName($controller, $method), $service);
+    }
+    
+    protected function getName($controller, $method)
+    {
+        return "pyrite.stack.".preg_replace("/\//", "_", strtolower(get_class($controller))).".".$method.".".uniqid();
     }
 }
