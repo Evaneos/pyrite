@@ -12,13 +12,41 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Stack\StackedHttpKernel;
 use Pyrite\Kernel\Exception\HttpException;
+use Symfony\Component\Yaml\Exception\RuntimeException;
 
+/**
+ * Template is a stack plugin used to encapsulated other plugins
+ * 
+ * He is useful when you don't want to repeat the same list over and over in your routing
+ * 
+ * Parameters for this plugin is an hash where tke key correspond to the service name
+ * and the value is the specific parameters for a service
+ * 
+ * If a wrapped stack is defined, the last element of this list will use it
+ */
 class Template extends StackDispatched implements TerminableInterface
 {
+    /**
+     * Array of service name to use
+     * 
+     * @var string[]
+     */
     private $services;
     
+    /**
+     * DIC to use when getting services
+     * 
+     * @var Container
+     */
     private $container;
     
+    /**
+     * A list of StackDisptached where the first is the one to run, 
+     * this list is mostly useful for terminating the request 
+     * otherwise only first stack element is required
+     * 
+     * @var StackDispatched[]
+     */
     private $stacks = array();
     
     public function __construct(array $services, Container $container)
@@ -53,8 +81,15 @@ class Template extends StackDispatched implements TerminableInterface
     
     /**
      * Build stacks
+     * 
+     * For each stack define in service we fetch the service, setting his parameters 
+     * and define the next to process stack to the wrapped stack
      *
-     * @return \SplStack
+     * @throws RuntimeException Throw this exception if an element of the list does not implement StackDispatched
+     *
+     * @return array A list of StackDisptached where the first is the one to run, 
+     *               this list is mostly useful for terminating the request 
+     *               otherwise only first stack element is required
      */
     protected function buildStacks()
     {

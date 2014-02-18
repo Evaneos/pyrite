@@ -28,6 +28,11 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Pyrite\Stack\Template;
 
+/**
+ * PyriteKernel
+ * 
+ * Main kernel for a pyrite application
+ */
 class PyriteKernel implements HttpKernelInterface, TerminableInterface
 {
     /**
@@ -54,9 +59,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     /**
      * Stacked kernel
      * 
-     * @var \Stack\StackedHttpKernel
+     * @var \Pyrite\Stack\Template
      */
-    private $stack;
+    private $stack = null;
     
     public function __construct($routingPath, $containerPath = null, $debug = false)
     {
@@ -76,7 +81,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->debug           = $debug;
         $this->routeCollection = $this->buildRouteCollection($routingPath);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true) {
         $context  = new RequestContext();
         $context->fromRequest($request);
@@ -96,7 +104,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         
         return $this->stack->handle($request, $type, $catch);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     public function terminate(Request $request, Response $response)
     {
         if (null !== $this->stack) {
@@ -105,9 +116,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     }
     
     /**
-     * Boot kernel
+     * Load kernel, handle a request from a webserver and send the response
      * 
-     * @return Response
+     * Utility function for the entrypoint of your application, only use when you are in a request context (from a webserver)
      */
     public static function boot($routingPath, $containerPath = null, $debug = false) {
         try {
