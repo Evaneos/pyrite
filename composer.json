@@ -22,6 +22,7 @@
     },
     "require" : {
         "oliviermadre/dic-it": "dev-master",
+        "stack/builder": "~1.0.0",
         "symfony/http-foundation": "~2.4.0",
         "symfony/http-kernel": "~2.4.0",
         "symfony/routing": "~2.4.0",

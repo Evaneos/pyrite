@@ -7,8 +7,7 @@ use DICIT\Config\PHP;
 use DICIT\Container;
 
 use Pyrite\Config\NullConfig;
-use Pyrite\StackDispatched;
-use Pyrite\Stack\Template;
+use Pyrite\Factory\StackedHttpKernel;
 
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -94,6 +93,8 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $urlMatcher   = new UrlMatcher($this->routeCollection, $context);
         $urlGenerator = new UrlGenerator($this->routeCollection, $context);
         
+        //@TODO Bind matcher and generator
+        
         try {
             $parameters = $urlMatcher->match($request->getPathInfo());
         } catch (ResourceNotFoundException $e) {
@@ -141,20 +142,23 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     }
     
     /**
-     * Build a stack for a specific route
+     * Build a kernel for a specific route
      * 
-     * Using template stack for better reusability
+     * Using StackedHttpKernel factory for better reusability
      * 
      * @param array $routeParameters Parameters of the route
      * 
-     * @return \SplStack
+     * @return \Stack\StackedHttpKernel
      */
     protected function getStack($routeParameters)
     {
         $route = $this->routeCollection->get($routeParameters['_route']);
         
-        $stack = new Template(array_keys($route->getOption('dispatch')), $this->container);
-        $stack->setParameters($route->getOption('dispatch'));
+        $factory = new StackedHttpKernel($this->container, array_keys($route->getOption('dispatch')));
+        list($name, $stack) = $factory->register(null, $routeParameters['_route'], $route->getOption('dispatch'));
+        
+        //Bind this stack to container ?
+        //$container->bind($name, $stack);
         
         return $stack;
     }
