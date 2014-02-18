@@ -150,8 +150,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     protected function getStack($routeParameters)
     {
-        $stack = new Template(array_keys($routeParameters['_dispatch']), $this->container);
-        $stack->setParameters($routeParameters['_dispatch']);
+        $route = $this->routeCollection->get($routeParameters['_route']);
+        
+        $stack = new Template(array_keys($route->getOption('dispatch')), $this->container);
+        $stack->setParameters($route->getOption('dispatch'));
         
         return $stack;
     }
@@ -175,9 +177,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $routes = new RouteCollection();
         
         foreach ($configuration['routes'] as $name => $routeParameters) {
-            $route = new Route($routeParameters['route']['pattern'], array(
-            	'_dispatch' => isset($routeParameters['dispatch']) ? $routeParameters['dispatch'] : array()
-            ), array(), array(), '', array(), $routeParameters['route']['methods']);
+            $route = new Route($routeParameters['route']['pattern'], array(), array(), $routeParameters, '', array(), $routeParameters['route']['methods']);
             $routes->add($name, $route);
         }
         
