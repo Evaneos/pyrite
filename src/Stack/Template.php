@@ -10,9 +10,8 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Stack\StackedHttpKernel;
-use Pyrite\Kernel\Exception\HttpException;
 use Symfony\Component\Yaml\Exception\RuntimeException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Template is a stack plugin used to encapsulated other plugins
