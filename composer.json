@@ -1,0 +1,34 @@
+{
+    "name" : "evaneos/pyrite",
+    "description" : "PHP Framework around Stack php principle",
+    "type" : "library",
+    "authors" : [{
+            "name" : "Joel Wurtz",
+            "email" : "jwurtz@jolicode.com"
+        }
+    ],
+    "keywords" : [
+        "frameork",
+        "php",
+        "stack"
+    ],
+    "license" : [
+        "MIT"
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "Pyrite\\" : "src"
+        }
+    },
+    "require" : {
+        "stack/run" : "~1.0.0",
+        "stack/builder" : "~1.0.0",
+        "symfony/http-foundation": "~2.4.0",
+        "symfony/http-kernel": "~2.4.0",
+        "symfony/routing": "~2.4.0",
+        "oliviermadre/dic-it": "dev-master",
+        "symfony/yaml": "dev-master",
+        "symfony/debug": "~2.4.0"
+    },
+    "minimum-stability" : "stable"
+}

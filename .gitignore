@@ -1,0 +1,6 @@
+# Composer
+vendor
+
+# Eclipse
+.buildpath
+.project
