@@ -4,3 +4,4 @@ vendor
 # Eclipse
 .buildpath
 .project
+.settings
