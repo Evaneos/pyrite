@@ -37,7 +37,7 @@ class Controller extends StackDispatched implements TerminableInterface
      */
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
     {
-        if (!isset($this->parameters[Ø]) || !isset($this->parameters[1])) {
+        if (!isset($this->parameters[0]) || !isset($this->parameters[1])) {
             throw new NotFoundHttpException(sprintf("Invalid configuration for controller stack"));
         }
         
@@ -51,7 +51,7 @@ class Controller extends StackDispatched implements TerminableInterface
         $response = $controller->$method($request);
         
         if ($response instanceof Response) {
-            return $reponse;
+            return $response;
         }
         
         $request->attributes->set('_controller_data', $response);
