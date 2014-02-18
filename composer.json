@@ -21,12 +21,10 @@
         }
     },
     "require" : {
-        "stack/run" : "~1.0.0",
-        "stack/builder" : "~1.0.0",
+        "oliviermadre/dic-it": "dev-master",
         "symfony/http-foundation": "~2.4.0",
         "symfony/http-kernel": "~2.4.0",
         "symfony/routing": "~2.4.0",
-        "oliviermadre/dic-it": "dev-master",
         "symfony/yaml": "dev-master",
         "symfony/debug": "~2.4.0"
     },
