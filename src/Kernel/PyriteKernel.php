@@ -125,7 +125,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public static function boot($routingPath, $containerPath = null, $debug = false) {
         try {
-            $kernel = new self();
+            $kernel = new self($routingPath, $containerPath, $debug);
             $exceptionHandler = new ExceptionHandler($debug);
             
             $request  = Request::createFromGlobals();
