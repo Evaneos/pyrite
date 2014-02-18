@@ -6,6 +6,12 @@ use DICIT\Config\YML;
 use DICIT\Config\PHP;
 use DICIT\Container;
 
+use Pyrite\Config\NullConfig;
+use Pyrite\Kernel\Exception\HttpException;
+use Pyrite\StackDispatched;
+
+use Stack\StackedHttpKernel;
+
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,18 +19,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Symfony\Component\Yaml\Yaml;
-
-use Pyrite\Config\NullConfig;
-use Pyrite\Kernel\Exception\HttpException;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
 class PyriteKernel implements HttpKernelInterface, TerminableInterface
 {
     /**
-     * Url matcher
+     * Route collection
      * 
-     * @var UrlMatcherInterface
+     * @var RouteCollection
      */
-    private $urlMatcher = null;
+    private $routeCollection;
     
     /**
      * Debug mode (default is false)
@@ -34,10 +44,18 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     private $debug = false;
     
     /**
+     * DIC
      * 
-     * @var unknown
+     * @var Container
      */
     private $container;
+    
+    /**
+     * Stacked kernel
+     * 
+     * @var \Stack\StackedHttpKernel
+     */
+    private $stack;
     
     public function __construct($routingPath, $containerPath = null, $debug = false)
     {
@@ -53,28 +71,44 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             $config = new PHP($containerPath);
         }
         
-        $this->container  = new Container($config);
-        $this->debug      = $debug;
-        $this->urlMatcher = $this->buildRouter($routingPath);
+        $this->container       = new Container($config);
+        $this->debug           = $debug;
+        $this->routeCollection = $this->buildRouteCollection($routingPath);
     }
     
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true) {
+        $context  = new RequestContext();
+        $context->fromRequest($request);
+        
+        $urlMatcher   = new UrlMatcher($this->routeCollection, $context);
+        $urlGenerator = new UrlGenerator($this->routeCollection, $context);
+        
         try {
             $parameters = $this->urlMatcher->match($request->getPathInfo());
         } catch (ResourceNotFoundException $e) {
             throw new HttpException(Response::HTTP_NOT_FOUND, null, $e);
+        } catch (MethodNotAllowedException $e) {
+            throw new HttpException(Response::HTTP_METHOD_NOT_ALLOWED);
         }
 
         $stack = $this->buildStack($parameters);
         
-        //Run
+        if ($stack->count() == 0) {
+            throw new HttpException(Response::HTTP_NOT_IMPLEMENTED);
+        }
         
-        //Return $response
+        $stack->rewind();
+        
+        $this->stack = new StackedHttpKernel($stack->current(), (array)$stack);
+        
+        return $httpStacked->handle($request, $type, $catch);
     }
     
     public function terminate(Request $request, Response $response)
     {
-        
+        if (null !== $this->stack) {
+            $this->stack->terminate($request, $response);
+        }
     }
     
     /**
@@ -101,12 +135,41 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         }
     }
     
+    /**
+     * Build a stack for a specific route
+     * 
+     * @param array $routeParameters Parameters of the route
+     * 
+     * @return \SplStack
+     */
     protected function buildStack($routeParameters)
     {
+        $stack = new \SplStack();
         
+        foreach ($routeParamters['dispatch'] as $stackDispatchedName => $parameters) {
+            $stackDispatched = $this->container->get($stackDispatchedName);
+            
+            if (!$stackDispatched instanceof StackDispatched) {
+                throw new \RuntimeException(sprintf("Object of class %s is not an instance of \Pyrite\StackDispatched", get_class($stackDispatched)), Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            
+            $stack->push(function ($stackWrapped) {
+                $stackDispatched->setStackWrapped($stackWrapped);
+                $stackDispatched->setParameters($parameters);
+            });
+        }
+        
+        return $stack;
     }
     
-    protected function buildRouter($routingPath)
+    /**
+     * Build a route collection from a config file
+     * 
+     * @param string $routingPath Path to routing
+     * 
+     * @return RouteCollection A collection of routes
+     */
+    protected function buildRouteCollection($routingPath)
     {
         //@TODO Caching
         $config = new YML($routingPath);
@@ -114,6 +177,14 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         
         //@TODO Validation ?
         
+        //Build route collection
+        $routes = new RouteCollection();
         
+        foreach ($configuration['routes'] as $name => $routeParameters) {
+            $route = new Route($routeParameters['route']['pattern'], array(), array(), $routeParameters, '', array(), $routeParameters['route']['methods']);
+            $routes->add($name, $route);
+        }
+        
+        return $routes;
     }
 }
