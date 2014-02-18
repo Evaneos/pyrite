@@ -8,8 +8,7 @@ use DICIT\Container;
 
 use Pyrite\Config\NullConfig;
 use Pyrite\StackDispatched;
-
-use Stack\StackedHttpKernel;
+use Pyrite\Stack\Template;
 
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -25,7 +24,6 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
-use Pyrite\Stack\Template;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -152,8 +150,8 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     protected function getStack($routeParameters)
     {
-        $stack = new Template(array_keys($routeParameters['dispach']), $this->container);
-        $stack->setParameters($routeParameters['dispach']);
+        $stack = new Template(array_keys($routeParameters['dispatch']), $this->container);
+        $stack->setParameters($routeParameters['dispatch']);
         
         return $stack;
     }
