@@ -50,7 +50,7 @@ class Template extends StackDispatched implements TerminableInterface
     
     public function __construct(array $services, Container $container)
     {
-        $this->services;
+        $this->services  = $services;
         $this->container = $container;
     }
 
