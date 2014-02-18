@@ -7,7 +7,6 @@ use DICIT\Config\PHP;
 use DICIT\Container;
 
 use Pyrite\Config\NullConfig;
-use Pyrite\Kernel\Exception\HttpException;
 use Pyrite\StackDispatched;
 
 use Stack\StackedHttpKernel;
@@ -27,6 +26,10 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Pyrite\Stack\Template;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\Debug\ExceptionHandler;
 
 /**
  * PyriteKernel
@@ -93,11 +96,11 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $urlGenerator = new UrlGenerator($this->routeCollection, $context);
         
         try {
-            $parameters = $this->urlMatcher->match($request->getPathInfo());
+            $parameters = $urlMatcher->match($request->getPathInfo());
         } catch (ResourceNotFoundException $e) {
-            throw new HttpException(Response::HTTP_NOT_FOUND, null, $e);
+            throw new NotFoundHttpException(null, $e);
         } catch (MethodNotAllowedException $e) {
-            throw new HttpException(Response::HTTP_METHOD_NOT_ALLOWED);
+            throw new MethodNotAllowedHttpException($e->getAllowedMethods(), null, $e);
         }
 
         $this->stack = $this->getStack($parameters);
@@ -123,20 +126,19 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     public static function boot($routingPath, $containerPath = null, $debug = false) {
         try {
             $kernel = new self();
+            $exceptionHandler = new ExceptionHandler($debug);
             
-            $request = Request::createFromGlobals();
+            $request  = Request::createFromGlobals();
             $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
-        } catch (HttpException $exception) {
-            $response = new Response($exception->getMessage(), $exception->getCode());
-        } catch (Exception $exception) {
-            $response = new Response($exception->getMessage(), $exception->getCode() === 0 ? Response::HTTP_INTERNAL_SERVER_ERROR : $exception->getCode());
-        }
-        
-        $response->send();
-        
-        if ($kernel instanceof TerminableInterface) {
-            $kernel->terminate($request, $response);
-        }
+            
+            $response->send();
+            
+            if ($kernel instanceof TerminableInterface) {
+                $kernel->terminate($request, $response);
+            }
+        } catch (\Exception $exception) {
+            $exceptionHandler->createResponse($exception)->send();
+        }        
     }
     
     /**
