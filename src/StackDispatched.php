@@ -25,7 +25,7 @@ abstract class StackDispatched implements HttpKernelInterface
      * 
      * @param StackDispatched $stackWrapped
      */
-    public function setStackWrapped(StackDispatched $stackWrapped)
+    public function setStackWrapped(StackDispatched $stackWrapped = null)
     {
         $this->stackWrapped = $stackWrapped;
     }

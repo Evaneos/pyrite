@@ -144,19 +144,21 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     protected function buildStack($routeParameters)
     {
-        $stack = new \SplStack();
+        $stack        = new \SplStack();
+        $stackWrapped = null;
         
-        foreach ($routeParamters['dispatch'] as $stackDispatchedName => $parameters) {
+        foreach ($routeParameters['dispatch'] as $stackDispatchedName => $parameters) {
             $stackDispatched = $this->container->get($stackDispatchedName);
             
             if (!$stackDispatched instanceof StackDispatched) {
                 throw new \RuntimeException(sprintf("Object of class %s is not an instance of \Pyrite\StackDispatched", get_class($stackDispatched)), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
+
+            $stackDispatched->setStackWrapped($stackWrapped);
+            $stackDispatched->setParameters($parameters);
             
-            $stack->push(function ($stackWrapped) {
-                $stackDispatched->setStackWrapped($stackWrapped);
-                $stackDispatched->setParameters($parameters);
-            });
+            $stackWrapped = $stackDispatched;
+            $stack->push($stackDispatched);
         }
         
         return $stack;
