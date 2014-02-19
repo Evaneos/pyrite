@@ -30,57 +30,57 @@ class StackedHttpKernel implements HttpKernelFactory
      */
     private $name;
     
-    public function __construct(Container $container, $services, $name)
+    public function __construct(Container $container, $services)
     {
         $this->services  = $services;
         $this->container = $container;
-        $this->name      = $name;
     }
     
     /**
      * {@inheritDoc}
      */
-    public function register(HttpKernelInterface $app = null, $routeName = '', $parameters = array())
+    public function register(HttpKernelInterface $app = null, $name = '', $parameters = array())
     {
-        $lastServiceName = array_pop($this->services);
+        $lastServiceName = call_user_func('end', array_keys($this->services));
+        $lastFactoryName = array_pop($this->services);
         $builder         = new \Stack\Builder();
         $container       = $this->container;
         
-        foreach ($this->services as $serviceName) {
-            $factory       = $this->getFactory($serviceName);
+        foreach ($this->services as $serviceName => $factoryName) {
+            $factory       = $this->getFactory($factoryName);
             $configuration = $this->getConfiguration($serviceName, $parameters);
         
-            $builder->push(function ($app) use($container, $factory, $routeName, $configuration) {
-                list($name, $stack) = $factory->register($app, $routeName, $configuration);
+            $builder->push(function ($app) use($container, $factory, $serviceName, $configuration) {
+                list($stackName, $stack) = $factory->register($app, $serviceName, $configuration);
         
                 //Register stack in container @TODO
-                //$container->bind($name, $stack);
+                //$container->bind($stackName, $stack);
                 
                 return $stack;
             });
         }
         
-        $factory            = $this->getFactory($lastServiceName);
-        $configuration      = $this->getConfiguration($lastServiceName, $parameters);
-        list($name, $stack) = $factory->register($app, $routeName, $configuration);
+        $factory                 = $this->getFactory($lastFactoryName);
+        $configuration           = $this->getConfiguration($lastServiceName, $parameters);
+        list($stackName, $stack) = $factory->register($app, $lastServiceName, $configuration);
 
         //Register stack in container @TODO
-        //$container->bind($name, $stack);
+        //$container->bind($stackName, $stack);
         
-        return array($this->name.".".uniqid(), $builder->resolve($stack));
+        return array($name, $builder->resolve($stack));
     }
     
     /**
      * Get a factory given a service name
      * 
-     * @param string $serviceName Service name to get factory from
+     * @param string $factoryName Service name to get factory from
      * @throws \RuntimeException Throws a exception if service does not implment HttpKernelFactory
      * 
      * @return \Pyrite\Factory\HttpKernelFactory a factory for a service
      */
-    private function getFactory($serviceName)
+    private function getFactory($factoryName)
     {
-        $factory = $this->container->get($serviceName);
+        $factory = $this->container->get($factoryName);
         
         if (!$factory instanceof HttpKernelFactory) {
             throw new \RuntimeException(sprintf("Object of class %s does not implement Pyrite\Factory\HttpKernelFactory interface", get_class($factory)));

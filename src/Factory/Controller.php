@@ -21,7 +21,7 @@ class Controller implements HttpKernelFactory
     /**
      * {@inheritDoc}
      */
-    public function register(HttpKernelInterface $app = null, $routeName = '', $parameters = array())
+    public function register(HttpKernelInterface $app = null, $name = '', $parameters = array())
     {
         if (!isset($parameters[0]) || !isset($parameters[1])) {
             throw new NotFoundHttpException("Controller cannot be resolved.");
@@ -37,11 +37,6 @@ class Controller implements HttpKernelFactory
         //Register
         $service = new ControllerStack($controller, $method, $app);
         
-        return array($this->getName($controller, $method), $service);
-    }
-    
-    protected function getName($controller, $method)
-    {
-        return "pyrite.stack.".preg_replace("/\//", "_", strtolower(get_class($controller))).".".$method.".".uniqid();
+        return array($name, $service);
     }
 }

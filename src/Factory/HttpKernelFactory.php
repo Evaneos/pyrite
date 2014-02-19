@@ -15,5 +15,5 @@ interface HttpKernelFactory
      * 
      * @return <string, HttpKernelInterface> Return name a kernel and the kernel
      */
-    public function register(HttpKernelInterface $app = null, $routeName = '', $parameters = array());
+    public function register(HttpKernelInterface $app = null, $name = '', $parameters = array());
 }

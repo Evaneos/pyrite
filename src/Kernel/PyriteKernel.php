@@ -98,9 +98,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         try {
             $parameters = $urlMatcher->match($request->getPathInfo());
         } catch (ResourceNotFoundException $e) {
-            throw new NotFoundHttpException(null, $e);
+            throw new NotFoundHttpException(sprintf("No route found for url \"%s\"", $request->getPathInfo()), $e);
         } catch (MethodNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getAllowedMethods(), null, $e);
+            throw new MethodNotAllowedHttpException($e->getAllowedMethods(), sprintf("Method %s is not allowed for url \"%s\"", $request->getMethod(), $request->getPathInfo()), $e);
         }
 
         $this->stack = $this->getStack($parameters);
@@ -152,10 +152,18 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     protected function getStack($routeParameters)
     {
-        $route = $this->routeCollection->get($routeParameters['_route']);
+        $route      = $this->routeCollection->get($routeParameters['_route']);
+        $dispatch   = $route->getOption('dispatch');
+        $services   = array();
+        $parameters = array();
         
-        $factory = new StackedHttpKernel($this->container, array_keys($route->getOption('dispatch')), 'pyrite.root_kernel');
-        list($name, $stack) = $factory->register(null, $routeParameters['_route'], $route->getOption('dispatch'));
+        foreach ($dispatch as $name => $configuration) {
+            $services[$name] = $configuration['factory'];
+            $parameters[$name] = $configuration['parameters'];
+        }
+        
+        $factory = new StackedHttpKernel($this->container, $services);
+        list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $parameters);
         
         //Bind this stack to container ?
         //$container->bind($name, $stack);
