@@ -161,7 +161,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         
         foreach ($dispatch as $name => $configuration) {
             $services[$name] = $configuration['factory'];
-            $parameters[$name] = $configuration['parameters'];
+            $parameters[$name] = array_key_exists('parameters', $configuration) ? $configuration['parameters'] : array();
         }
         
         $factory = new StackedHttpKernel($this->container, $services);
