@@ -29,5 +29,8 @@
         "symfony/yaml": "dev-master",
         "symfony/debug": "~2.4.0"
     },
+    "require-dev": {
+        "stack/session": "dev-master"
+    },
     "minimum-stability" : "stable"
 }
