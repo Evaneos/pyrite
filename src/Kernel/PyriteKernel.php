@@ -97,6 +97,8 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         
         try {
             $parameters = $urlMatcher->match($request->getPathInfo());
+            //@TODO improve request bindings
+            $request->attributes->replace($parameters);
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException(sprintf("No route found for url \"%s\"", $request->getPathInfo()), $e);
         } catch (MethodNotAllowedException $e) {
