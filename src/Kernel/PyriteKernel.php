@@ -31,53 +31,53 @@ use Symfony\Component\Debug\ExceptionHandler;
 
 /**
  * PyriteKernel
- * 
+ *
  * Main kernel for a pyrite application
  */
 class PyriteKernel implements HttpKernelInterface, TerminableInterface
 {
     /**
      * Route collection
-     * 
+     *
      * @var RouteCollection
      */
     private $routeCollection;
-    
+
     /**
      * Debug mode (default is false)
-     * 
+     *
      * @var debug
      */
     private $debug = false;
-    
+
     /**
      * DIC
-     * 
+     *
      * @var Container
      */
     private $container;
-    
+
     /**
      * Stacked kernel
-     * 
+     *
      * @var \Pyrite\Stack\Template
      */
     private $stack = null;
-    
+
     public function __construct($routingPath, $containerPath = null, $debug = false)
     {
         Debug::enable(null, $debug);
-        
+
         $config = new NullConfig();
-        
+
         if (null !== $containerPath && preg_match('/.*yml$/', $containerPath)) {
             $config = new YML($containerPath);
         }
-        
+
         if (null !== $containerPath && preg_match('/.*php$/', $containerPath)) {
             $config = new PHP($containerPath);
         }
-        
+
         $this->container       = new Container($config);
         $this->debug           = $debug;
         $this->routeCollection = $this->buildRouteCollection($routingPath);
@@ -89,12 +89,12 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true) {
         $context  = new RequestContext();
         $context->fromRequest($request);
-        
+
         $urlMatcher   = new UrlMatcher($this->routeCollection, $context);
         $urlGenerator = new UrlGenerator($this->routeCollection, $context);
-        
+
         //@TODO Bind matcher and generator
-        
+
         try {
             $parameters = $urlMatcher->match($request->getPathInfo());
             //@TODO improve request bindings
@@ -106,7 +106,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         }
 
         $this->stack = $this->getStack($parameters);
-        
+
         return $this->stack->handle($request, $type, $catch);
     }
 
@@ -119,37 +119,37 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             $this->stack->terminate($request, $response);
         }
     }
-    
+
     /**
      * Load kernel, handle a request from a webserver and send the response
-     * 
+     *
      * Utility function for the entrypoint of your application, only use when you are in a request context (from a webserver)
      */
     public static function boot($routingPath, $containerPath = null, $debug = false) {
         try {
-            $kernel = new self($routingPath, $containerPath, $debug);
             $exceptionHandler = new ExceptionHandler($debug);
-            
+            $kernel = new self($routingPath, $containerPath, $debug);
+
             $request  = Request::createFromGlobals();
             $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
-            
+
             $response->send();
-            
+
             if ($kernel instanceof TerminableInterface) {
                 $kernel->terminate($request, $response);
             }
         } catch (\Exception $exception) {
             $exceptionHandler->createResponse($exception)->send();
-        }        
+        }
     }
-    
+
     /**
      * Build a kernel for a specific route
-     * 
+     *
      * Using StackedHttpKernel factory for better reusability
-     * 
+     *
      * @param array $routeParameters Parameters of the route
-     * 
+     *
      * @return \Stack\StackedHttpKernel
      */
     protected function getStack($routeParameters)
@@ -158,26 +158,18 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $dispatch   = $route->getOption('dispatch');
         $services   = array();
         $parameters = array();
-        
-        foreach ($dispatch as $name => $configuration) {
-            $services[$name] = $configuration['factory'];
-            $parameters[$name] = array_key_exists('parameters', $configuration) ? $configuration['parameters'] : array();
-        }
-        
-        $factory = new StackedHttpKernel($this->container, $services);
-        list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $parameters);
-        
-        //Bind this stack to container ?
-        //$container->bind($name, $stack);
-        
+
+        $factory = new StackedHttpKernel($this->container, $dispatch);
+        list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $dispatch);
+
         return $stack;
     }
-    
+
     /**
      * Build a route collection from a config file
-     * 
+     *
      * @param string $routingPath Path to routing
-     * 
+     *
      * @return RouteCollection A collection of routes
      */
     protected function buildRouteCollection($routingPath)
@@ -185,17 +177,17 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         //@TODO Caching
         $config = new YML($routingPath);
         $configuration = $config->load();
-        
+
         //@TODO Validation ?
-        
+
         //Build route collection
         $routes = new RouteCollection();
-        
+
         foreach ($configuration['routes'] as $name => $routeParameters) {
             $route = new Route($routeParameters['route']['pattern'], array(), array(), $routeParameters, '', array(), $routeParameters['route']['methods']);
             $routes->add($name, $route);
         }
-        
+
         return $routes;
     }
 }

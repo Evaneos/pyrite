@@ -5,39 +5,50 @@ namespace Pyrite\Stack;
 use DICIT\Container;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\TerminableInterface;
+
+use Pyrite\Response\ResponseBag;
 
 class Controller implements HttpKernelInterface, TerminableInterface
 {
     /**
      * Controller used
-     * 
+     *
      * @var object
      */
     private $controller;
-    
+
     /**
      * Method used
-     * 
+     *
      * @var string
      */
     private $method;
-    
+
     /**
-     * Controller used
-     * 
+     * Child container
+     *
      * @var HttpKernelInterface
      */
     private $app;
-    
-    public function __construct($controller, $method, HttpKernelInterface $app = null)
+
+    /**
+     * Child container
+     *
+     * @var ResponseBag
+     */
+    private $responseBag;
+
+    public function __construct(ResponseBag $responseBag, $controller, $method, HttpKernelInterface $app = null)
     {
-        $this->app        = $app;
-        $this->controller = $controller;
-        $this->method     = $method;
+        $this->app         = $app;
+        $this->controller  = $controller;
+        $this->method      = $method;
+        $this->responseBag = $responseBag;
     }
 
     /**
@@ -47,18 +58,17 @@ class Controller implements HttpKernelInterface, TerminableInterface
     {
         $method   = $this->method;
         $response = $this->controller->$method($request);
-        
-        if ($response instanceof Response) {
-            return $response;
-        }
-        
-        $request->attributes->set('_controller_data', $response);
-        
+
         if (null !== $this->app) {
             return $this->app->handle($request, $type, $catch);
         }
-        
-        throw new \RuntimeException(sprintf("No response where returned from controller %s->%s and no kernel left to play, something is missing.", get_class($this->controller), $this->method));
+
+        if ($response instanceof Response) {
+            return $response;
+        }
+        else {
+            return new Response('', 200);
+        }
     }
 
     /**

@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class Controller implements HttpKernelFactory
 {
     private $container;
-    
+
     public function __construct(Container $container)
     {
         $this->container = $container;
@@ -21,22 +21,22 @@ class Controller implements HttpKernelFactory
     /**
      * {@inheritDoc}
      */
-    public function register(HttpKernelInterface $app = null, $name = '', $parameters = array())
+    public function register(\Pyrite\Response\ResponseBag $responseBag, HttpKernelInterface $app = null, $name = '', $parameters = array())
     {
         if (!isset($parameters[0]) || !isset($parameters[1])) {
             throw new NotFoundHttpException("Controller cannot be resolved.");
         }
-        
+
         $controller = $this->container->get($parameters[0]);
         $method     = $parameters[1];
-        
+
         if (!is_callable(array($controller, $method))) {
             throw new NotFoundHttpException(sprintf("Controller defined with this parameters %s is not callable.", print_r($this->parameters, true)));
         }
-        
+
         //Register
-        $service = new ControllerStack($controller, $method, $app);
-        
+        $service = new ControllerStack($responseBag, $controller, $method, $app);
+
         return array($name, $service);
     }
 }
