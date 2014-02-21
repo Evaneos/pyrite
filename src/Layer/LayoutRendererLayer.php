@@ -23,6 +23,11 @@ class LayoutRendererLayer extends AbstractLayer implements Layer
         return null;
     }
 
+    public function __isset($key)
+    {
+        return $this->bag->has($key);
+    }
+
     public function after(ResponseBag $bag)
     {
         $this->bag = $bag;

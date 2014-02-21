@@ -3,10 +3,12 @@
 namespace Pyrite\Layer;
 
 use Pyrite\Response\ResponseBag;
-use Pyrite\Layer\Executor\Executable;
 
-class ExecutorLayer extends AbstractLayer implements Layer
+class ExecutorExtendedLayer extends AbstractLayer implements Layer
 {
+    const CONFIG_KEY_CLASS = 'class';
+    const CONFIG_KEY_METHOD = 'method';
+
     protected $container = null;
 
     public function __construct(\DICIT\Container $container)
@@ -31,10 +33,7 @@ class ExecutorLayer extends AbstractLayer implements Layer
     protected function before(ResponseBag $bag)
     {
         $class = $this->getServiceNameFromConfig();
-
-        if (!$class) {
-            throw new \RuntimeException(sprintf("A class to execute is mandatory, none given"));
-        }
+        $method = $this->getMethodFromConfig();
 
         try {
             $classInstance = $this->container->get($class);
@@ -43,11 +42,11 @@ class ExecutorLayer extends AbstractLayer implements Layer
             throw new \RuntimeException(sprintf("Couldn't load '%s' from container", $class), 500, $e);
         }
 
-        if (!($classInstance instanceof Executable)) {
-            throw new \RuntimeException(sprintf("Expecting instance of Executable, %s given", get_class($classInstance)), 500);
+        if (!method_exists($classInstance, $method)) {
+            throw new \RuntimeException(sprintf("Method '%s:%s' doesn't exist", get_class($classInstance), $method), 500);
         }
 
-        $res = $classInstance->execute($this->request, $bag);
+        $res = $classInstance->$method($this->request, $bag);
 
         if ($res) {
             $bag->set(ResponseBag::ACTION_RESULT, $res);
@@ -56,9 +55,19 @@ class ExecutorLayer extends AbstractLayer implements Layer
 
     protected function getServiceNameFromConfig()
     {
-        if (1 !== count($this->config)) {
-            throw new \RangeException(sprintf("Number of arguments mismatch in Executor Layer, %d given", count($this->config)), 500);
+        if (array_key_exists(static::CONFIG_KEY_CLASS, $this->config)) {
+            return $this->config[static::CONFIG_KEY_CLASS];
         }
-        return reset($this->config);
+
+        throw new \RuntimeException(sprintf("A class to execute is mandatory, none given"));
+    }
+
+    protected function getMethodFromConfig()
+    {
+        if (array_key_exists(static::CONFIG_KEY_METHOD, $this->config)) {
+            return $this->config[static::CONFIG_KEY_METHOD];
+        }
+
+        throw new \RuntimeException(sprintf("A method to execute is mandatory, none given"));
     }
 }

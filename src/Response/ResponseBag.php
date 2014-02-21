@@ -7,6 +7,7 @@ interface ResponseBag
 {
     const ACTION_RESULT = '_action_result';
     const HTTP_CODE = '_http_code';
+    const HEADERS = '_http_header';
     const EXCEPTION = '_exception';
     const VIEW = 'view';
 
