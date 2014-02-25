@@ -3,6 +3,7 @@
 namespace Pyrite\Factory;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use DICIT\Container;
 
 class Session implements HttpKernelFactory
 {
@@ -19,6 +20,13 @@ class Session implements HttpKernelFactory
             throw new \RuntimeException("Session must have a wrapped kernel");
         }
 
-        return array($name, new \Stack\Session($app, $parameters));
+        $start = false;
+        if (array_key_exists('start', $parameters)) {
+            if (is_scalar($parameters['start'])) {
+                $start = (bool) $parameters['start'];
+            }
+        }
+
+        return array($name, new \Pyrite\Stack\Session($app, $start));
     }
 }
