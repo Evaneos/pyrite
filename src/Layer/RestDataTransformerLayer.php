@@ -36,10 +36,19 @@ class RestDataTransformerLayer extends AbstractLayer implements Layer
     }
 
 
+    public function before(ResponseBag $bag)
+    {
+        $contentType = $this->request->getContentType();
+        switch ($contentType) {
+            case 'json':
+                $data = json_decode($this->request->getContent(), true);
+                $this->request->request->replace(is_array($data) ? $data : array());
+                break;
+        }
+    }
 
     public function after(ResponseBag $bag)
     {
-        $this->bag = $bag;
         $actionResult = $bag->get(ResponseBag::ACTION_RESULT, false);
 
         $hasResult = false !== $actionResult;
@@ -49,7 +58,7 @@ class RestDataTransformerLayer extends AbstractLayer implements Layer
         }
 
         $type = $this->acceptsByForcedTypeOrHttpAccept(array('application/json','application/xml','text/html'));
-        $data = $this->bag->get('data');
+        $data = $bag->get('data');
 
         switch ($type) {
             case 'application/xml':
