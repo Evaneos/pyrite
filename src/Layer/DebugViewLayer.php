@@ -19,7 +19,7 @@ class DebugViewLayer extends AbstractLayer implements Layer
             $this->getSession());
 
 
-        $bag->set('view', $view);
+        $bag->set('view', $bag->get('view') . $view);
     }
 
 
