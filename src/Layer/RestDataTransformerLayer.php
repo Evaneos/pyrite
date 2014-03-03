@@ -49,14 +49,6 @@ class RestDataTransformerLayer extends AbstractLayer implements Layer
 
     public function after(ResponseBag $bag)
     {
-        $actionResult = $bag->get(ResponseBag::ACTION_RESULT, false);
-
-        $hasResult = false !== $actionResult;
-
-        if (!$hasResult) {
-            return;
-        }
-
         $type = $this->acceptsByForcedTypeOrHttpAccept(array('application/json','application/xml','text/html'));
         $data = $bag->get('data');
 
@@ -75,7 +67,7 @@ class RestDataTransformerLayer extends AbstractLayer implements Layer
                 break;
         }
 
-        $bag->set('view', $view);
+        $bag->setResult($view);
     }
 
 }

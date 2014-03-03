@@ -32,6 +32,7 @@ class ExecutorExtendedLayer extends AbstractLayer implements Layer
 
     protected function before(ResponseBag $bag)
     {
+        throw new \Berthe\Exception\NotFoundException('aaa');
         $class = $this->getServiceNameFromConfig();
         $method = $this->getMethodFromConfig();
 
@@ -46,11 +47,7 @@ class ExecutorExtendedLayer extends AbstractLayer implements Layer
             throw new \RuntimeException(sprintf("Method '%s:%s' doesn't exist", get_class($classInstance), $method), 500);
         }
 
-        $res = $classInstance->$method($this->request, $bag);
-
-        if ($res) {
-            $bag->set(ResponseBag::ACTION_RESULT, $res);
-        }
+        $classInstance->$method($this->request, $bag);
     }
 
     protected function getServiceNameFromConfig()

@@ -36,12 +36,12 @@ class ViewRendererLayer extends AbstractLayer implements Layer
         $hasResult = !(false === $actionResult);
 
         if (!$hasResult && $this->hasDefaultTemplate()) {
-            $bag->set('view', $this->getDefaultTemplate());
+            $bag->setResult($this->getDefaultTemplate());
             return;
         }
 
         if ($this->hasTemplate($actionResult)) {
-            $bag->set('view', $this->getTemplate($actionResult));
+            $bag->setResult($this->getTemplate($actionResult));
             return;
         }
     }

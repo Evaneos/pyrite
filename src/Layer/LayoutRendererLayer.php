@@ -32,17 +32,17 @@ class LayoutRendererLayer extends AbstractLayer implements Layer
     {
         $this->bag = $bag;
 
-        $actionResult = $bag->get(ResponseBag::ACTION_RESULT, false);
+        $actionResult = $bag->getResult();
 
-        $hasResult = !(false === $actionResult);
+        $hasResult = !("" === $actionResult);
 
         if (!$hasResult && $this->hasDefaultTemplate()) {
-            $bag->set('view', $this->getDefaultTemplate());
+            $bag->setResult($this->getDefaultTemplate());
             return;
         }
 
         if ($this->hasTemplate($actionResult)) {
-            $bag->set('view', $this->getTemplate($actionResult));
+            $bag->setResult($this->getTemplate($actionResult));
             return;
         }
     }

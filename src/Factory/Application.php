@@ -11,15 +11,15 @@ class Application implements HttpKernelFactory
 {
     private $container;
 
-    protected $callbacks = array();
+    protected $exceptionHandlers = array();
 
     public function __construct(Container $container)
     {
         $this->container = $container;
     }
 
-    public function addCatchable($name, \Pyrite\Exception\Callback $callback) {
-        $this->callbacks[$name] = $callback;
+    public function addExceptionHandler($name, \Pyrite\Exception\ExceptionHandler $handler) {
+        $this->exceptionHandlers[$name] = $handler;
         return $this;
     }
 
@@ -29,9 +29,7 @@ class Application implements HttpKernelFactory
     public function register(HttpKernelInterface $app = null, $name = '', array $parameters = array())
     {
         //Register
-        $service = new \Pyrite\Stack\Application($this->container, $app, $parameters);
-        $service->registerCatchable($type, $callback);
-
+        $service = new \Pyrite\Stack\Application($this->container, $app, $parameters, $this->exceptionHandlers);
         $name = uniqid();
         return array($name, $service);
     }

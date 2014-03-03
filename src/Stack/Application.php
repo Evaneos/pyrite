@@ -17,12 +17,14 @@ class Application implements HttpKernelInterface, TerminableInterface
     protected $app;
     protected $container;
     protected $layers = array();
+    protected $exceptionHandlers = array();
 
-    public function __construct(Container $container, HttpKernelInterface $app = null, array $layers = array())
+    public function __construct(Container $container, HttpKernelInterface $app = null, array $layers = array(), array $exceptionHandlers = array())
     {
         $this->app = $app;
         $this->container = $container;
         $this->layers = $layers;
+        $this->exceptionHandlers = $exceptionHandlers;
     }
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
@@ -38,10 +40,16 @@ class Application implements HttpKernelInterface, TerminableInterface
                 $responseBag = $stackedLayers->handle($responseBag);
             }
             catch(\Exception $e) {
-                // recupere les exception registered
-                // boucle instanceof
-                // quand match => appeler callback associé
-                // $responseBag = $callback($e, $responseBag);
+
+                foreach($this->exceptionHandlers as $exceptionName => $handler) {
+
+                    if($e instanceof $exceptionName) {
+                        $responseBag = call_user_func_array(array($handler, "handleException"), array($e, $responseBag));       
+                    }
+
+                    break;
+                }
+
             }
         }
 

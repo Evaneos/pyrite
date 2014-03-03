@@ -1,8 +1,8 @@
 <?php
 
-namespace \Pyrite\Exception;
+namespace Pyrite\Exception;
 
-interface Callback {
+interface ExceptionHandler {
 
     public function handleException(\Exception $exception, \Pyrite\Response\ResponseBag $responseBag);
 }
