@@ -32,7 +32,6 @@ class ExecutorExtendedLayer extends AbstractLayer implements Layer
 
     protected function before(ResponseBag $bag)
     {
-        throw new \Berthe\Exception\NotFoundException('aaa');
         $class = $this->getServiceNameFromConfig();
         $method = $this->getMethodFromConfig();
 
