@@ -5,13 +5,13 @@ namespace Pyrite\Response;
 
 interface ResponseBag
 {
-    const ACTION_RESULT = '_action_result';
-    const HTTP_CODE = '_http_code';
-    const HEADERS = '_http_header';
-    const EXCEPTION = '_exception';
-    const VIEW = 'view';
-
     function set($key, $value);
     function get($key, $defaultValue = null);
     function has($key);
+
+    function setResult($value);
+    function getResult();
+
+    function setResultCode($value);
+    function getResultCode();
 }

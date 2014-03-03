@@ -12,7 +12,7 @@ use Pyrite\Response\ResponseBag;
 
 use DICIT\Container;
 
-class Application  implements HttpKernelInterface, TerminableInterface
+class Application implements HttpKernelInterface, TerminableInterface
 {
     protected $app;
     protected $container;
@@ -34,7 +34,15 @@ class Application  implements HttpKernelInterface, TerminableInterface
 
         // run them & get the response bag
         if(count($stackedLayers)) {
-            $responseBag = $stackedLayers->handle($responseBag);
+            try {
+                $responseBag = $stackedLayers->handle($responseBag);
+            }
+            catch(\Exception $e) {
+                // recupere les exception registered
+                // boucle instanceof
+                // quand match => appeler callback associé
+                // $responseBag = $callback($e, $responseBag);
+            }
         }
 
         // transform into a Response
@@ -68,14 +76,10 @@ class Application  implements HttpKernelInterface, TerminableInterface
     }
 
     protected function buildResponseFromResponseBag(ResponseBag $responseBag) {
-        $result = $responseBag->get('view', null);
+        $result = $responseBag->getResult();
+        $resultCode = $responseBag->getResultCode();
 
-        if ($result) {
-            return new Response($result, 200);
-        }
-        else {
-            return new Response('', 200);
-        }
+        return new Response($result, $resultCode);
     }
 
     public function terminate(Request $request, Response $response) {
