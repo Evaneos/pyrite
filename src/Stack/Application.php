@@ -41,15 +41,21 @@ class Application implements HttpKernelInterface, TerminableInterface
             }
             catch(\Exception $e) {
 
+                $handlerFound = false;
                 foreach($this->exceptionHandlers as $exceptionName => $handler) {
 
                     if($e instanceof $exceptionName) {
-                        $responseBag = call_user_func_array(array($handler, "handleException"), array($e, $responseBag));       
+                        $handlerFound = true;
+                        $responseBag = call_user_func_array(array($handler, "handleException"), array($e, $responseBag));
+
+                        break;
                     }
 
-                    break;
                 }
 
+                if(!$handlerFound) {
+                    throw $e;
+                }
             }
         }
 
