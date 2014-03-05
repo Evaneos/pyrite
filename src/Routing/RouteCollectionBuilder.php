@@ -35,7 +35,16 @@ class RouteCollectionBuilder
         $routes = new RouteCollection();
 
         foreach ($configuration['routes'] as $name => $routeParameters) {
-            $route = new Route($routeParameters['route']['pattern'], array(), array(), $routeParameters, '', array(), $routeParameters['route']['methods']);
+            $route = new Route(
+                    $routeParameters['route']['pattern'],
+                    array(),
+                    array_key_exists('regexp', $routeParameters['route']) ? $routeParameters['route']['regexp'] : array(),
+                    $routeParameters,
+                    '',
+                    array(),
+                    $routeParameters['route']['methods'],
+                    null
+            );
             $routes->add($name, $route);
         }
 
