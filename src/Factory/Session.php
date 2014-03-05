@@ -3,7 +3,7 @@
 namespace Pyrite\Factory;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use DICIT\Container;
+use Pyrite\Container\Container;
 
 class Session implements HttpKernelFactory
 {

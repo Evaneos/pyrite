@@ -2,8 +2,6 @@
 
 namespace Pyrite\Stack;
 
-use DICIT\Container;
-
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Cookie;

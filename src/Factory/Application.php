@@ -2,7 +2,7 @@
 
 namespace Pyrite\Factory;
 
-use DICIT\Container;
+use Pyrite\Container\Container;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

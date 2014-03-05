@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 
 use Pyrite\Response\ResponseBag;
 
-use DICIT\Container;
+use Pyrite\Container\Container;
 
 class Application implements HttpKernelInterface, TerminableInterface
 {

@@ -2,6 +2,7 @@
 
 namespace Pyrite\Layer;
 
+use Pyrite\Container\Container;
 use Pyrite\Response\ResponseBag;
 use Pyrite\Layer\Executor\Executable;
 
@@ -9,7 +10,7 @@ class ExecutorLayer extends AbstractLayer implements Layer
 {
     protected $container = null;
 
-    public function __construct(\DICIT\Container $container)
+    public function __construct(Container $container)
     {
         $this->container = $container;
     }

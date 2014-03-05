@@ -3,6 +3,7 @@
 namespace Pyrite\Layer;
 
 use Pyrite\Response\ResponseBag;
+use Pyrite\Container\Container;
 
 class ExecutorExtendedLayer extends AbstractLayer implements Layer
 {
@@ -11,7 +12,7 @@ class ExecutorExtendedLayer extends AbstractLayer implements Layer
 
     protected $container = null;
 
-    public function __construct(\DICIT\Container $container)
+    public function __construct(Container $container)
     {
         $this->container = $container;
     }

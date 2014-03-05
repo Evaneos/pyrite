@@ -2,9 +2,7 @@
 
 namespace Pyrite\Kernel;
 
-use DICIT\Config\YML;
-use DICIT\Config\PHP;
-use DICIT\Container;
+use Pyrite\Container\Container;
 
 use Pyrite\Config\NullConfig;
 use Pyrite\Factory\StackedHttpKernel;
@@ -64,23 +62,13 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     private $stack = null;
 
-    public function __construct($routingPath, $containerPath = null, $debug = false)
+    public function __construct(RouteCollection $routeCollection, Container $container, $debug = false)
     {
         Debug::enable(null, $debug);
 
-        $config = new NullConfig();
-
-        if (null !== $containerPath && preg_match('/.*yml$/', $containerPath)) {
-            $config = new YML($containerPath);
-        }
-
-        if (null !== $containerPath && preg_match('/.*php$/', $containerPath)) {
-            $config = new PHP($containerPath);
-        }
-
-        $this->container       = new Container($config);
+        $this->container       = $container;
         $this->debug           = $debug;
-        $this->routeCollection = $this->buildRouteCollection($routingPath);
+        $this->routeCollection = $routeCollection;
     }
 
     /**
@@ -125,10 +113,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      *
      * Utility function for the entrypoint of your application, only use when you are in a request context (from a webserver)
      */
-    public static function boot($routingPath, $containerPath = null, $debug = false) {
+    public static function boot($routingPath, Container $container, $debug = false) {
         try {
             $exceptionHandler = new ExceptionHandler($debug);
-            $kernel = new self($routingPath, $containerPath, $debug);
+            $kernel = new self($routingPath, $container, $debug);
 
             $request  = Request::createFromGlobals();
             $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
@@ -163,31 +151,5 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $dispatch);
 
         return $stack;
-    }
-
-    /**
-     * Build a route collection from a config file
-     *
-     * @param string $routingPath Path to routing
-     *
-     * @return RouteCollection A collection of routes
-     */
-    protected function buildRouteCollection($routingPath)
-    {
-        //@TODO Caching
-        $config = new YML($routingPath);
-        $configuration = $config->load();
-
-        //@TODO Validation ?
-
-        //Build route collection
-        $routes = new RouteCollection();
-
-        foreach ($configuration['routes'] as $name => $routeParameters) {
-            $route = new Route($routeParameters['route']['pattern'], array(), array(), $routeParameters, '', array(), $routeParameters['route']['methods']);
-            $routes->add($name, $route);
-        }
-
-        return $routes;
     }
 }
