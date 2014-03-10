@@ -7,7 +7,17 @@ use Pyrite\Container\Container;
 use Pyrite\Config\NullConfig;
 use Pyrite\Factory\StackedHttpKernel;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
+use Monolog\Logger;
+use Monolog\Handler\ErrorLogHandler;
+
+use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\Debug\Debug;
+use Symfony\Component\Debug\ExceptionHandler;
+
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +35,6 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\Debug\ExceptionHandler;
 
 /**
  * PyriteKernel
@@ -42,18 +51,21 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     private $routeCollection;
 
     /**
-     * Debug mode (default is false)
-     *
-     * @var debug
-     */
-    private $debug = false;
-
-    /**
      * DIC
      *
      * @var Container
      */
     private $container;
+
+    /**
+     * @var Pyrite\Exception\UncaughtExceptionRenderer
+     */
+    private $uncaughtRenderer;
+
+    /**
+     * @var Pyrite\Exception\ErrorHandler
+     */
+    private $errorHandler;
 
     /**
      * Stacked kernel
@@ -62,19 +74,20 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     private $stack = null;
 
-    public function __construct(RouteCollection $routeCollection, Container $container, $debug = false)
+    public function __construct(RouteCollection $routeCollection, Container $container)
     {
-        Debug::enable(null, $debug);
+        // Debug::enable(null, $debug);
 
         $this->container       = $container;
-        $this->debug           = $debug;
         $this->routeCollection = $routeCollection;
+        $this->logger          = new NullLogger();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true) {
+    public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+    {
         $context  = new RequestContext();
         $context->fromRequest($request);
 
@@ -108,15 +121,49 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         }
     }
 
+    protected function configureErrors()
+    {
+        $uncaughtRenderer = $this->configOnCrashOutput();
+        $errorHandler = $this->configPhpErrors($uncaughtRenderer);
+    }
+
+    private function configPhpErrors(\Pyrite\Exception\UncaughtExceptionRenderer $renderer = null)
+    {
+        try {
+            $this->errorHandler = $this->container->get("AppErrorHandler");
+        }
+        catch(\Exception $e) {
+            $this->errorHandler = new \Pyrite\Exception\ErrorHandlerImpl(0, false);
+            $this->errorHandler->setOnFatalRenderer($renderer);
+        }
+
+        $this->errorHandler->enable();
+
+        return $this->errorHandler;
+    }
+
+    private function configOnCrashOutput()
+    {
+        try {
+            $this->uncaughtRenderer = $this->container->get("AppOnCrashHandler");
+        }
+        catch(\Exception $e) {
+            $this->uncaughtRenderer = new \Pyrite\Exception\UncaughtExceptionRendererImpl(false);
+        }
+
+        return $this->uncaughtRenderer;
+    }
+
     /**
      * Load kernel, handle a request from a webserver and send the response
      *
      * Utility function for the entrypoint of your application, only use when you are in a request context (from a webserver)
      */
-    public static function boot($routingPath, Container $container, $debug = false) {
+    public static function boot($routingPath, Container $container)
+    {
         try {
-            $exceptionHandler = new ExceptionHandler($debug);
-            $kernel = new self($routingPath, $container, $debug);
+            $kernel = new self($routingPath, $container);
+            $kernel->configureErrors();
 
             $request  = Request::createFromGlobals();
             $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
@@ -126,8 +173,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             if ($kernel instanceof TerminableInterface) {
                 $kernel->terminate($request, $response);
             }
-        } catch (\Exception $exception) {
-            $exceptionHandler->createResponse($exception)->send();
+        }
+        catch (\Exception $exception) {
+            $kernel->uncaughtRenderer->render($exception);
         }
     }
 
