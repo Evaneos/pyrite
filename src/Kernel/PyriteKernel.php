@@ -159,13 +159,12 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      *
      * Utility function for the entrypoint of your application, only use when you are in a request context (from a webserver)
      */
-    public static function boot($routingPath, Container $container)
+    public static function boot(Request $request, RouteCollection $routeCollection, Container $container)
     {
         try {
-            $kernel = new self($routingPath, $container);
+            $kernel = new self($routeCollection, $container);
             $kernel->configureErrors();
 
-            $request  = Request::createFromGlobals();
             $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
 
             $response->send();
