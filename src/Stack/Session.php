@@ -43,14 +43,15 @@ class Session implements HttpKernelInterface, TerminableInterface
         $session = new SymfonySession();
         $request->setSession($session);
 
-        $cookies = $request->cookies;
-        if ($cookies->has($session->getName())) {
-            $session->setId($cookies->get($session->getName()));
-        } else {
-            $session->migrate(false);
-        }
-
         if ($this->start) {
+            $cookies = $request->cookies;
+            if ($cookies->has($session->getName())) {
+                $session->setId($cookies->get($session->getName()));
+            } else {
+                //starts the session if no session exists
+                $session->migrate(false);
+            }
+        
             $session->start();
         }
 
