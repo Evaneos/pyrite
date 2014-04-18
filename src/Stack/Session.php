@@ -25,11 +25,22 @@ class Session implements HttpKernelInterface, TerminableInterface
      * @var boolean
      */
     protected $start = false;
-
-    public function __construct(HttpKernelInterface $app, $start = false)
+    /**
+     * @var array
+     */
+    protected $cookieParams= null;
+    
+    /**
+     * 
+     * @param HttpKernelInterface $app
+     * @param string $start
+     * @param string $cookieDomain
+     */
+    public function __construct(HttpKernelInterface $app, $start = false, array $cookieParams = array())
     {
         $this->app = $app;
         $this->start = $start;
+        $this->cookieDomain = $cookieParams;
     }
 
     /**
@@ -61,8 +72,11 @@ class Session implements HttpKernelInterface, TerminableInterface
             $session->save();
             $params = array_merge(
                 session_get_cookie_params(),
-                array() // @TODO store in config parameters
+                $this->cookieDomain
             );
+            if (array_key_exists('domain', $this->cookieDomain)) {
+                $response->headers->clearCookie($session->getName());
+            }
             $cookie = new Cookie(
                 $session->getName(),
                 $session->getId(),
