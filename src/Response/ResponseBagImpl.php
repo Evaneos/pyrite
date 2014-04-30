@@ -9,6 +9,7 @@ class ResponseBagImpl implements ResponseBag
     protected $errors = array();
     protected $result = "";
     protected $resultCode = 200;
+    protected $headers = array();
 
     public function set($key, $value)
     {
@@ -49,5 +50,15 @@ class ResponseBagImpl implements ResponseBag
     public function getResultCode()
     {
         return $this->resultCode;
+    }
+
+    public function addHeader($value)
+    {
+        $this->headers[] = $value;
+    }
+
+    public function getHeaders()
+    {
+        return $this->headers;
     }
 }
