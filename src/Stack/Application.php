@@ -92,8 +92,9 @@ class Application implements HttpKernelInterface, TerminableInterface
     protected function buildResponseFromResponseBag(ResponseBag $responseBag) {
         $result = $responseBag->getResult();
         $resultCode = $responseBag->getResultCode();
+        $headers = $responseBag->getHeaders();
 
-        return new Response($result, $resultCode);
+        return new Response($result, $resultCode, $headers);
     }
 
     public function terminate(Request $request, Response $response) {
