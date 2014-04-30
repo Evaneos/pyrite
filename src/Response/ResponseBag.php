@@ -17,6 +17,6 @@ interface ResponseBag
     function setResultCode($value);
     function getResultCode();
 
-    function addHeader($value);
+    function addHeader($key, $value);
     function getHeaders();
 }

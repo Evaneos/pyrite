@@ -52,9 +52,9 @@ class ResponseBagImpl implements ResponseBag
         return $this->resultCode;
     }
 
-    public function addHeader($value)
+    public function addHeader($key, $value)
     {
-        $this->headers[] = $value;
+        $this->headers[$key] = $value;
     }
 
     public function getHeaders()
