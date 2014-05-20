@@ -29,9 +29,9 @@ class Session implements HttpKernelInterface, TerminableInterface
      * @var array
      */
     protected $cookieParams= null;
-    
+
     /**
-     * 
+     *
      * @param HttpKernelInterface $app
      * @param string $start
      * @param string $cookieDomain
@@ -62,7 +62,7 @@ class Session implements HttpKernelInterface, TerminableInterface
                 //starts the session if no session exists
                 $session->migrate(false);
             }
-        
+
             $session->start();
         }
 
@@ -97,8 +97,5 @@ class Session implements HttpKernelInterface, TerminableInterface
      */
     public function terminate(Request $request, Response $response)
     {
-        if (null !== $this->controller && $this->controller instanceof TerminableInterface) {
-            $this->controller->terminate($request, $response);
-        }
     }
 }
