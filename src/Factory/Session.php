@@ -20,6 +20,8 @@ class Session implements HttpKernelFactory
             throw new \RuntimeException("Session must have a wrapped kernel");
         }
 
+        $cookieParams = $this->container->getParameter('cookie', array());
+        
         $start = false;
         if (array_key_exists('start', $parameters)) {
             if (is_scalar($parameters['start'])) {
@@ -27,6 +29,6 @@ class Session implements HttpKernelFactory
             }
         }
 
-        return array($name, new \Pyrite\Stack\Session($app, $start));
+        return array($name, new \Pyrite\Stack\Session($app, $start, $cookieParams));
     }
 }
