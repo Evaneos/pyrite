@@ -20,12 +20,11 @@ class OutputLayer extends AbstractLayer
     public function after(ResponseBag $bag)
     {
         $format = $bag->get('format');
-        $data = $bag->get('data');
 
         $builder = isset($this->outputBuilders[$format]) ? $this->outputBuilders[$format] : $this->defaultOutputBuilder;
 
-        $data = $builder->buildOutput($data);
-        $headers = $builder->getHeaders($data);
+        $data = $builder->buildOutput($bag);
+        $headers = $builder->getHeaders($bag);
         foreach($headers as $header)
         {
             header($header);

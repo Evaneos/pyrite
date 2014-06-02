@@ -2,9 +2,11 @@
 
 namespace Pyrite\OutputBuilder;
 
+use Pyrite\Response\ResponseBag;
+
 interface OutputBuilder
 {
-    public function buildOutput($data);
+    public function buildOutput(ResponseBag $bag);
 
-    public function getHeaders($data);
+    public function getHeaders(ResponseBag $bag);
 }
