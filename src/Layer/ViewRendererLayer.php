@@ -74,4 +74,13 @@ class ViewRendererLayer extends AbstractLayer implements Layer
         }
         return null;
     }
+
+    /**
+     * Return the current ResponseBag result
+     * Usefull in templates if you want to echo a previously
+     * returned content.
+     */
+    private function render() {
+        return $this->bag->getResult();
+    }
 }
