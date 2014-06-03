@@ -68,8 +68,8 @@ class Application implements HttpKernelInterface, TerminableInterface
     protected function buildLayerStack(Request $request, array $layers = array()) {
         $layerObjects = array();
         foreach($layers as $layer => $configuration) {
-            if (strpos($layer, "[")) { // allow multiple definitions of a layer type
-                $layer = substr($layer, 0, -3);
+            if (preg_match('/\[\d+\]/', $layer)) { // allow multiple definitions of a layer type
+                $layer = substr($layer, 0, strpos($layer, "["));
             }
 
             $layerInstance = $this->container->get($layer);
