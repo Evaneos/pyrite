@@ -33,9 +33,9 @@ class ViewRendererLayer extends AbstractLayer implements Layer
 
         $actionResult = $bag->get(ResponseBag::ACTION_RESULT, false);
 
-        $hasResult = !(false === $actionResult);
+        $hasActionResult = !(false === $actionResult);
 
-        if (!$hasResult && $this->hasDefaultTemplate()) {
+        if (!$hasActionResult && $this->hasDefaultTemplate()) {
             $bag->setResult($this->getDefaultTemplate());
             return;
         }
@@ -73,5 +73,14 @@ class ViewRendererLayer extends AbstractLayer implements Layer
             return $output;
         }
         return null;
+    }
+
+    /**
+     * Return the current ResponseBag result
+     * Usefull in templates if you want to echo a previously
+     * returned content.
+     */
+    private function render() {
+        return $this->bag->getResult();
     }
 }
