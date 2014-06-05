@@ -53,26 +53,64 @@ class ViewRendererLayer extends AbstractLayer implements Layer
         return array_key_exists($name, $this->config);
     }
 
+    /**
+     * Renders the associated action result template associated to the template property
+     * Will also render a layout if:
+     * - a layout property has been defined
+     * - a layout has been defined for the module
+     * - a layout has been defined in the common module
+     *
+     * If layout property === false, then no layout will be rendered
+     */
     protected function renderResult($actionResult)
     {
-        $this->renderView($actionResult, 'template');
-        $this->renderView($actionResult, 'layout');
+        if (!$this->hasResult($actionResult)) {
+            return;
+        }
+
+        $resultConfig = $this->config[$actionResult];
+
+
+        if (array_key_exists('template', $resultConfig)) {
+            $this->renderView($resultConfig['template']);
+        }
+
+        if (array_key_exists('layout', $resultConfig)) {
+            if ($resultConfig['layout'] === false) {
+                return;
+            }
+            $this->renderView($resultConfig['layout']);
+        }
+        elseif ($this->viewForModuleExists($this->config['module'], 'layout.phtml')) {
+            $this->renderView('app/browser/' . $this->config['module'] . '/views/layout.phtml');
+        }
+        elseif ($this->viewForModuleExists('common', 'layout.phtml')) {
+            $this->renderView('app/browser/common/views/layout.phtml');
+        }
     }
 
-    protected function hasView($actionResult, $name) {
+    protected function hasActionResultProperty($actionResult, $name) {
         return $this->hasResult($actionResult) && array_key_exists($name, $this->config[$actionResult]);
     }
 
-    protected function renderView($actionResult, $name) {
-        if (!$this->hasView($actionResult, $name)) {
+    protected function viewExists($path) {
+        return file_exists($this->rootDir . $path);
+    }
+
+    protected function renderView($path) {
+        if (!$this->viewExists($path)) {
             return;
         }
 
         ob_start();
-        include $this->rootDir . $this->config[$actionResult][$name];
+        include $this->rootDir . $path;
         $output = ob_get_clean();
 
         $this->bag->setResult($output);
+    }
+
+    protected function viewForModuleExists($module, $name) {
+        return $this->viewExists('app/browser/' . $module . '/views/' . $name);
     }
 
     /**
