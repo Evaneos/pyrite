@@ -35,52 +35,49 @@ class ViewRendererLayer extends AbstractLayer implements Layer
 
         $hasActionResult = !(false === $actionResult);
 
-        if (!$hasActionResult && $this->hasDefaultTemplate()) {
-            $bag->setResult($this->getDefaultTemplate());
+        if (!$hasActionResult) {
+            $bag->renderDefaultResult();
             return;
         }
 
-        if ($this->hasTemplate($actionResult)) {
-            $bag->setResult($this->getTemplate($actionResult));
-            return;
-        }
+        $this->renderResult($actionResult);
     }
 
-    protected function hasDefaultTemplate()
+    protected function renderDefaultResult()
     {
-        return array_key_exists('default', $this->config);
+        $this->renderResult('default');
     }
 
-    protected function getDefaultTemplate()
-    {
-        if ($this->hasDefaultTemplate()) {
-            return $this->getTemplate('default');
-        }
-        return null;
-    }
-
-    protected function hasTemplate($name)
+    protected function hasResult($name)
     {
         return array_key_exists($name, $this->config);
     }
 
-    protected function getTemplate($name)
+    protected function renderResult($actionResult)
     {
-        if ($this->hasTemplate($name)) {
-            ob_start();
-            include $this->rootDir . $this->config[$name];
-            $output = ob_get_clean();
-            return $output;
+        if (!$this->hasResult($actionResult)) {
+            return;
         }
-        return null;
+
+        foreach (array_reverse($this->config[$actionResult]) as $view) {
+            $this->renderView($view);
+        }
+    }
+
+    protected function renderView($view) {
+        ob_start();
+        include $this->rootDir . $view;
+        $output = ob_get_clean();
+
+        $this->bag->setResult($output);
     }
 
     /**
-     * Return the current ResponseBag result
+     * An helper to return the current ResponseBag result
      * Usefull in templates if you want to echo a previously
      * returned content.
      */
-    private function render() {
+    private function result() {
         return $this->bag->getResult();
     }
 }
