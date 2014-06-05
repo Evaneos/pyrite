@@ -55,21 +55,18 @@ class ViewRendererLayer extends AbstractLayer implements Layer
 
     protected function renderResult($actionResult)
     {
-        $this->renderView($actionResult, 'template');
-        $this->renderView($actionResult, 'layout');
-    }
-
-    protected function hasView($actionResult, $name) {
-        return $this->hasResult($actionResult) && array_key_exists($name, $this->config[$actionResult]);
-    }
-
-    protected function renderView($actionResult, $name) {
-        if (!$this->hasView($actionResult, $name)) {
+        if (!$this->hasResult($actionResult)) {
             return;
         }
 
+        foreach (array_reverse($this->config[$actionResult]) as $view) {
+            $this->renderView($view);
+        }
+    }
+
+    protected function renderView($view) {
         ob_start();
-        include $this->rootDir . $this->config[$actionResult][$name];
+        include $this->rootDir . $view;
         $output = ob_get_clean();
 
         $this->bag->setResult($output);
