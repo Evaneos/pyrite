@@ -89,10 +89,6 @@ class ViewRendererLayer extends AbstractLayer implements Layer
         }
     }
 
-    protected function hasActionResultProperty($actionResult, $name) {
-        return $this->hasResult($actionResult) && array_key_exists($name, $this->config[$actionResult]);
-    }
-
     protected function viewExists($path) {
         return file_exists($this->rootDir . $path);
     }
