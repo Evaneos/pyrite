@@ -25,6 +25,11 @@ class ResponseBagImpl implements ResponseBag
         return $defaultValue;
     }
 
+    public function getAll()
+    {
+        return $this->data;
+    }
+
     public function has($key)
     {
         return array_key_exists($key, $this->data);
