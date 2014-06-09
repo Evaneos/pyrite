@@ -69,6 +69,6 @@ classes:
             registerEngine: [ @TwigTemplateEngine, 'twig' ]
     TwigTemplateEngine:
         class: Pyrite\Templating\TwigEngine
-        arguments: [ %root_dir ]
+        arguments: [ $container ]
 
 

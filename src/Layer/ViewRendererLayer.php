@@ -49,8 +49,7 @@ class ViewRendererLayer extends AbstractLayer implements Layer
         }
 
         if ($this->hasTemplate($actionResult)) {
-            echo $result = $this->renderTemplate($actionResult);
-            $bag->setResult($result);
+            $bag->setResult($this->renderTemplate($actionResult));
             return;
         }
     }
