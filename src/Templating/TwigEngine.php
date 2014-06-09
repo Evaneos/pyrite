@@ -6,8 +6,6 @@ use Pyrite\Container\Container;
 use Pyrite\Response\ResponseBag;
 use Pyrite\Templating\Twig\Extension;
 
-require_once __DIR__ . '/../../vendor/twig/twig/lib/Twig/Autoloader.php';
-
 class TwigEngine implements Engine
 {
     private $twig;
