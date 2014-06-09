@@ -1,0 +1,74 @@
+classes:
+    RemoteActivator:
+        class: \DICIT\Activators\RemoteActivator
+        arguments: [ ]
+
+    #########################
+    # PYRITE Configuration
+    #########################
+
+    # Stack Factories
+    PyriteSessionFactory:
+        class: \Pyrite\Factory\Session
+        arguments: [ $container ]
+    PyriteApplicationFactory:
+        class: \Pyrite\Factory\Application
+        arguments: [ $container ]
+        call:
+            addExceptionHandler[0]: [ \Exception, @ExceptionFallbackCallback ]
+
+    # Exceptions
+    AccessDeniedExceptionCallback:
+        class: \Trolamine\Core\Exception\Handler\AccessDeniedExceptionHandler
+    ExceptionFallbackCallback:
+        class: \Evaneos\Pro\Exception\Handlers\FallbackExceptionHandler
+
+    #########################
+    # PYRITE - LAYERS CONFIG
+    #########################
+
+    PyriteResponseBag:
+        class: \Pyrite\Response\ResponseBagImpl
+
+    # LAYERS
+    ViewRenderer:
+        class: \Pyrite\Layer\ViewRendererLayer
+        arguments: [ @TemplateRenderer ]
+        call:
+            setRootDir: [ %root_dir ]
+    Executor:
+        class: \Pyrite\Layer\ExecutorLayer
+        arguments: [ $container ]
+
+    #########################
+    # REST PARAMETERS
+    #########################
+    FormatTransformer:
+        class: Pyrite\ParameterTransformer\FormatTransformer
+
+
+    #########################
+    # OUTPUT BUILDERS
+    #########################
+    JsonOutputBuilder:
+        class: Pyrite\OutputBuilder\JsonOutputBuilder
+    HtmlOutputBuilder:
+        class: Pyrite\OutputBuilder\HtmlOutputBuilder
+    XmlOutputBuilder:
+        class: Pyrite\OutputBuilder\XmlOutputBuilder
+    JsonOutputBuilder:
+        class: Pyrite\OutputBuilder\JsonOutputBuilder
+
+    #########################
+    # TEMPLATING
+    #########################
+    TemplateRenderer:
+        class: Pyrite\Templating\Renderer
+        arguments: [ %root_dir ]
+        call:
+            registerEngine: [ @TwigTemplateEngine, 'twig' ]
+    TwigTemplateEngine:
+        class: Pyrite\Templating\TwigEngine
+        arguments: [ $container ]
+
+

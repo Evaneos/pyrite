@@ -1,0 +1,23 @@
+classes:
+    AppErrorHandler:
+        class: \Pyrite\Exception\ErrorHandlerImpl
+        arguments: [ 0, true ] # minimum level (taken from constant E_*), 2nd parameter to enable or disable conversion of errors into Exceptions
+        singleton: true
+        call:
+            setLogger: [ @AppLogger ]
+            setOnFatalRenderer: [ @AppOnCrashHandler ]
+    AppOnCrashHandler:
+        class: \Pyrite\Exception\SymfonyUncaughtExceptionRendererAdapter
+        arguments: [ true ] # true to enable StackTrace
+        singleton: true
+        call:
+            setLogger: [ @AppLogger ]
+    AppLogger:
+        class: \Monolog\Logger
+        singleton: true
+        arguments: [ 'APP' ]
+        call:
+            pushHandler: [ @AppLoggerHandler ]
+    AppLoggerHandler:
+        class: \Monolog\Handler\ErrorLogHandler
+        arguments: [ 0, 100 ]

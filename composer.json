@@ -27,7 +27,9 @@
         "symfony/http-kernel": "~2.4.0",
         "symfony/routing": "~2.4.0",
         "symfony/yaml": "2.5.x-dev",
-        "symfony/debug": "~2.4.0"
+        "symfony/debug": "~2.4.0",
+        "monolog/monolog": "1.7.0",
+        "twig/twig": "1.*"
     },
     "require-dev": {
         "stack/session": "dev-master"

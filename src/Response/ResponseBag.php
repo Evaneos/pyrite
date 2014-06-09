@@ -6,9 +6,10 @@ namespace Pyrite\Response;
 interface ResponseBag
 {
     const ACTION_RESULT = 'ACTION_RESULT';
-    
+
     function set($key, $value);
     function get($key, $defaultValue = null);
+    function getAll();
     function has($key);
 
     function setResult($value);

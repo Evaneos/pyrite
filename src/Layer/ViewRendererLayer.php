@@ -3,10 +3,18 @@
 namespace Pyrite\Layer;
 
 use Pyrite\Response\ResponseBag;
+use Pyrite\Templating\Renderer;
 
 class ViewRendererLayer extends AbstractLayer implements Layer
 {
     protected $rootDir = null;
+
+    private $templateRenderer;
+
+    public function __construct(Renderer $templateRenderer)
+    {
+        $this->templateRenderer = $templateRenderer;
+    }
 
     public function setRootDir($rootDir)
     {
@@ -41,7 +49,7 @@ class ViewRendererLayer extends AbstractLayer implements Layer
         }
 
         if ($this->hasTemplate($actionResult)) {
-            $bag->setResult($this->getTemplate($actionResult));
+            $bag->setResult($this->renderTemplate($actionResult));
             return;
         }
     }
@@ -54,7 +62,7 @@ class ViewRendererLayer extends AbstractLayer implements Layer
     protected function getDefaultTemplate()
     {
         if ($this->hasDefaultTemplate()) {
-            return $this->getTemplate('default');
+            return $this->renderTemplate('default');
         }
         return null;
     }
@@ -64,23 +72,11 @@ class ViewRendererLayer extends AbstractLayer implements Layer
         return array_key_exists($name, $this->config);
     }
 
-    protected function getTemplate($name)
+    protected function renderTemplate($name)
     {
         if ($this->hasTemplate($name)) {
-            ob_start();
-            include $this->rootDir . $this->config[$name];
-            $output = ob_get_clean();
-            return $output;
+            return $this->templateRenderer->render($this->config[$name], $this->bag);
         }
         return null;
-    }
-
-    /**
-     * Return the current ResponseBag result
-     * Usefull in templates if you want to echo a previously
-     * returned content.
-     */
-    private function render() {
-        return $this->bag->getResult();
     }
 }
