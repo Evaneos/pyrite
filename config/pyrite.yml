@@ -18,10 +18,8 @@ classes:
             addExceptionHandler[0]: [ \Exception, @ExceptionFallbackCallback ]
 
     # Exceptions
-    AccessDeniedExceptionCallback:
-        class: \Trolamine\Core\Exception\Handler\AccessDeniedExceptionHandler
     ExceptionFallbackCallback:
-        class: \Evaneos\Pro\Exception\Handlers\FallbackExceptionHandler
+        class: \Pyrite\Exception\FallbackExceptionHandler
 
     #########################
     # PYRITE - LAYERS CONFIG
