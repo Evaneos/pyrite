@@ -1,60 +1,44 @@
-classes :
-    #########################
-    # DICIT Configuration
-    #########################
-    RemoteActivator :
+classes:
+    RemoteActivator:
         class: \DICIT\Activators\RemoteActivator
         arguments: [ ]
-    SecurityActivator :
-        class: Trolamine\Activator\SecurityActivator
-        arguments: [ @SecuredClassFactory ]
 
     #########################
     # PYRITE Configuration
     #########################
 
     # Stack Factories
-    PyriteSessionFactory :
+    PyriteSessionFactory:
         class: \Pyrite\Factory\Session
         arguments: [ $container ]
-    PyriteApplicationFactory :
+    PyriteApplicationFactory:
         class: \Pyrite\Factory\Application
         arguments: [ $container ]
         call:
-            addExceptionHandler[0] : [ \Exception, @ExceptionFallbackCallback ]
+            addExceptionHandler[0]: [ \Exception, @ExceptionFallbackCallback ]
 
     # Exceptions
-    AccessDeniedExceptionCallback :
+    AccessDeniedExceptionCallback:
         class: \Trolamine\Core\Exception\Handler\AccessDeniedExceptionHandler
-    ExceptionFallbackCallback :
-        class: \Evaneos\Pro\Exception\Handlers\FallbackExceptionHandler
-
-    ExceptionFallbackCallback :
+    ExceptionFallbackCallback:
         class: \Evaneos\Pro\Exception\Handlers\FallbackExceptionHandler
 
     #########################
     # PYRITE - LAYERS CONFIG
     #########################
 
-    # RESPONSE BAG
-    PyriteResponseBag :
+    PyriteResponseBag:
         class: \Pyrite\Response\ResponseBagImpl
 
     # LAYERS
-    ViewRenderer :
+    ViewRenderer:
         class: \Pyrite\Layer\ViewRendererLayer
         arguments: [ @TemplateRenderer ]
         call:
             setRootDir: [ %root_dir ]
-    Executor :
+    Executor:
         class: \Pyrite\Layer\ExecutorLayer
         arguments: [ $container ]
-    AuthenticationLayer :
-        class: \Trolamine\Layer\AuthenticationLayer
-        arguments: [ @SecurityContext, authentication ]
-    AuthLayer :
-        class: \Evaneos\Pro\Layer\AuthLayer
-        arguments: [ @UserManager ]
 
     #########################
     # REST PARAMETERS
