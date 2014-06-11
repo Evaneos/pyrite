@@ -18,10 +18,8 @@ classes:
             addExceptionHandler[0]: [ \Exception, @ExceptionFallbackCallback ]
 
     # Exceptions
-    AccessDeniedExceptionCallback:
-        class: \Trolamine\Core\Exception\Handler\AccessDeniedExceptionHandler
     ExceptionFallbackCallback:
-        class: \Evaneos\Pro\Exception\Handlers\FallbackExceptionHandler
+        class: \Pyrite\Exception\FallbackExceptionHandler
 
     #########################
     # PYRITE - LAYERS CONFIG
@@ -31,6 +29,8 @@ classes:
         class: \Pyrite\Response\ResponseBagImpl
 
     # LAYERS
+    RedirectionLayer:
+        class: \Pyrite\Layer\RedirectionLayer
     ViewRenderer:
         class: \Pyrite\Layer\ViewRendererLayer
         arguments: [ @TemplateRenderer ]
