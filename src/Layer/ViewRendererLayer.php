@@ -37,11 +37,11 @@ class ViewRendererLayer extends AbstractLayer implements Layer
 
     public function after(ResponseBag $bag)
     {
-        $this->bag = $bag;
-
-        $actionResult = $bag->get(ResponseBag::ACTION_RESULT, false);
-
+        $this->bag       = $bag;
+        $actionResult    = $bag->get(ResponseBag::ACTION_RESULT, false);
         $hasActionResult = !(false === $actionResult);
+
+        $this->bag->set('request', $this->request);
 
         if (!$hasActionResult && $this->hasDefaultTemplate()) {
             $bag->setResult($this->getDefaultTemplate());
