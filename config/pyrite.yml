@@ -6,7 +6,6 @@ classes:
     #########################
     # PYRITE Configuration
     #########################
-
     # Stack Factories
     PyriteSessionFactory:
         class: \Pyrite\Factory\Session
@@ -24,13 +23,16 @@ classes:
     #########################
     # PYRITE - LAYERS CONFIG
     #########################
-
     PyriteResponseBag:
         class: \Pyrite\Response\ResponseBagImpl
 
     # LAYERS
     RedirectionLayer:
         class: \Pyrite\Layer\RedirectionLayer
+    RedirectionFromBagLayer:
+        class: \Pyrite\Layer\RedirectionFromBagLayer
+    HttpResponseCodeLayer:
+        class: \Pyrite\Layer\HttpResponseCodeLayer
     ViewRenderer:
         class: \Pyrite\Layer\ViewRendererLayer
         arguments: [ @TemplateRenderer ]
@@ -39,13 +41,15 @@ classes:
     Executor:
         class: \Pyrite\Layer\ExecutorLayer
         arguments: [ $container ]
+    ExecutorExtended :
+        class : \Pyrite\Layer\ExecutorExtendedLayer
+        arguments : [ $container ]
 
     #########################
     # REST PARAMETERS
     #########################
     FormatTransformer:
         class: Pyrite\ParameterTransformer\FormatTransformer
-
 
     #########################
     # OUTPUT BUILDERS
@@ -56,8 +60,6 @@ classes:
         class: Pyrite\OutputBuilder\HtmlOutputBuilder
     XmlOutputBuilder:
         class: Pyrite\OutputBuilder\XmlOutputBuilder
-    JsonOutputBuilder:
-        class: Pyrite\OutputBuilder\JsonOutputBuilder
 
     #########################
     # TEMPLATING
