@@ -31,8 +31,6 @@ classes:
         class: \Pyrite\Layer\RedirectionLayer
     RedirectionFromBagLayer:
         class: \Pyrite\Layer\RedirectionFromBagLayer
-    HttpResponseCodeLayer:
-        class: \Pyrite\Layer\HttpResponseCodeLayer
     ViewRenderer:
         class: \Pyrite\Layer\ViewRendererLayer
         arguments: [ @TemplateRenderer ]
