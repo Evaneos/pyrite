@@ -39,9 +39,9 @@ classes:
     Executor:
         class: \Pyrite\Layer\ExecutorLayer
         arguments: [ $container ]
-    ExecutorExtended :
-        class : \Pyrite\Layer\ExecutorExtendedLayer
-        arguments : [ $container ]
+    ExecutorExtended:
+        class: \Pyrite\Layer\ExecutorExtendedLayer
+        arguments: [ $container ]
 
     #########################
     # REST PARAMETERS
