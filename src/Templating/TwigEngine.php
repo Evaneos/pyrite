@@ -27,11 +27,11 @@ class TwigEngine implements Engine
         $extension->extend($this->twig);
     }
 
-    public function render($template, ResponseBag $bag)
+    public function render($template, array $data)
     {
        $template = $this->twig->loadTemplate($template);
 
-       return $template->render($bag->getAll());
+       return $template->render($data);
     }
 
 }

@@ -7,7 +7,7 @@ use Pyrite\Response\ResponseBag;
 interface Engine
 {
     /**
-     * Render a template. The ResponseBag should be exposed to the view
+     * Render a template with some data.
      */
-    function render($template, ResponseBag $bag);
+    function render($template, array $data);
 }
