@@ -37,24 +37,16 @@ class Renderer
     }
 
     /**
-     * Render a template. The ResponseBag data will be exposed to the view.
-     *
-     * @param string        $template   template path
-     * @param ResponseBag   $bag        the response bag.
-     */
-    public function render($template, ResponseBag $bag)
-    {
-        $this->render($template, $bag->getAll());
-    }
-
-    /**
      * Render a template
      *
      * @param string        $template   template path
      * @param array         $data       data passed to the view
      */
-    public function render($template, array $data)
-    {
+    public function render($template, array $data) {
+        if (is_a($data, 'Pyrite\Response\ResponseBag')) {
+            $data = $data->getAll();
+        }
+
         $this->checkTemplatePath($template);
 
         $extension = $this->getTemplateExtension($template);
@@ -64,6 +56,7 @@ class Renderer
         }
 
         $engine = $this->supportedExtensions[$extension];
+
         return $engine->render($template, $data);
     }
 
