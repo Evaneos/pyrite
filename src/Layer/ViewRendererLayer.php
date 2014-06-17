@@ -75,7 +75,7 @@ class ViewRendererLayer extends AbstractLayer implements Layer
     protected function renderTemplate($name)
     {
         if ($this->hasTemplate($name)) {
-            return $this->templateRenderer->render($this->config[$name], $this->bag);
+            return $this->templateRenderer->render($this->config[$name], $this->bag->getAll());
         }
         return null;
     }
