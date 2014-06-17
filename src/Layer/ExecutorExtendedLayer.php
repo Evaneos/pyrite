@@ -47,7 +47,11 @@ class ExecutorExtendedLayer extends AbstractLayer implements Layer
             throw new \RuntimeException(sprintf("Method '%s:%s' doesn't exist", get_class($classInstance), $method), 500);
         }
 
-        $classInstance->$method($this->request, $bag);
+        $res = $classInstance->$method($this->request, $bag);
+
+        if ($res) {
+            $bag->set(ResponseBag::ACTION_RESULT, $res);
+        }
     }
 
     protected function getServiceNameFromConfig()

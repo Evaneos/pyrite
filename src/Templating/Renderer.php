@@ -3,6 +3,7 @@
 namespace Pyrite\Templating;
 
 use Pyrite\Container\Container;
+use Pyrite\Exception\TemplateNotFoundException;
 use Pyrite\Response\ResponseBag;
 use Pyrite\Templating\Engine;
 
@@ -36,29 +37,33 @@ class Renderer
     }
 
     /**
-     * Render a template. The ResponseBag will be exposed to the view.
+     * Render a template
      *
      * @param string        $template   template path
-     * @param ResponseBag   $bag        the response bag.
+     * @param array         $data       data passed to the view
      */
-    public function render($template, ResponseBag $bag)
-    {
+    public function render($template, array $data) {
+        if (is_a($data, 'Pyrite\Response\ResponseBag')) {
+            $data = $data->getAll();
+        }
+
         $this->checkTemplatePath($template);
 
         $extension = $this->getTemplateExtension($template);
 
         if (!array_key_exists($extension, $this->supportedExtensions)) {
-            throw new \RuntimeException(sprintf("File format not supported: %s", $extension));
+            throw new TemplateNotFoundException(sprintf("File format not supported: %s", $extension));
         }
 
         $engine = $this->supportedExtensions[$extension];
-        return $engine->render($template, $bag);
+
+        return $engine->render($template, $data);
     }
 
     private function checkTemplatePath($template)
     {
         if (!file_exists($this->rootDir . $template)) {
-            throw new \RuntimeException(sprintf("Template not found: %s", $template), 500);
+            throw new TemplateNotFoundException(sprintf("Template not found: %s", $template), 500);
         }
     }
 
