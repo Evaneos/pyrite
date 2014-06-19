@@ -9,13 +9,30 @@ use Pyrite\Response\ResponseBag;
  */
 class RedirectionLayer extends AbstractLayer implements Layer
 {
+
+    /**
+     * @param  ResponseBag $responseBag
+     * @return ResponseBag
+     */
+    public function handle(ResponseBag $responseBag)
+    {
+        if (count($this->config) == 1 && array_key_exists(0, $this->config)) {
+            $this->redirect($this->config[0]);
+        } else {
+            $result = $this->aroundNext($responseBag);
+            $this->after($responseBag);
+        }
+
+        return $responseBag;
+    }
+
     public function after(ResponseBag $bag)
     {
         $actionResult    = $bag->get(ResponseBag::ACTION_RESULT, false);
         $hasActionResult = !(false === $actionResult);
 
         if ($this->hasRedirection($actionResult)) {
-            $this->redirect($actionResult);
+            $this->redirect($this->config[$actionResult]);
         }
     }
 
@@ -24,9 +41,8 @@ class RedirectionLayer extends AbstractLayer implements Layer
         return array_key_exists($actionResult, $this->config);
     }
 
-    public function redirect($actionResult)
+    public function redirect($redirectionPath)
     {
-        $redirectionPath = $this->config[$actionResult];
         header("Location:" .  $redirectionPath);
     }
 
