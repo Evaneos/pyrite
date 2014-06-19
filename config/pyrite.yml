@@ -70,5 +70,3 @@ classes:
     TwigTemplateEngine:
         class: Pyrite\Templating\TwigEngine
         arguments: [ $container ]
-
-
