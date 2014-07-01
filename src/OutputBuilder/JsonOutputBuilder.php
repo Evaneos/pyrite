@@ -13,6 +13,6 @@ class JsonOutputBuilder implements OutputBuilder {
 
     public function buildOutput(ResponseBag $bag)
     {
-        return json_encode($bag->get('data'));
+        return json_encode($bag->get('data'), JSON_NUMERIC_CHECK);
     }
 }
