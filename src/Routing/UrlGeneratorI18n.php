@@ -97,6 +97,7 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
 
     /**
      * @param  string $locale
+     *
      * @return UrlGenerator
      */
     protected function getUrlGenerator($locale)
@@ -110,6 +111,7 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
 
     /**
      * @param  string $locale
+     *
      * @return UrlGenerator
      */
     protected function buildUrlGenerator($locale)

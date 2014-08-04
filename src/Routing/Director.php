@@ -35,6 +35,7 @@ class Director
 
     /**
      * @param  RouteConfigurationBuilder $builder
+     *
      * @return RouteConfiguration
      */
     public function build(RouteConfigurationBuilder $builder)

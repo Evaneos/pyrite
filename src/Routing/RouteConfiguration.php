@@ -8,40 +8,42 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class RouteConfiguration
 {
     /**
-     * @return RouteCollection routeCollection
+     * @var RouteCollection routeCollection
      */
     protected $routeCollection;
 
     /**
-     * @return UrlGenerator urlGenerator
+     * @var UrlGeneratorInterface urlGenerator
      */
     protected $urlGenerator;
 
     /**
-     * @return RouteCollection routeCollection
+     * @return RouteCollection
      */
     public function getRouteCollection() {
         return $this->routeCollection;
     }
     /**
      * @param RouteCollection $value
+     *
      * @return RouteConfiguration
      */
-    public function setRouteCollection($value) {
+    public function setRouteCollection(RouteCollection $value) {
         $this->routeCollection = $value;
         return $this;
     }
     /**
-     * @return UrlGenerator urlGenerator
+     * @return UrlGeneratorInterface
      */
     public function getUrlGenerator() {
         return $this->urlGenerator;
     }
     /**
-     * @param UrlGenerator $value
+     * @param UrlGeneratorInterface $value
+     *
      * @return RouteConfiguration
      */
-    public function setUrlGenerator($value) {
+    public function setUrlGenerator(UrlGeneratorInterface $value) {
         $this->urlGenerator = $value;
         return $this;
     }

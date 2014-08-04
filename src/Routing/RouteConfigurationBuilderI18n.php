@@ -22,12 +22,13 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
 
     /**
      * @param string $currentLocale
-     * @param array|null $availableLocales
+     * @param array $availableLocales
      */
-    public function __construct($currentLocale, array $availableLocales = null)
+    public function __construct($currentLocale, array $availableLocales)
     {
         $this->currentLocale = $currentLocale;
         $this->availableLocales = $availableLocales;
+        $this->validateLocaleConfiguration($this->currentLocale, $this->availableLocales);
     }
 
     /**
@@ -36,7 +37,8 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     public function build()
     {
         $config = $this->buildFromFile();
-        $globalRoutingConfiguration = $this->buildLocaleObject($config->load());
+
+        $globalRoutingConfiguration = $this->buildLocalisedRoutingArray($config->load());
         $currentLocaleRoutingConfiguration = $globalRoutingConfiguration[$this->currentLocale];
         $routeCollection = RouteCollectionBuilder::build($currentLocaleRoutingConfiguration);
         $generator = $this->buildUrlGenerator($globalRoutingConfiguration);
@@ -45,6 +47,7 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
 
     /**
      * @param  array  $globalRoutingConfiguration
+     *
      * @return \Symfony\Component\Routing\Generator\UrlGeneratorInterface
      */
     protected function buildUrlGenerator(array $globalRoutingConfiguration = array())
@@ -54,56 +57,13 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
 
     /**
      * @param  array  $configuration
+     *
      * @return array
      */
-    protected function buildLocaleObject(array $configuration = array())
-    {
-        if (is_array($this->availableLocales) && count($this->availableLocales) > 0) {
-            $locales = $this->availableLocales;
-        }
-        else {
-            $locales = $this->extractLocales($configuration);
-        }
-
-        $routesByLocales = $this->extractByLocales($configuration, $locales);
-
-        $this->validateLocaleConfiguration($locales, $this->currentLocale);
-
-        return $routesByLocales;
-    }
-
-    /**
-     * When current object doesn't know locales, fetch them from the routing configuration file
-     * @param  array  $configuration
-     * @return array
-     */
-    protected function extractLocales(array $configuration = array())
-    {
-        $locales = array();
-        foreach($configuration['routes'] as $name => $parameters) {
-            if (isset($parameters['route']['pattern'])) {
-                $pattern = $parameters['route']['pattern'];
-                if (is_array($pattern)) {
-                    foreach($pattern as $locale => $p) {
-                        $locales[$locale] = null;
-                    }
-                }
-            }
-        }
-
-        return array_keys($locales);
-    }
-
-    /**
-     * Returns the routes sorted by locale, with name localised
-     * @param  array  $configuration
-     * @param  array  $locales
-     * @return array
-     */
-    protected function extractByLocales(array $configuration = array(), $locales = array())
+    protected function buildLocalisedRoutingArray(array $configuration = array())
     {
         $byLocales = array();
-        foreach($locales as $locale) {
+        foreach($this->availableLocales as $locale) {
             $byLocales[$locale] = array();
         }
 
@@ -113,14 +73,19 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
                 // Pattern changes when locale change
                 if (is_array($pattern)) {
                     foreach($pattern as $locale => $p) {
-                        $finalParameter = $parameters;
-                        $finalParameter['route']['pattern'] = $p;
-                        $byLocales[$locale][$name . '.' . $locale] = $finalParameter;
+                        if (array_key_exists($locale, $byLocales)) {
+                            $finalParameter = $parameters;
+                            $finalParameter['route']['pattern'] = $p;
+                            $byLocales[$locale][$name . '.' . $locale] = $finalParameter;
+                        }
+                        else {
+                            throw new \RuntimeException(sprintf("Route '%s' requires locale '%s' which is not registered as available locale", $name, $locale));
+                        }
                     }
                 }
                 // Same pattern for all locales
                 else {
-                    foreach($locales as $locale) {
+                    foreach($this->availableLocales as $locale) {
                         $byLocales[$locale][$name . '.' . $locale] = $parameters;
                     }
                 }
@@ -130,18 +95,25 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     }
 
     /**
-     * @param  array $locales
      * @param  string $currentLocale
+     * @param  array $locales
+     *
      * @return boolean
+     *
      * @throws RuntimeException
      */
-    protected function validateLocaleConfiguration(array $locales, $currentLocale)
+    protected function validateLocaleConfiguration($currentLocale, array $locales)
     {
-        if ($currentLocale === null && count($locales) > 1) {
-            throw new \RuntimeException('Routing configuration contains multiple locales, none provided to the router builder');
+        if (count($locales) === 0) {
+            throw new \RuntimeException("Empty locale list provided");
         }
+
         if (!in_array($currentLocale, $locales)) {
-            throw new \RuntimeException("The current locale doesn't exist in routing configuration files");
+            throw new \RuntimeException(sprintf("The current locale '%s' doesn't exist in locale list [%s]", $currentLocale, implode(',', $locales)));
+        }
+
+        if (strlen(trim($currentLocale)) == 0) {
+            throw new \RuntimeException("No current locale, can't create RouteCollection");
         }
 
         return true;

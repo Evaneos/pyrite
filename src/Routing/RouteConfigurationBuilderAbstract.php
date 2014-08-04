@@ -78,6 +78,7 @@ abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBu
     /**
      * @param  RouteCollection       $collection
      * @param  UrlGeneratorInterface $generator
+     *
      * @return RouteConfiguration
      */
     protected function buildOutput(RouteCollection $collection, UrlGeneratorInterface $generator)

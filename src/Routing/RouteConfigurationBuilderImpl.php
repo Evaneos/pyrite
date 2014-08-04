@@ -23,7 +23,9 @@ class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
 
     /**
      * @param  array  $config
+     *
      * @return array
+     *
      * @throws \RuntimeException
      */
     protected function getRouteConfigurationFromConfig(array $config = array())
@@ -38,6 +40,7 @@ class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
 
     /**
      * @param  RouteCollection $collection
+     *
      * @return \Symfony\Component\Routing\Generator\UrlGeneratorInterface
      */
     protected function buildUrlGenerator(RouteCollection $collection)
