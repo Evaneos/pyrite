@@ -27,8 +27,8 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Router;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -92,9 +92,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $context->fromRequest($request);
 
         $urlMatcher   = new UrlMatcher($this->routeCollection, $context);
-        $urlGenerator = new UrlGenerator($this->routeCollection, $context);
-
-        //@TODO Bind matcher and generator
 
         try {
             $parameters = $urlMatcher->match($request->getPathInfo());
