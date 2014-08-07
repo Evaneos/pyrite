@@ -2,39 +2,25 @@
 
 namespace Pyrite\Routing;
 
-use Pyrite\Config\NullConfig;
-use DICIT\Config\YML;
-use DICIT\Config\PHP;
-
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 
 class RouteCollectionBuilder
 {
-    public static function buildFromFile($routePath)
+    /**
+     * @param  array $routingConfiguration
+     *
+     * @return RouteCollection
+     */
+    public static function build(array $routingConfiguration = array())
     {
-        $config = new NullConfig();
-
-        if (null !== $routePath && preg_match('/.*yml$/', $routePath)) {
-            $config = new YML($routePath);
-        }
-
-        if (null !== $routePath && preg_match('/.*php$/', $routePath)) {
-            $config = new PHP($routePath);
-        }
-
-
-        return static::buildFromObject($config);
-    }
-
-
-    public static function buildFromObject(\DICIT\Config\AbstractConfig $config)
-    {
-        $configuration = $config->load();
-
         $routes = new RouteCollection();
 
-        foreach ($configuration['routes'] as $name => $routeParameters) {
+        foreach ($routingConfiguration as $name => $routeParameters) {
+            if (isset($routeParameters['route']['pattern']) && !is_string($routeParameters['route']['pattern'])) {
+                throw new \RuntimeException(sprintf("Cannot build RouteCollection, non-string pattern for route %s", $name));
+            }
+
             $route = new Route(
                     $routeParameters['route']['pattern'],
                     array(),
@@ -47,7 +33,6 @@ class RouteCollectionBuilder
             );
             $routes->add($name, $route);
         }
-
         return $routes;
     }
 }
