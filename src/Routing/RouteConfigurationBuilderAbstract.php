@@ -83,7 +83,7 @@ abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBu
      */
     protected function buildOutput(RouteCollection $collection, UrlGeneratorInterface $generator)
     {
-        $routeConfiguration = new routeConfiguration($collection, $generator);
+        $routeConfiguration = new RouteConfiguration($collection, $generator);
         return $routeConfiguration;
     }
 }
