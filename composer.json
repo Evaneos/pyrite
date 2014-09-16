@@ -7,6 +7,7 @@
             "email" : "jwurtz@jolicode.com"
         }
     ],
+
     "keywords" : [
         "frameork",
         "php",
@@ -15,20 +16,27 @@
     "license" : [
         "MIT"
     ],
+    "repositories" : [
+        {
+            "type": "vcs",
+            "url": "git@github.com:Evaneos/dic-it.git"
+        }
+    ],
+
     "autoload" : {
         "psr-4" : {
             "Pyrite\\" : "src"
         }
     },
     "require" : {
-        "oliviermadre/dic-it": "dev-master",
+        "evaneos/dic-it": "dev-master",
         "stack/builder": "~1.0.0",
         "symfony/http-foundation": "~2.4.0",
         "symfony/http-kernel": "~2.4.0",
         "symfony/routing": "~2.4.0",
         "symfony/yaml": "2.5.x-dev",
         "symfony/debug": "~2.4.0",
-        "monolog/monolog": "1.7.0",
+        "monolog/monolog": "1.11.*@dev",
         "twig/twig": "1.*"
     },
     "require-dev": {
