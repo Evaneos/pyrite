@@ -3,8 +3,8 @@
     "description" : "PHP Framework around Stack php principle",
     "type" : "library",
     "authors" : [{
-            "name" : "Joel Wurtz",
-            "email" : "jwurtz@jolicode.com"
+            "name" : "Olivier Madre",
+            "email" : "olivier@evaneos.com"
         }
     ],
 
@@ -29,7 +29,7 @@
         }
     },
     "require" : {
-        "evaneos/dic-it": "dev-master",
+        "evaneos/dic-it": "~1.0.1",
         "stack/builder": "~1.0.0",
         "symfony/http-foundation": "~2.4.0",
         "symfony/http-kernel": "~2.4.0",
