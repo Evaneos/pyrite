@@ -67,12 +67,18 @@ class Application implements HttpKernelInterface, TerminableInterface
 
     protected function buildLayerStack(Request $request, array $layers = array()) {
         $layerObjects = array();
-        foreach($layers as $layer => $configuration) {
-            if (preg_match('/\[\d+\]/', $layer)) { // allow multiple definitions of a layer type
+        foreach($layers as $layerName => $configuration) {
+            $layer = $layerName;
+            if (preg_match('/\[\d+\]/', $layerName)) { // allow multiple definitions of a layer type
                 $layer = substr($layer, 0, strpos($layer, "["));
             }
 
             $layerInstance = $this->container->get($layer);
+
+            if(!is_array($configuration)) {
+                throw new \Pyrite\Exception\BadConfigurationException(sprintf("Configuration of layer '%s' must be an array, %s given", $layerName, gettype($configuration)));
+            }
+
             $layerInstance->setConfiguration($configuration);
             $layerInstance->setRequest($request);
             $layerObjects[] = $layerInstance;
