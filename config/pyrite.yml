@@ -49,6 +49,9 @@ classes:
     FormatTransformer:
         class: Pyrite\ParameterTransformer\FormatTransformer
 
+    PyRestLayer:
+        class : Pyrite\PyRest\PyRestController
+
     #########################
     # OUTPUT BUILDERS
     #########################
