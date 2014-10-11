@@ -2,7 +2,7 @@
 
 namespace Pyrite\PyRest;
 
-class PyRestItem
+final class PyRestItem
 {
     /**
      * @var string resourceType

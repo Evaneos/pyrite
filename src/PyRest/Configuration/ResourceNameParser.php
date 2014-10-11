@@ -15,20 +15,6 @@ class ResourceNameParser implements Parser
         $this->container = $container;
     }
 
-    // protected function getServiceName($resourceName, $serviceName)
-    // {
-    //     $c = $this->container;
-    //     $definitionNameWithPlaceHolders = $c->getParameter('crud.configuration.definition_name');
-    //     $resolvedServiceName = sprintf($definitionNameWithPlaceHolders, $resourceName, $serviceName);
-
-    //     return $resolvedServiceName;
-    // }
-
-    // protected function getParentResource($resourceName)
-    // {
-    //     return $this->container->get($this->getServiceName($resourceName, 'Service'));
-    // }
-
     public function parse(Request $request)
     {
         $resourceName = $request->attributes->get('resource', null);
@@ -58,6 +44,11 @@ class ResourceNameParser implements Parser
 
         $data = $rest::getEmbeddables();
         if (array_key_exists($embed, $data)) {
+            $embedDefinitionObject = $data[$embed];
+            if ($embedDefinitionObject instanceof \Pyrite\PyRest\PyRestProperty) {
+                throw new \Pyrite\PyRest\Exception\BadRequestException("Nested route for property is forbidden");
+            }
+
             $resourceName = $data[$embed]->getResourceType();
             return $resourceName;
         }

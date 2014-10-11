@@ -55,6 +55,9 @@ class ExpectedResultTypeParser implements Parser
                 if ($data[$embed] instanceof \Pyrite\PyRest\PyRestItem) {
                     return self::ONE;
                 }
+                elseif ($data[$embed] instanceof \Pyrite\PyRest\PyRestProperty) {
+                    return self::ONE;
+                }
                 elseif ($data[$embed] instanceof \Pyrite\PyRest\PyRestCollection) {
                     return self::MANY;
                 }
