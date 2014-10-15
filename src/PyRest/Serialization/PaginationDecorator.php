@@ -30,7 +30,7 @@ class PaginationDecorator implements Serializer
 
     public function serializeMany(array $objects = array(), array $options = array())
     {
-        $data = $this->wrapped->serializeMany($objects);
+        $data = $this->wrapped->serializeMany($objects, $options);
 
         $count = count($objects);
         $totalCount = array_key_exists('total', $options) ? $options['total'] : null;
@@ -43,9 +43,9 @@ class PaginationDecorator implements Serializer
         return $out;
     }
 
-    public function serializeOne(PyRestObject $object)
+    public function serializeOne(PyRestObject $object, array $options = array())
     {
-        return $this->wrapped->serializeOne($object);
+        return $this->wrapped->serializeOne($object, $options);
     }
 
     protected function addPagination($count, $totalCount)

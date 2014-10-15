@@ -7,6 +7,11 @@ use Pyrite\PyRest\Configuration\Parser;
 
 class PyRestConfiguration
 {
+    const CONFIG_KEY_VO = 'vo';
+    const CONFIG_KEY_REST = 'rest';
+    const CONFIG_KEY_TABLE = 'table';
+
+
     protected $request = null;
     protected $parsers = array();
     protected $parsed = array();

@@ -31,7 +31,7 @@ class PyRestUrlGenerator
         return $this->urlGenerator->generate('pyrest-sub-get-all', array(
                 'filter_resource' => $parentName,
                 'filter_id' => $parentId,
-                'embed' => $embedName),
+                'nested' => $embedName),
                 $referenceType);
     }
 }

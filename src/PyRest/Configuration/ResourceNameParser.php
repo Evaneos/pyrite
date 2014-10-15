@@ -3,6 +3,8 @@
 namespace Pyrite\PyRest\Configuration;
 
 use Symfony\Component\HttpFoundation\Request;
+use Pyrite\PyRest\Exception\BadRequestException;
+use Pyrite\PyRest\PyRestProperty;
 
 class ResourceNameParser implements Parser
 {
@@ -28,14 +30,14 @@ class ResourceNameParser implements Parser
 
     protected function fetchFromNested(Request $request)
     {
-        $embed = $request->attributes->get('embed', null);
+        $embed = $request->attributes->get('nested', null);
         if (!$embed) {
-            throw new \Pyrite\PyRest\Exception\BadRequestException("Couldn't find the resourceName");
+            throw new BadRequestException("Couldn't find the requested resource name");
         }
 
         $parentResource = $request->attributes->get('filter_resource', null);
         if (!$parentResource) {
-            throw new \Pyrite\PyRest\Exception\BadRequestException("Couldn't find the resourceName of the parent");
+            throw new BadRequestException("Couldn't find the resourceName of the parent");
         }
 
         $param = $this->container->getParameter('crud.packages.' . $parentResource);
@@ -45,14 +47,16 @@ class ResourceNameParser implements Parser
         $data = $rest::getEmbeddables();
         if (array_key_exists($embed, $data)) {
             $embedDefinitionObject = $data[$embed];
-            if ($embedDefinitionObject instanceof \Pyrite\PyRest\PyRestProperty) {
-                throw new \Pyrite\PyRest\Exception\BadRequestException("Nested route for property is forbidden");
+            if ($embedDefinitionObject instanceof PyRestProperty) {
+                throw new BadRequestException("Nested route for property is forbidden");
             }
 
             $resourceName = $data[$embed]->getResourceType();
             return $resourceName;
         }
+        else {
+            throw new BadRequestException(sprintf("Couldn't find the resource name of '%s' under '%s', maybe not declared as embed of that resource ?", $embed, $parentResource));
+        }
 
-        throw new \Pyrite\PyRest\Exception\BadRequestException("Couldn't find the resourceName of the parent");
     }
 }

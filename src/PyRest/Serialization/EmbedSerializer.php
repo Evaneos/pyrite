@@ -18,24 +18,35 @@ class EmbedSerializer implements Serializer
 
     public function serializeMany(array $objects = array(), array $options = array())
     {
+
         $out = array();
         foreach($objects as $object) {
-            $serialized = $this->serializeOne($object);
+            $serialized = $this->serializeOne($object, $options);
             $out[] = $serialized;
         }
         return $out;
     }
 
-    public function serializeOne(PyRestObject $object)
+    public function serializeOne(PyRestObject $object, array $options = array())
     {
         $serialized = $object->transform();
         $embeds = $object->getEmbeds();
         foreach($embeds as $embedName => $embed) {
             $serialized[$embedName] = $this->serializeOne($embed);
         }
+
+        if(array_key_exists(Serializer::OPTS_VERBOSITY, $options) && (bool)$options[Serializer::OPTS_VERBOSITY]) {
+            $serialized = $this->decorate($object, $serialized);
+        }
+
+        return $serialized;
+    }
+
+    protected function decorate(PyRestObject $object, $serialized)
+    {
         $out = array('data' => $serialized, 'meta' => array());
 
-        if ($object instanceof \Pyrite\PyRest\PyRestObjectPrimitive) {
+        if ($object instanceof PyRestObjectPrimitive) {
             return reset($serialized);
         }
         else {
