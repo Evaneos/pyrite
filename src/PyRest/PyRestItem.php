@@ -20,4 +20,9 @@ final class PyRestItem
     {
         $this->resourceType = $resourceType;
     }
+
+    public function __toString()
+    {
+        return 'item';
+    }
 }

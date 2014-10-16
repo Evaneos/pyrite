@@ -18,7 +18,6 @@ class EmbedSerializer implements Serializer
 
     public function serializeMany(array $objects = array(), array $options = array())
     {
-
         $out = array();
         foreach($objects as $object) {
             $serialized = $this->serializeOne($object, $options);
@@ -32,11 +31,14 @@ class EmbedSerializer implements Serializer
         $serialized = $object->transform();
         $embeds = $object->getEmbeds();
         foreach($embeds as $embedName => $embed) {
-            $serialized[$embedName] = $this->serializeOne($embed);
+            $serialized[$embedName] = $this->serializeOne($embed, $options);
         }
 
         if(array_key_exists(Serializer::OPTS_VERBOSITY, $options) && (bool)$options[Serializer::OPTS_VERBOSITY]) {
             $serialized = $this->decorate($object, $serialized);
+        }
+        else {
+            $serialized = array('data' => $serialized);
         }
 
         return $serialized;

@@ -15,6 +15,8 @@ use Pyrite\PyRest\Configuration\VerbosityParser;
 use Pyrite\PyRest\Serialization\Serializer;
 use Pyrite\PyRest\Serialization\PaginationDecorator;
 
+use EVFramework\Generator\Configuration\DefinitionHelper;
+
 use Symfony\Component\HttpFoundation\Request;
 
 class PyRestController extends AbstractLayer
@@ -80,10 +82,9 @@ class PyRestController extends AbstractLayer
         $embeds = $config->getConfig(EmbedParser::NAME);
 
         $builder = $this->getBertheRESTBuilder($resourceName);
+        $resultREST = $builder->convertAll($result, $resourceName, $embeds);
 
-        list($converted, , ) = $builder->convertAll($result, $embeds);
-
-        return array_values($converted);
+        return array_values($resultREST);
     }
 
     public function getAll(ResponseBag $bag)
@@ -134,17 +135,37 @@ class PyRestController extends AbstractLayer
 
     protected function resourceInspector($resourceName)
     {
-        return array(
-            'embeds' => array('truc', 'bidule'),
-            'filters' => array('id', 'name', 'machin', 'chose'),
-            'sorts' => array('id')
-        );
+        $config = $this->pyRestConfiguration;
+        $resourceName = $config->getConfig(ResourceNameParser::NAME);
+        $embeds = $config->getConfig(EmbedParser::NAME);
+
+        $builder = $this->getBertheRESTBuilder($resourceName);
+        // @TODO remove that coupling to EVFramework, Pyrite must not have any dependency to any higher level component
+        $impl = DefinitionHelper::getClassImplementation($this->container, $resourceName, 'REST', null);
+        $embeddables = $impl::getEmbeddables();
+
+        $out = array();
+        foreach($embeddables as $embedName => $typeObject) {
+            switch(true) {
+                case $typeObject instanceof \Pyrite\PyRest\PyRestProperty :
+                    $out[$embedName] = (string)$typeObject;
+                    break;
+                case $typeObject instanceof \Pyrite\PyRest\PyRestItem :
+                case $typeObject instanceof \Pyrite\PyRest\PyRestCollection :
+                    $out[$embedName] = array('type' => (string)$typeObject,
+                                             'resource' => $typeObject->getResourceType());
+                    break;
+            }
+
+        }
+        return $out;
     }
 
     public function optionsGetAll(ResponseBag $bag)
     {
         $this->pyRestConfiguration->parseRequest($this->request);
-        $bag->set('data', $this->resourceInspector($this->pyRestConfiguration->getResourceName()));
+        $result = $this->resourceInspector($this->pyRestConfiguration->getConfig(ResourceNameParser::NAME));
+        $bag->set('data', $result);
         return $bag;
     }
 

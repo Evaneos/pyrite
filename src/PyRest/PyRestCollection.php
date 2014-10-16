@@ -19,4 +19,9 @@ final class PyRestCollection
     {
         $this->resourceType = $resourceType;
     }
+
+    public function __toString()
+    {
+        return 'collection';
+    }
 }
