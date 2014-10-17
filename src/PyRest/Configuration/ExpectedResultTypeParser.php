@@ -4,9 +4,9 @@ namespace Pyrite\PyRest\Configuration;
 
 use Symfony\Component\HttpFoundation\Request;
 use Pyrite\PyRest\PyRestConfiguration;
-use Pyrite\PyRest\PyRestItem;
-use Pyrite\PyRest\PyRestProperty;
-use Pyrite\PyRest\PyRestCollection;
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestProperty;
+use Pyrite\PyRest\Type\PyRestCollection;
 
 
 class ExpectedResultTypeParser implements Parser

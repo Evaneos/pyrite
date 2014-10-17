@@ -1,6 +1,9 @@
 <?php
 namespace Pyrite\PyRest;
 
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestCollection;
+use Pyrite\PyRest\Type\PyRestProperty;
 
 abstract class PyRestObject
 {
@@ -49,16 +52,16 @@ abstract class PyRestObject
         $embeddables = static::getEmbeddables();
         if(array_key_exists($name, $embeddables)) {
             switch(true) {
-                case $embeddables[$name] instanceof \Pyrite\PyRest\PyRestItem :
+                case $embeddables[$name] instanceof PyRestItem :
                     $this->embedStorage[$name] = $object;
                     break;
-                case $embeddables[$name] instanceof \Pyrite\PyRest\PyRestCollection :
+                case $embeddables[$name] instanceof PyRestCollection :
                     if(!array_key_exists($name, $this->embedStorage)) {
                         $this->embedStorage[$name] = array();
                     }
                     $this->embedStorage[$name][] = $object;
                     break;
-                case $embeddables[$name] instanceof \Pyrite\PyRest\PyRestProperty :
+                case $embeddables[$name] instanceof PyRestProperty :
                     $this->embedStorage[$name] = $object;
                     break;
                 default :

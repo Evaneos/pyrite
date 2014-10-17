@@ -4,8 +4,8 @@ namespace Pyrite\PyRest\Serialization;
 
 use Pyrite\PyRest\PyRestObject;
 use Pyrite\PyRest\PyRestUrlGenerator;
-use Pyrite\PyRest\PyRestItem;
-use Pyrite\PyRest\PyRestProperty;
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestProperty;
 
 class EmbedSerializer implements Serializer
 {

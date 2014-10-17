@@ -1,6 +1,6 @@
 <?php
 
-namespace Pyrite\PyRest;
+namespace Pyrite\PyRest\Type;
 
 class PyRestProperty
 {

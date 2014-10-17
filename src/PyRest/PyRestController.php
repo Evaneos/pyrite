@@ -15,6 +15,11 @@ use Pyrite\PyRest\Configuration\VerbosityParser;
 use Pyrite\PyRest\Serialization\Serializer;
 use Pyrite\PyRest\Serialization\PaginationDecorator;
 
+use Pyrite\PyRest\Type\PyRestProperty;
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestCollection;
+
+
 use Symfony\Component\HttpFoundation\Request;
 
 class PyRestController extends AbstractLayer
@@ -144,11 +149,11 @@ class PyRestController extends AbstractLayer
         $out = array();
         foreach($embeddables as $embedName => $typeObject) {
             switch(true) {
-                case $typeObject instanceof \Pyrite\PyRest\PyRestProperty :
+                case $typeObject instanceof PyRestProperty :
                     $out[$embedName] = (string)$typeObject;
                     break;
-                case $typeObject instanceof \Pyrite\PyRest\PyRestItem :
-                case $typeObject instanceof \Pyrite\PyRest\PyRestCollection :
+                case $typeObject instanceof PyRestItem :
+                case $typeObject instanceof PyRestCollection :
                     $out[$embedName] = array('type' => (string)$typeObject,
                                              'resource' => $typeObject->getResourceType());
                     break;
