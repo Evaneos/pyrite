@@ -17,11 +17,11 @@ class ExpectedResultTypeParser implements Parser
     const MANY = 2;
 
 
-    protected $container;
+    protected $builderProvider;
 
-    public function __construct($container)
+    public function __construct($builderProvider)
     {
-        $this->container = $container;
+        $this->builderProvider = $builderProvider;
     }
 
     public function parse(Request $request)
@@ -51,9 +51,8 @@ class ExpectedResultTypeParser implements Parser
         $parentResource = $request->attributes->get('filter_resource', null);
 
         if ($embed && $parentResource) {
-            $param = $this->container->getParameter('crud.packages.' . $parentResource);
-            $vo = $param[PyRestConfiguration::CONFIG_KEY_VO];
-            $rest = $param[PyRestConfiguration::CONFIG_KEY_REST];
+            $builder = $this->builderProvider->getBuilder($parentResource);
+            $rest = $builder->getRESTFQCNImplementation();
 
             $data = $rest::getEmbeddables();
             if (array_key_exists($embed, $data)) {

@@ -10,11 +10,11 @@ class ResourceNameParser implements Parser
 {
     const NAME = __CLASS__;
 
-    protected $container;
+    protected $builderProvider;
 
-    public function __construct($container)
+    public function __construct($builderProvider)
     {
-        $this->container = $container;
+        $this->builderProvider = $builderProvider;
     }
 
     public function parse(Request $request)
@@ -40,8 +40,8 @@ class ResourceNameParser implements Parser
             throw new BadRequestException("Couldn't find the resourceName of the parent");
         }
 
-        $param = $this->container->getParameter('crud.packages.' . $parentResource);
-        $rest = $param['rest'];
+        $builder = $this->builderProvider->getBuilder($parentResource);
+        $rest = $builder->getRESTFQCNImplementation();
 
         $data = $rest::getEmbeddables();
         if (array_key_exists($embed, $data)) {

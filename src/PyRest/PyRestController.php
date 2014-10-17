@@ -7,6 +7,7 @@ use Pyrite\Layer\AbstractLayer;
 use Pyrite\OutputBuilder\OutputBuilder;
 
 use Pyrite\PyRest\Configuration\ResourceNameParser;
+use Pyrite\PyRest\Configuration\ResourceIdParser;
 use Pyrite\PyRest\Configuration\EmbedParser;
 use Pyrite\PyRest\Configuration\PaginationParser;
 use Pyrite\PyRest\Configuration\ExpectedResultTypeParser;
@@ -24,9 +25,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PyRestController extends AbstractLayer
 {
-    protected $pyRestConfiguration = null;
+    protected $pycfg = null;
     protected $container = null;
     protected $serializer = null;
+    protected $builderProvider = null;
+
+    public function setBuilderProvider(PyRestBuilderProvider $object)
+    {
+        $this->builderProvider = $object;
+    }
 
     public function setSerializer($serializer)
     {
@@ -35,7 +42,7 @@ class PyRestController extends AbstractLayer
 
     public function setPyRestConfiguration(PyRestConfiguration $pyRestConfiguration)
     {
-        $this->pyRestConfiguration = $pyRestConfiguration;
+        $this->pycfg = $pyRestConfiguration;
     }
 
     public function setContainer($container)
@@ -58,27 +65,12 @@ class PyRestController extends AbstractLayer
         return $bag->get('data', null);
     }
 
-    protected function getServiceName($resourceName, $serviceName)
+    public function transform(array $result = array())
     {
-        $c = $this->container;
-        $definitionNameWithPlaceHolders = $c->getParameter('crud.configuration.definition_name');
-        $resolvedServiceName = sprintf($definitionNameWithPlaceHolders, $resourceName, $serviceName);
+        $resourceName = $this->pycfg->getConfig(ResourceNameParser::NAME);
+        $embeds = $this->pycfg->getConfig(EmbedParser::NAME);
 
-        return $resolvedServiceName;
-    }
-
-    protected function getBertheRESTBuilder($resourceName)
-    {
-        return $this->container->get($this->getServiceName($resourceName, 'RESTBuilder'));
-    }
-
-    public function runRestTransformation(array $result = array())
-    {
-        $config = $this->pyRestConfiguration;
-        $resourceName = $config->getConfig(ResourceNameParser::NAME);
-        $embeds = $config->getConfig(EmbedParser::NAME);
-
-        $builder = $this->getBertheRESTBuilder($resourceName);
+        $builder = $this->builderProvider->getBuilder($resourceName);
         $resultREST = $builder->convertAll($result, $resourceName, $embeds);
 
         return array_values($resultREST);
@@ -86,16 +78,15 @@ class PyRestController extends AbstractLayer
 
     public function getAll(ResponseBag $bag)
     {
-        $config = $this->pyRestConfiguration;
-        $config->parseRequest($this->request);
-        $bag->set('__PyRestConfiguration', $config);
+        $this->pycfg->parseRequest($this->request);
+        $bag->set('__PyRestConfiguration', $this->pycfg);
 
         $result = $this->nextLayer($bag);
 
-        $resultRest = $this->runRestTransformation($result);
+        $resultRest = $this->transform($result);
 
-        $verbose = $config->getConfig(VerbosityParser::NAME, VerbosityParser::VERBOSE_YES) == VerbosityParser::VERBOSE_YES ? true : false;
-        $serializer = new PaginationDecorator($this->serializer, $this->pyRestConfiguration, $this->container->get('PyRestUrlGenerator'));
+        $verbose = $this->pycfg->getConfig(VerbosityParser::NAME, VerbosityParser::VERBOSE_YES) == VerbosityParser::VERBOSE_YES ? true : false;
+        $serializer = new PaginationDecorator($this->serializer, $this->pycfg, $this->container->get('PyRestUrlGenerator'));
         $output = $serializer->serializeMany($resultRest, array(PaginationDecorator::OPTS_TOTAL => $bag->get('count', 0),
                                                                 Serializer::OPTS_VERBOSITY => $verbose));
 
@@ -104,23 +95,39 @@ class PyRestController extends AbstractLayer
         return $bag;
     }
 
-    public function nestedAll(ResponseBag $bag)
+    public function get(ResponseBag $bag)
     {
-        $config = $this->pyRestConfiguration;
-        $config->parseRequest($this->request);
-        $bag->set('__PyRestConfiguration', $this->pyRestConfiguration);
+        $this->pycfg->parseRequest($this->request);
+        $bag->set('__PyRestConfiguration', $this->pycfg);
 
         $result = $this->nextLayer($bag);
 
-        $resultRest = $this->runRestTransformation($result);
-        $resultType = $this->pyRestConfiguration->getConfig(ExpectedResultTypeParser::NAME);
-        $verbose = $config->getConfig(VerbosityParser::NAME, VerbosityParser::VERBOSE_YES) == VerbosityParser::VERBOSE_YES ? true : false;
+        $resultRest = $this->transform(array($result));
+        $verbose = $this->pycfg->getConfig(VerbosityParser::NAME, VerbosityParser::VERBOSE_YES) == VerbosityParser::VERBOSE_YES ? true : false;
+        $output = $this->serializer->serializeOne(reset($resultRest), array(Serializer::OPTS_VERBOSITY => $verbose));
+
+        $bag->set('data', $output);
+
+        return $bag;
+    }
+
+
+    public function nestedAll(ResponseBag $bag)
+    {
+        $this->pycfg->parseRequest($this->request);
+        $bag->set('__PyRestConfiguration', $this->pycfg);
+
+        $result = $this->nextLayer($bag);
+
+        $resultRest = $this->transform($result);
+        $resultType = $this->pycfg->getConfig(ExpectedResultTypeParser::NAME);
+        $verbose = $this->pycfg->getConfig(VerbosityParser::NAME, VerbosityParser::VERBOSE_YES) == VerbosityParser::VERBOSE_YES ? true : false;
 
         if ($resultType === ExpectedResultTypeParser::ONE) {
             $output = $this->serializer->serializeOne(reset($resultRest), array(Serializer::OPTS_VERBOSITY => $verbose));
         }
         else {
-            $serializer = new PaginationDecorator($this->serializer, $this->pyRestConfiguration, $this->container->get('PyRestUrlGenerator'));
+            $serializer = new PaginationDecorator($this->serializer, $this->pycfg, $this->container->get('PyRestUrlGenerator'));
             $output = $serializer->serializeMany($resultRest, array(PaginationDecorator::OPTS_TOTAL => $bag->get('count', 0),
                                                                     Serializer::OPTS_VERBOSITY => $verbose));
         }
@@ -130,14 +137,13 @@ class PyRestController extends AbstractLayer
         return $bag;
     }
 
-    public function optionsGetAll(ResponseBag $bag)
+    public function optionsCollection(ResponseBag $bag)
     {
-        $config = $this->pyRestConfiguration;
-        $config->parseRequest($this->request);
-        $resourceName = $config->getConfig(ResourceNameParser::NAME);
-        $embeds = $config->getConfig(EmbedParser::NAME);
+        $this->pycfg->parseRequest($this->request);
+        $resourceName = $this->pycfg->getConfig(ResourceNameParser::NAME);
+        $embeds = $this->pycfg->getConfig(EmbedParser::NAME);
 
-        $builder = $this->getBertheRESTBuilder($resourceName);
+        $builder = $this->builderProvider->getBuilder($resourceName);
         $impl = $builder->getRESTFQCNImplementation();
         $embeddables = $impl::getEmbeddables();
 
@@ -150,30 +156,33 @@ class PyRestController extends AbstractLayer
                 case $typeObject instanceof PyRestItem :
                 case $typeObject instanceof PyRestCollection :
                     $result[$embedName] = array('type' => (string)$typeObject,
-                                             'resource' => $typeObject->getResourceType());
+                                                'resource' => $typeObject->getResourceType());
                     break;
             }
-
         }
 
-        $bag->set('data', $result);
+        $urlGenerator = $this->container->get('PyRestUrlGenerator');
+        $self = $urlGenerator->getCollection($resourceName);
+
+        $bag->set('data', array('meta' => array('resource' => $resourceName,
+                                                'links' => array("self" => $self),
+                                                'embeds' => $result)));
 
         return $bag;
     }
 
-    public function get(ResponseBag $bag)
+    public function optionsItem(ResponseBag $bag)
     {
-        $config = $this->pyRestConfiguration;
-        $config->parseRequest($this->request);
-        $bag->set('__PyRestConfiguration', $this->pyRestConfiguration);
+        $metaSerializer = $this->container->get('PyRestMetaSerializer');
+        $this->pycfg->parseRequest($this->request);
+        $bag->set('__PyRestConfiguration', $this->pycfg);
 
         $result = $this->nextLayer($bag);
 
-        $resultRest = $this->runRestTransformation(array($result));
-        $verbose = $config->getConfig(VerbosityParser::NAME, VerbosityParser::VERBOSE_YES) == VerbosityParser::VERBOSE_YES ? true : false;
-        $output = $this->serializer->serializeOne(reset($resultRest), array(Serializer::OPTS_VERBOSITY => $verbose));
+        $resultRest = $this->transform(array($result));
+        $output = $metaSerializer->serializeOne(reset($resultRest), array());
 
-        $bag->set('data', $output);
+        $bag->set('data', array("meta" => $output));
 
         return $bag;
     }
@@ -209,11 +218,6 @@ class PyRestController extends AbstractLayer
     }
 
     public function deleteAll(ResponseBag $bag)
-    {
-        throw new \RuntimeException('not implemented');
-    }
-
-    public function options(ResponseBag $bag)
     {
         throw new \RuntimeException('not implemented');
     }
