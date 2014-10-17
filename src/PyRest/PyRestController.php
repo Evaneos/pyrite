@@ -15,8 +15,6 @@ use Pyrite\PyRest\Configuration\VerbosityParser;
 use Pyrite\PyRest\Serialization\Serializer;
 use Pyrite\PyRest\Serialization\PaginationDecorator;
 
-use EVFramework\Generator\Configuration\DefinitionHelper;
-
 use Symfony\Component\HttpFoundation\Request;
 
 class PyRestController extends AbstractLayer
@@ -140,8 +138,7 @@ class PyRestController extends AbstractLayer
         $embeds = $config->getConfig(EmbedParser::NAME);
 
         $builder = $this->getBertheRESTBuilder($resourceName);
-        // @TODO remove that coupling to EVFramework, Pyrite must not have any dependency to any higher level component
-        $impl = DefinitionHelper::getClassImplementation($this->container, $resourceName, 'REST', null);
+        $impl = $builder->getRESTFQCNImplementation();
         $embeddables = $impl::getEmbeddables();
 
         $out = array();
