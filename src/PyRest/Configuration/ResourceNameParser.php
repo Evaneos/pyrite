@@ -41,7 +41,6 @@ class ResourceNameParser implements Parser
         }
 
         $param = $this->container->getParameter('crud.packages.' . $parentResource);
-        $vo = $param['vo'];
         $rest = $param['rest'];
 
         $data = $rest::getEmbeddables();

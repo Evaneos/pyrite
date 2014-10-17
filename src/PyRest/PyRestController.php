@@ -27,12 +27,6 @@ class PyRestController extends AbstractLayer
     protected $pyRestConfiguration = null;
     protected $container = null;
     protected $serializer = null;
-    protected $converter = null;
-
-    public function setConverter($converter)
-    {
-        $this->converter = $converter;
-    }
 
     public function setSerializer($serializer)
     {
@@ -136,9 +130,10 @@ class PyRestController extends AbstractLayer
         return $bag;
     }
 
-    protected function resourceInspector($resourceName)
+    public function optionsGetAll(ResponseBag $bag)
     {
         $config = $this->pyRestConfiguration;
+        $config->parseRequest($this->request);
         $resourceName = $config->getConfig(ResourceNameParser::NAME);
         $embeds = $config->getConfig(EmbedParser::NAME);
 
@@ -146,28 +141,23 @@ class PyRestController extends AbstractLayer
         $impl = $builder->getRESTFQCNImplementation();
         $embeddables = $impl::getEmbeddables();
 
-        $out = array();
+        $result = array();
         foreach($embeddables as $embedName => $typeObject) {
             switch(true) {
                 case $typeObject instanceof PyRestProperty :
-                    $out[$embedName] = (string)$typeObject;
+                    $result[$embedName] = (string)$typeObject;
                     break;
                 case $typeObject instanceof PyRestItem :
                 case $typeObject instanceof PyRestCollection :
-                    $out[$embedName] = array('type' => (string)$typeObject,
+                    $result[$embedName] = array('type' => (string)$typeObject,
                                              'resource' => $typeObject->getResourceType());
                     break;
             }
 
         }
-        return $out;
-    }
 
-    public function optionsGetAll(ResponseBag $bag)
-    {
-        $this->pyRestConfiguration->parseRequest($this->request);
-        $result = $this->resourceInspector($this->pyRestConfiguration->getConfig(ResourceNameParser::NAME));
         $bag->set('data', $result);
+
         return $bag;
     }
 
