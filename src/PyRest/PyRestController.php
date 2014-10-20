@@ -164,9 +164,48 @@ class PyRestController extends AbstractLayer
         $urlGenerator = $this->container->get('PyRestUrlGenerator');
         $self = $urlGenerator->getCollection($resourceName);
 
-        $bag->set('data', array('meta' => array('resource' => $resourceName,
-                                                'links' => array("self" => $self),
-                                                'embeds' => $result)));
+        $data = array('meta' => array(  'resource' => $resourceName,
+                                        'links' => array("self" => $self),
+                                        'embeds' => $result));
+
+        $bag->set('data', $data);
+
+        return $bag;
+    }
+
+    public function optionsRoot(ResponseBag $bag)
+    {
+        $builders = $this->builderProvider->getBuilders();
+
+        $out = array();
+        foreach($builders as $resourceName => $builder) {
+            $impl = $builder->getRESTFQCNImplementation();
+            $embeddables = $impl::getEmbeddables();
+
+            $result = array();
+            foreach($embeddables as $embedName => $typeObject) {
+                switch(true) {
+                    case $typeObject instanceof PyRestProperty :
+                        $result[$embedName] = (string)$typeObject;
+                        break;
+                    case $typeObject instanceof PyRestItem :
+                    case $typeObject instanceof PyRestCollection :
+                        $result[$embedName] = array('type' => (string)$typeObject,
+                                                    'resource' => $typeObject->getResourceType());
+                        break;
+                }
+            }
+
+            $urlGenerator = $this->container->get('PyRestUrlGenerator');
+            $self = $urlGenerator->getCollection($resourceName);
+
+            $data = array('meta' => array(  'resource' => $resourceName,
+                                            'links' => array("self" => $self),
+                                            'embeds' => $result));
+            $out[$resourceName] = $data;
+        }
+
+        $bag->set('data', $out);
 
         return $bag;
     }
