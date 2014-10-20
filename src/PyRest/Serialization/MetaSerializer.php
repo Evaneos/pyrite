@@ -29,7 +29,6 @@ class MetaSerializer implements Serializer
 
     public function serializeOne(PyRestObject $object, array $options = array())
     {
-        $out = array();
         if (!($object instanceof PyRestObjectPrimitive)) {
             $out['resource'] = $object::RESOURCE_NAME;
             $out['links'] = array();
@@ -67,6 +66,9 @@ class MetaSerializer implements Serializer
                     $out['embeds'][$embeddableName]['links']['embed'] = $this->urlGenerator->getItem($object::RESOURCE_NAME, $object->getId()) . '?embed=' . $embeddableName;
                 }
             }
+        }
+        else {
+            $out = new \stdClass();
         }
 
         return $out;
