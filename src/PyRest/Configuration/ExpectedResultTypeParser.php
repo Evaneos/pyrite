@@ -3,6 +3,11 @@
 namespace Pyrite\PyRest\Configuration;
 
 use Symfony\Component\HttpFoundation\Request;
+use Pyrite\PyRest\PyRestConfiguration;
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestProperty;
+use Pyrite\PyRest\Type\PyRestCollection;
+
 
 class ExpectedResultTypeParser implements Parser
 {
@@ -12,11 +17,11 @@ class ExpectedResultTypeParser implements Parser
     const MANY = 2;
 
 
-    protected $container;
+    protected $builderProvider;
 
-    public function __construct($container)
+    public function __construct($builderProvider)
     {
-        $this->container = $container;
+        $this->builderProvider = $builderProvider;
     }
 
     public function parse(Request $request)
@@ -42,23 +47,22 @@ class ExpectedResultTypeParser implements Parser
 
     protected function nestedComputation(Request $request)
     {
-        $embed = $request->attributes->get('embed', null);
+        $embed = $request->attributes->get('nested', null);
         $parentResource = $request->attributes->get('filter_resource', null);
 
         if ($embed && $parentResource) {
-            $param = $this->container->getParameter('crud.packages.' . $parentResource);
-            $vo = $param['vo'];
-            $rest = $param['rest'];
+            $builder = $this->builderProvider->getBuilder($parentResource);
+            $rest = $builder->getRESTFQCNImplementation();
 
             $data = $rest::getEmbeddables();
             if (array_key_exists($embed, $data)) {
-                if ($data[$embed] instanceof \Pyrite\PyRest\PyRestItem) {
+                if ($data[$embed] instanceof PyRestItem) {
                     return self::ONE;
                 }
-                elseif ($data[$embed] instanceof \Pyrite\PyRest\PyRestProperty) {
+                elseif ($data[$embed] instanceof PyRestProperty) {
                     return self::ONE;
                 }
-                elseif ($data[$embed] instanceof \Pyrite\PyRest\PyRestCollection) {
+                elseif ($data[$embed] instanceof PyRestCollection) {
                     return self::MANY;
                 }
                 else {

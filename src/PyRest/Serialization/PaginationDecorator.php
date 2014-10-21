@@ -4,7 +4,6 @@ namespace Pyrite\PyRest\Serialization;
 
 use Pyrite\PyRest\PyRestObject;
 use Pyrite\PyRest\PyRestUrlGenerator;
-use Pyrite\PyRest\PyRestItem;
 
 use Pyrite\PyRest\Configuration\ResourceNameParser;
 use Pyrite\PyRest\Configuration\EmbedParser;
@@ -30,7 +29,7 @@ class PaginationDecorator implements Serializer
 
     public function serializeMany(array $objects = array(), array $options = array())
     {
-        $data = $this->wrapped->serializeMany($objects);
+        $data = $this->wrapped->serializeMany($objects, $options);
 
         $count = count($objects);
         $totalCount = array_key_exists('total', $options) ? $options['total'] : null;
@@ -43,9 +42,9 @@ class PaginationDecorator implements Serializer
         return $out;
     }
 
-    public function serializeOne(PyRestObject $object)
+    public function serializeOne(PyRestObject $object, array $options = array())
     {
-        return $this->wrapped->serializeOne($object);
+        return $this->wrapped->serializeOne($object, $options);
     }
 
     protected function addPagination($count, $totalCount)

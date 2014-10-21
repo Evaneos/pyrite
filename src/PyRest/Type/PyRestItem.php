@@ -1,6 +1,6 @@
 <?php
 
-namespace Pyrite\PyRest;
+namespace Pyrite\PyRest\Type;
 
 final class PyRestItem
 {
@@ -19,5 +19,10 @@ final class PyRestItem
     public function __construct($resourceType)
     {
         $this->resourceType = $resourceType;
+    }
+
+    public function __toString()
+    {
+        return 'item';
     }
 }

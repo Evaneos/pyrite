@@ -1,6 +1,9 @@
 <?php
 namespace Pyrite\PyRest;
 
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestCollection;
+use Pyrite\PyRest\Type\PyRestProperty;
 
 abstract class PyRestObject
 {
@@ -42,6 +45,32 @@ abstract class PyRestObject
     {
         $this->embedStorage[$name] = $value;
         return $this;
+    }
+
+    public function pushInEmbed($name, PyRestObject $object)
+    {
+        $embeddables = static::getEmbeddables();
+        if(array_key_exists($name, $embeddables)) {
+            switch(true) {
+                case $embeddables[$name] instanceof PyRestItem :
+                    $this->embedStorage[$name] = $object;
+                    break;
+                case $embeddables[$name] instanceof PyRestCollection :
+                    if(!array_key_exists($name, $this->embedStorage)) {
+                        $this->embedStorage[$name] = array();
+                    }
+                    $this->embedStorage[$name][] = $object;
+                    break;
+                case $embeddables[$name] instanceof PyRestProperty :
+                    $this->embedStorage[$name] = $object;
+                    break;
+                default :
+                    throw new \RuntimeException("Unexpected push in embed '$name'");
+            }
+        }
+        else {
+            throw new \RuntimeException("Can't push in an undeclared embed '$name'");
+        }
     }
 
     public function getEmbeds()

@@ -4,78 +4,46 @@ namespace Pyrite\PyRest\Serialization;
 
 use Pyrite\PyRest\PyRestObject;
 use Pyrite\PyRest\PyRestUrlGenerator;
-use Pyrite\PyRest\PyRestItem;
-use Pyrite\PyRest\PyRestProperty;
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestProperty;
 
 class EmbedSerializer implements Serializer
 {
     protected $urlGenerator;
+    protected $metaSerializer;
 
-    public function __construct(PyRestUrlGenerator $urlGenerator)
+    public function __construct(PyRestUrlGenerator $urlGenerator, MetaSerializer $metaSerializer)
     {
         $this->urlGenerator = $urlGenerator;
+        $this->metaSerializer = $metaSerializer;
     }
 
     public function serializeMany(array $objects = array(), array $options = array())
     {
         $out = array();
         foreach($objects as $object) {
-            $serialized = $this->serializeOne($object);
+            $serialized = $this->serializeOne($object, $options);
             $out[] = $serialized;
         }
         return $out;
     }
 
-    public function serializeOne(PyRestObject $object)
+    public function serializeOne(PyRestObject $object, array $options = array())
     {
         $serialized = $object->transform();
         $embeds = $object->getEmbeds();
         foreach($embeds as $embedName => $embed) {
-            $serialized[$embedName] = $this->serializeOne($embed);
+            $serialized[$embedName] = $this->serializeOne($embed, $options);
         }
-        $out = array('data' => $serialized, 'meta' => array());
 
-        if ($object instanceof \Pyrite\PyRest\PyRestObjectPrimitive) {
-            return reset($serialized);
+        if(array_key_exists(Serializer::OPTS_VERBOSITY, $options) && (bool)$options[Serializer::OPTS_VERBOSITY]) {
+            $meta = $this->metaSerializer->serializeOne($object, $options);
+            $serialized = array('data' => $serialized, 'meta' => $meta);
         }
         else {
-            $out['meta']['resource'] = $object::RESOURCE_NAME;
-            $out['meta']['links'] = array();
-            $out['meta']['links']['self'] = $this->urlGenerator->getItem($object::RESOURCE_NAME, $object->getId());
-
-            $out['meta']['embeds'] = array();
-
-            foreach($object->getEmbeddables() as $embeddableName => $embedDefinition) {
-                $out['meta']['embeds'][$embeddableName] = array();
-
-                if (!($embedDefinition instanceof PyRestProperty)) {
-                    $out['meta']['embeds'][$embeddableName]['resource'] = $embedDefinition->getResourceType();
-                }
-
-                if ($embedDefinition instanceof PyRestItem) {
-                    $out['meta']['embeds'][$embeddableName]['type'] = 'item';
-                }
-                elseif ($embedDefinition instanceof PyRestProperty) {
-                    $out['meta']['embeds'][$embeddableName]['type'] = 'property';
-                }
-                else {
-                    $out['meta']['embeds'][$embeddableName]['type'] = 'collection';
-                }
-
-                $out['meta']['embeds'][$embeddableName]['links'] = array();
-
-                if (!($embedDefinition instanceof PyRestProperty)) {
-                    $out['meta']['embeds'][$embeddableName]['links']['collection'] = $this->urlGenerator->getCollection($embedDefinition->getResourceType());
-                    $out['meta']['embeds'][$embeddableName]['links']['nested'] = $this->urlGenerator->getNested($object::RESOURCE_NAME, $object->getId(), $embeddableName);
-                }
-
-
-                if (($embedDefinition instanceof PyRestItem) || ($embedDefinition instanceof PyRestProperty)) {
-                    $out['meta']['embeds'][$embeddableName]['links']['embed'] = $this->urlGenerator->getItem($object::RESOURCE_NAME, $object->getId()) . '?embed=' . $embeddableName;
-                }
-            }
+            $serialized = array('data' => $serialized);
         }
 
-        return $out;
+        return $serialized;
     }
 }
