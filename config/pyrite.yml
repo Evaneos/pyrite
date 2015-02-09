@@ -29,6 +29,8 @@ classes:
     # LAYERS
     RedirectionLayer:
         class: \Pyrite\Layer\RedirectionLayer
+        call:
+            setUrlGenerator: [ @UrlGenerator ]
     RedirectionFromBagLayer:
         class: \Pyrite\Layer\RedirectionFromBagLayer
     ViewRenderer:
