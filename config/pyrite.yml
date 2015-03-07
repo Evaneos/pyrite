@@ -61,6 +61,13 @@ classes:
         class: Pyrite\OutputBuilder\JsonOutputBuilder
     HtmlOutputBuilder:
         class: Pyrite\OutputBuilder\HtmlOutputBuilder
+        arguments: [ @HtmlFormatter ]
+    HtmlFormatter:
+        class: VarDump\Formatters\HtmlFormatter
+        arguments: [ @HtmlFormatterStyle ]
+    HtmlFormatterStyle:
+        class: VarDump\Style\DefaultStyle
+
     XmlOutputBuilder:
         class: Pyrite\OutputBuilder\XmlOutputBuilder
 
