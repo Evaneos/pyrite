@@ -26,7 +26,7 @@ class Session implements HttpKernelInterface, TerminableInterface
     /**
      * @var array
      */
-    protected $cookieParams= null;
+    protected $cookieParams = null;
 
     /**
      *
