@@ -5,7 +5,6 @@ namespace Pyrite\PyRest\Serialization;
 use Pyrite\PyRest\PyRestObject;
 use Pyrite\PyRest\PyRestUrlGenerator;
 use Pyrite\PyRest\Configuration\ResourceNameParser;
-use Pyrite\PyRest\Configuration\EmbedParser;
 use Pyrite\PyRest\Configuration\PaginationParser;
 use Pyrite\PyRest\PyRestConfiguration;
 use Symfony\Component\HttpFoundation\Request;

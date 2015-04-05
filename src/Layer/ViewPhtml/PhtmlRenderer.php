@@ -3,7 +3,6 @@
 namespace Pyrite\Layer\ViewPhtml;
 
 use Pyrite\Response\ResponseBag;
-use Pyrite\Templating\Renderer;
 use Pyrite\Layer\AbstractLayer;
 use Pyrite\Layer\Layer;
 

@@ -2,7 +2,6 @@
 
 namespace Pyrite\Layer\ViewPhtml;
 
-use Pyrite\Response\ResponseBag;
 
 class View
 {

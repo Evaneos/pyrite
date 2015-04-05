@@ -4,7 +4,6 @@ namespace Pyrite\Factory;
 
 use Pyrite\Container\Container;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Application implements HttpKernelFactory
 {

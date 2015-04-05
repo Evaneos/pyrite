@@ -4,11 +4,8 @@ namespace Pyrite\PyRest;
 
 use Pyrite\Response\ResponseBag;
 use Pyrite\Layer\AbstractLayer;
-use Pyrite\OutputBuilder\OutputBuilder;
 use Pyrite\PyRest\Configuration\ResourceNameParser;
-use Pyrite\PyRest\Configuration\ResourceIdParser;
 use Pyrite\PyRest\Configuration\EmbedParser;
-use Pyrite\PyRest\Configuration\PaginationParser;
 use Pyrite\PyRest\Configuration\ExpectedResultTypeParser;
 use Pyrite\PyRest\Configuration\VerbosityParser;
 use Pyrite\PyRest\Serialization\Serializer;

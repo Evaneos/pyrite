@@ -3,7 +3,6 @@
 namespace Pyrite\Templating;
 
 use Pyrite\Container\Container;
-use Pyrite\Response\ResponseBag;
 use Pyrite\Templating\Twig\Extension;
 
 class TwigEngine implements Engine

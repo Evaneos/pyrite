@@ -3,7 +3,6 @@
 namespace Pyrite\PyRest\Configuration;
 
 use Symfony\Component\HttpFoundation\Request;
-use Pyrite\PyRest\PyRestConfiguration;
 use Pyrite\PyRest\Type\PyRestItem;
 use Pyrite\PyRest\Type\PyRestProperty;
 use Pyrite\PyRest\Type\PyRestCollection;

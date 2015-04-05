@@ -2,7 +2,6 @@
 
 namespace Pyrite\Templating\Twig;
 
-use Pyrite\Response\ResponseBag;
 
 interface Extension
 {

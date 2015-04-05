@@ -3,7 +3,6 @@
 namespace Pyrite\Layer;
 
 use Pyrite\Response\ResponseBag;
-use Pyrite\Layer\AbstractLayer;
 use Pyrite\OutputBuilder\OutputBuilder;
 
 class OutputLayer extends AbstractLayer

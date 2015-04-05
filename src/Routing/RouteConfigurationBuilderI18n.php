@@ -2,8 +2,6 @@
 
 namespace Pyrite\Routing;
 
-use Pyrite\Config\NullConfig;
-use DICIT\Config\YML;
 use DICIT\Config\PHP;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;

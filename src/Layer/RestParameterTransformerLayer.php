@@ -3,8 +3,6 @@
 namespace Pyrite\Layer;
 
 use Pyrite\Response\ResponseBag;
-use Pyrite\Layer\AbstractLayer;
-use Pyrite\Layer\Layer;
 use Pyrite\ParameterTransformer\ParameterTransformer;
 
 class RestParameterTransformerLayer extends AbstractLayer

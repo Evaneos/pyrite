@@ -2,7 +2,6 @@
 
 namespace Pyrite\Templating;
 
-use Pyrite\Response\ResponseBag;
 
 interface Engine
 {

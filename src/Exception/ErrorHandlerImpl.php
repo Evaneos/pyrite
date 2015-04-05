@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Debug\Exception\ContextErrorException;
-use Symfony\Component\Debug\ExceptionHandler;
 
 class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
 {

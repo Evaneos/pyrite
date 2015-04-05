@@ -2,10 +2,8 @@
 
 namespace Pyrite\Templating;
 
-use Pyrite\Container\Container;
 use Pyrite\Exception\TemplateNotFoundException;
 use Pyrite\Response\ResponseBag;
-use Pyrite\Templating\Engine;
 
 class Renderer
 {
