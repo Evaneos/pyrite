@@ -2,24 +2,24 @@
 
 namespace Pyrite\Kernel;
 
+use Monolog\Logger;
+use Psr\Log\NullLogger;
 use Pyrite\Container\Container;
 use Pyrite\Factory\StackedHttpKernel;
-use Psr\Log\NullLogger;
-use Monolog\Logger;
-use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\Debug\Debug;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * PyriteKernel

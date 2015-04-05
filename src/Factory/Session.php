@@ -2,8 +2,8 @@
 
 namespace Pyrite\Factory;
 
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Pyrite\Container\Container;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class Session implements HttpKernelFactory
 {

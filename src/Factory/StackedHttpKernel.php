@@ -3,8 +3,8 @@
 namespace Pyrite\Factory;
 
 use Pyrite\Container\Container;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\EventDispatcher\Tests\Service;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class StackedHttpKernel implements HttpKernelFactory
 {

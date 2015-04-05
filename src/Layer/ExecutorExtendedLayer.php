@@ -2,8 +2,8 @@
 
 namespace Pyrite\Layer;
 
-use Pyrite\Response\ResponseBag;
 use Pyrite\Container\Container;
+use Pyrite\Response\ResponseBag;
 
 class ExecutorExtendedLayer extends AbstractLayer implements Layer
 {

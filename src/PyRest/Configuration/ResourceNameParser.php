@@ -2,9 +2,9 @@
 
 namespace Pyrite\PyRest\Configuration;
 
-use Symfony\Component\HttpFoundation\Request;
 use Pyrite\PyRest\Exception\BadRequestException;
 use Pyrite\PyRest\Type\PyRestProperty;
+use Symfony\Component\HttpFoundation\Request;
 
 class ResourceNameParser implements Parser
 {

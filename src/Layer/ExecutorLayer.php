@@ -3,8 +3,8 @@
 namespace Pyrite\Layer;
 
 use Pyrite\Container\Container;
-use Pyrite\Response\ResponseBag;
 use Pyrite\Layer\Executor\Executable;
+use Pyrite\Response\ResponseBag;
 
 class ExecutorLayer extends AbstractLayer implements Layer
 {

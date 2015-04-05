@@ -2,17 +2,17 @@
 
 namespace Pyrite\PyRest;
 
-use Pyrite\Response\ResponseBag;
 use Pyrite\Layer\AbstractLayer;
-use Pyrite\PyRest\Configuration\ResourceNameParser;
 use Pyrite\PyRest\Configuration\EmbedParser;
 use Pyrite\PyRest\Configuration\ExpectedResultTypeParser;
+use Pyrite\PyRest\Configuration\ResourceNameParser;
 use Pyrite\PyRest\Configuration\VerbosityParser;
-use Pyrite\PyRest\Serialization\Serializer;
 use Pyrite\PyRest\Serialization\PaginationDecorator;
-use Pyrite\PyRest\Type\PyRestProperty;
-use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Serialization\Serializer;
 use Pyrite\PyRest\Type\PyRestCollection;
+use Pyrite\PyRest\Type\PyRestItem;
+use Pyrite\PyRest\Type\PyRestProperty;
+use Pyrite\Response\ResponseBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class PyRestController extends AbstractLayer

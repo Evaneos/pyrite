@@ -2,8 +2,8 @@
 
 namespace Pyrite\Layer\Executor;
 
-use Symfony\Component\HttpFoundation\Request;
 use Pyrite\Response\ResponseBag;
+use Symfony\Component\HttpFoundation\Request;
 
 interface Executable
 {

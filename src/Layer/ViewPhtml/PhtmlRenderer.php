@@ -2,9 +2,9 @@
 
 namespace Pyrite\Layer\ViewPhtml;
 
-use Pyrite\Response\ResponseBag;
 use Pyrite\Layer\AbstractLayer;
 use Pyrite\Layer\Layer;
+use Pyrite\Response\ResponseBag;
 
 class PhtmlRenderer extends AbstractLayer implements Layer
 {

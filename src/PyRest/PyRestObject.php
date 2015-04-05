@@ -1,8 +1,8 @@
 <?php
 namespace Pyrite\PyRest;
 
-use Pyrite\PyRest\Type\PyRestItem;
 use Pyrite\PyRest\Type\PyRestCollection;
+use Pyrite\PyRest\Type\PyRestItem;
 use Pyrite\PyRest\Type\PyRestProperty;
 
 abstract class PyRestObject

@@ -2,8 +2,8 @@
 
 namespace Pyrite\Exception;
 
-use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Debug\Exception\ContextErrorException;
 

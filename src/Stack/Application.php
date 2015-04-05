@@ -2,12 +2,12 @@
 
 namespace Pyrite\Stack;
 
+use Pyrite\Container\Container;
+use Pyrite\Response\ResponseBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Pyrite\Response\ResponseBag;
-use Pyrite\Container\Container;
 
 class Application implements HttpKernelInterface, TerminableInterface
 {

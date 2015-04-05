@@ -2,8 +2,8 @@
 
 namespace Pyrite\PyRest;
 
-use Symfony\Component\HttpFoundation\Request;
 use Pyrite\PyRest\Configuration\Parser;
+use Symfony\Component\HttpFoundation\Request;
 
 class PyRestConfiguration
 {

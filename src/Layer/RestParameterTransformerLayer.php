@@ -2,8 +2,8 @@
 
 namespace Pyrite\Layer;
 
-use Pyrite\Response\ResponseBag;
 use Pyrite\ParameterTransformer\ParameterTransformer;
+use Pyrite\Response\ResponseBag;
 
 class RestParameterTransformerLayer extends AbstractLayer
 {

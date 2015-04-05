@@ -2,8 +2,8 @@
 
 namespace Pyrite\Routing;
 
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\RouteCollection;
 
 class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
 {

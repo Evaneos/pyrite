@@ -6,9 +6,9 @@ use DICIT\Config\PHP;
 use DICIT\Config\YML;
 use Pyrite\Config\NullConfig;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBuilder
 {
