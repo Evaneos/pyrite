@@ -5,10 +5,8 @@ namespace Pyrite\Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Debug\ExceptionHandler;
-
 
 class SymfonyUncaughtExceptionRendererAdapter implements UncaughtExceptionRenderer
 {

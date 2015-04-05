@@ -2,9 +2,8 @@
 
 namespace Pyrite\PyRest;
 
-
 interface PyRestBuilderProvider
 {
-    function getBuilder($resourceName);
-    function getBuilders();
+    public function getBuilder($resourceName);
+    public function getBuilders();
 }

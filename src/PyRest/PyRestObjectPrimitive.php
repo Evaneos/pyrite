@@ -2,7 +2,6 @@
 
 namespace Pyrite\PyRest;
 
-
 final class PyRestObjectPrimitive extends PyRestObject
 {
     const RESOURCE_NAME = null;

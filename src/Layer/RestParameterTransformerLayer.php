@@ -19,8 +19,7 @@ class RestParameterTransformerLayer extends AbstractLayer
 
     protected function before(ResponseBag $responseBag)
     {
-        foreach($this->parameterTransformers as $transformer)
-        {
+        foreach ($this->parameterTransformers as $transformer) {
             $transformer->before($responseBag, $this->request);
         }
     }

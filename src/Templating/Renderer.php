@@ -42,7 +42,8 @@ class Renderer
      * @param string        $template   template path
      * @param array         $data       data passed to the view
      */
-    public function render($template, array $data) {
+    public function render($template, array $data)
+    {
         if (is_a($data, 'Pyrite\Response\ResponseBag')) {
             $data = $data->getAll();
         }

@@ -4,7 +4,8 @@ namespace Pyrite\OutputBuilder;
 
 use Pyrite\Response\ResponseBag;
 
-class HtmlOutputBuilder implements OutputBuilder {
+class HtmlOutputBuilder implements OutputBuilder
+{
 
     public function getHeaders(ResponseBag $bag)
     {

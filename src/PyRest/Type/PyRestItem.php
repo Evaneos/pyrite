@@ -12,7 +12,8 @@ final class PyRestItem
     /**
      * @return string resourceType
      */
-    public function getResourceType() {
+    public function getResourceType()
+    {
         return $this->resourceType;
     }
 

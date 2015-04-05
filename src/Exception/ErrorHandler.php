@@ -2,9 +2,8 @@
 
 namespace Pyrite\Exception;
 
-
 interface ErrorHandler
 {
-    function handleError($level, $message, $file = 'unknown', $line = 0, $context = array());
-    function setOnFatalRenderer(UncaughtExceptionRenderer $renderer);
+    public function handleError($level, $message, $file = 'unknown', $line = 0, $context = array());
+    public function setOnFatalRenderer(UncaughtExceptionRenderer $renderer);
 }

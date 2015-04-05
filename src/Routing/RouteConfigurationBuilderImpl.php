@@ -5,7 +5,6 @@ namespace Pyrite\Routing;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
-
 class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
 {
     /**
@@ -32,8 +31,7 @@ class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
     {
         if (array_key_exists('routes', $config)) {
             return $config['routes'];
-        }
-        else {
+        } else {
             throw new \RuntimeException("No key 'routes' in provided configuration array");
         }
     }

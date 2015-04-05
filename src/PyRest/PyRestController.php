@@ -5,22 +5,17 @@ namespace Pyrite\PyRest;
 use Pyrite\Response\ResponseBag;
 use Pyrite\Layer\AbstractLayer;
 use Pyrite\OutputBuilder\OutputBuilder;
-
 use Pyrite\PyRest\Configuration\ResourceNameParser;
 use Pyrite\PyRest\Configuration\ResourceIdParser;
 use Pyrite\PyRest\Configuration\EmbedParser;
 use Pyrite\PyRest\Configuration\PaginationParser;
 use Pyrite\PyRest\Configuration\ExpectedResultTypeParser;
 use Pyrite\PyRest\Configuration\VerbosityParser;
-
 use Pyrite\PyRest\Serialization\Serializer;
 use Pyrite\PyRest\Serialization\PaginationDecorator;
-
 use Pyrite\PyRest\Type\PyRestProperty;
 use Pyrite\PyRest\Type\PyRestItem;
 use Pyrite\PyRest\Type\PyRestCollection;
-
-
 use Symfony\Component\HttpFoundation\Request;
 
 class PyRestController extends AbstractLayer
@@ -125,8 +120,7 @@ class PyRestController extends AbstractLayer
 
         if ($resultType === ExpectedResultTypeParser::ONE) {
             $output = $this->serializer->serializeOne(reset($resultRest), array(Serializer::OPTS_VERBOSITY => $verbose));
-        }
-        else {
+        } else {
             $serializer = new PaginationDecorator($this->serializer, $this->pycfg, $this->container->get('PyRestUrlGenerator'));
             $output = $serializer->serializeMany($resultRest, array(PaginationDecorator::OPTS_TOTAL => $bag->get('count', 0),
                                                                     Serializer::OPTS_VERBOSITY => $verbose));
@@ -148,8 +142,8 @@ class PyRestController extends AbstractLayer
         $embeddables = $impl::getEmbeddables();
 
         $result = array();
-        foreach($embeddables as $embedName => $typeObject) {
-            switch(true) {
+        foreach ($embeddables as $embedName => $typeObject) {
+            switch (true) {
                 case $typeObject instanceof PyRestProperty :
                     $result[$embedName] = (string)$typeObject;
                     break;
@@ -178,13 +172,13 @@ class PyRestController extends AbstractLayer
         $builders = $this->builderProvider->getBuilders();
 
         $out = array();
-        foreach($builders as $resourceName => $builder) {
+        foreach ($builders as $resourceName => $builder) {
             $impl = $builder->getRESTFQCNImplementation();
             $embeddables = $impl::getEmbeddables();
 
             $result = array();
-            foreach($embeddables as $embedName => $typeObject) {
-                switch(true) {
+            foreach ($embeddables as $embedName => $typeObject) {
+                switch (true) {
                     case $typeObject instanceof PyRestProperty :
                         $result[$embedName] = (string)$typeObject;
                         break;

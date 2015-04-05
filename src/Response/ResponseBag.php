@@ -2,22 +2,21 @@
 
 namespace Pyrite\Response;
 
-
 interface ResponseBag
 {
     const ACTION_RESULT = 'ACTION_RESULT';
 
-    function set($key, $value);
-    function get($key, $defaultValue = null);
-    function getAll();
-    function has($key);
+    public function set($key, $value);
+    public function get($key, $defaultValue = null);
+    public function getAll();
+    public function has($key);
 
-    function setResult($value);
-    function getResult();
+    public function setResult($value);
+    public function getResult();
 
-    function setResultCode($value);
-    function getResultCode();
+    public function setResultCode($value);
+    public function getResultCode();
 
-    function addHeader($key, $value);
-    function getHeaders();
+    public function addHeader($key, $value);
+    public function getHeaders();
 }

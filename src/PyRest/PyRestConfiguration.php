@@ -29,7 +29,7 @@ class PyRestConfiguration
     public function parseRequest(Request $request)
     {
         $this->request = $request;
-        foreach($this->parsers as $parser) {
+        foreach ($this->parsers as $parser) {
             $this->parsed[$parser::NAME] = $parser->parse($request);
         }
     }

@@ -25,8 +25,7 @@ class OutputLayer extends AbstractLayer
 
         $data = $builder->buildOutput($bag);
         $headers = $builder->getHeaders($bag);
-        foreach($headers as $header)
-        {
+        foreach ($headers as $header) {
             header($header);
         }
 

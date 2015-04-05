@@ -20,7 +20,7 @@ class MetaSerializer implements Serializer
     public function serializeMany(array $objects = array(), array $options = array())
     {
         $out = array();
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $serialized = $this->serializeOne($object, $options);
             $out[] = $serialized;
         }
@@ -37,7 +37,7 @@ class MetaSerializer implements Serializer
 
             $out['embeds'] = array();
 
-            foreach($object->getEmbeddables() as $embeddableName => $embedDefinition) {
+            foreach ($object->getEmbeddables() as $embeddableName => $embedDefinition) {
                 $out['embeds'][$embeddableName] = array();
 
                 if (!($embedDefinition instanceof PyRestProperty)) {
@@ -46,11 +46,9 @@ class MetaSerializer implements Serializer
 
                 if ($embedDefinition instanceof PyRestItem) {
                     $out['embeds'][$embeddableName]['type'] = 'item';
-                }
-                elseif ($embedDefinition instanceof PyRestProperty) {
+                } elseif ($embedDefinition instanceof PyRestProperty) {
                     $out['embeds'][$embeddableName]['type'] = 'property';
-                }
-                else {
+                } else {
                     $out['embeds'][$embeddableName]['type'] = 'collection';
                 }
 
@@ -66,12 +64,10 @@ class MetaSerializer implements Serializer
                     $out['embeds'][$embeddableName]['links']['embed'] = $this->urlGenerator->getItem($object::RESOURCE_NAME, $object->getId()) . '?embed=' . $embeddableName;
                 }
             }
-        }
-        else {
+        } else {
             $out = new \stdClass();
         }
 
         return $out;
     }
-
 }

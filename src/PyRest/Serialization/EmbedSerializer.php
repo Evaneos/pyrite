@@ -21,7 +21,7 @@ class EmbedSerializer implements Serializer
     public function serializeMany(array $objects = array(), array $options = array())
     {
         $out = array();
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $serialized = $this->serializeOne($object, $options);
             $out[] = $serialized;
         }
@@ -32,15 +32,14 @@ class EmbedSerializer implements Serializer
     {
         $serialized = $object->transform();
         $embeds = $object->getEmbeds();
-        foreach($embeds as $embedName => $embed) {
+        foreach ($embeds as $embedName => $embed) {
             $serialized[$embedName] = $this->serializeOne($embed, $options);
         }
 
-        if(array_key_exists(Serializer::OPTS_VERBOSITY, $options) && (bool)$options[Serializer::OPTS_VERBOSITY]) {
+        if (array_key_exists(Serializer::OPTS_VERBOSITY, $options) && (bool)$options[Serializer::OPTS_VERBOSITY]) {
             $meta = $this->metaSerializer->serializeOne($object, $options);
             $serialized = array('data' => $serialized, 'meta' => $meta);
-        }
-        else {
+        } else {
             $serialized = array('data' => $serialized);
         }
 

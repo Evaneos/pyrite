@@ -5,7 +5,6 @@ namespace Pyrite\Routing;
 use Pyrite\Config\NullConfig;
 use DICIT\Config\YML;
 use DICIT\Config\PHP;
-
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 
@@ -63,29 +62,28 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     protected function buildLocalisedRoutingArray(array $configuration = array())
     {
         $byLocales = array();
-        foreach($this->availableLocales as $locale) {
+        foreach ($this->availableLocales as $locale) {
             $byLocales[$locale] = array();
         }
 
-        foreach($configuration['routes'] as $name => $parameters) {
+        foreach ($configuration['routes'] as $name => $parameters) {
             if (isset($parameters['route']['pattern'])) {
                 $pattern = $parameters['route']['pattern'];
                 // Pattern changes when locale change
                 if (is_array($pattern)) {
-                    foreach($pattern as $locale => $p) {
+                    foreach ($pattern as $locale => $p) {
                         if (array_key_exists($locale, $byLocales)) {
                             $finalParameter = $parameters;
                             $finalParameter['route']['pattern'] = $p;
                             $byLocales[$locale][$name . '.' . $locale] = $finalParameter;
-                        }
-                        else {
+                        } else {
                             throw new \RuntimeException(sprintf("Route '%s' requires locale '%s' which is not registered as available locale", $name, $locale));
                         }
                     }
                 }
                 // Same pattern for all locales
                 else {
-                    foreach($this->availableLocales as $locale) {
+                    foreach ($this->availableLocales as $locale) {
                         $byLocales[$locale][$name . '.' . $locale] = $parameters;
                     }
                 }

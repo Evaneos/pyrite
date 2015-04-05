@@ -4,12 +4,10 @@ namespace Pyrite\PyRest\Serialization;
 
 use Pyrite\PyRest\PyRestObject;
 use Pyrite\PyRest\PyRestUrlGenerator;
-
 use Pyrite\PyRest\Configuration\ResourceNameParser;
 use Pyrite\PyRest\Configuration\EmbedParser;
 use Pyrite\PyRest\Configuration\PaginationParser;
 use Pyrite\PyRest\PyRestConfiguration;
-
 use Symfony\Component\HttpFoundation\Request;
 
 class PaginationDecorator implements Serializer
@@ -71,7 +69,7 @@ class PaginationDecorator implements Serializer
             'links' => array()
         );
 
-        $urlBuilder = function($page, Request $request) {
+        $urlBuilder = function ($page, Request $request) {
             $urlParameter = $request->query->all();
             $urlParameter[PaginationParser::KEY_PAGE] = $page;
             return $request->getSchemeAndHttpHost() . $request->getPathInfo() . '?' . urldecode(http_build_query($urlParameter));

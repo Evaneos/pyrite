@@ -2,7 +2,6 @@
 
 namespace Pyrite\Response;
 
-
 class ResponseBagImpl implements ResponseBag
 {
     protected $data = array();

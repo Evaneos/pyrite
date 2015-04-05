@@ -3,21 +3,16 @@
 namespace Pyrite\Kernel;
 
 use Pyrite\Container\Container;
-
 use Pyrite\Config\NullConfig;
 use Pyrite\Factory\StackedHttpKernel;
-
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-
 use Monolog\Logger;
 use Monolog\Handler\ErrorLogHandler;
-
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Debug\ExceptionHandler;
-
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -128,8 +123,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     {
         try {
             $this->errorHandler = $this->container->get("AppErrorHandler");
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->errorHandler = new \Pyrite\Exception\ErrorHandlerImpl(0, false);
             $this->errorHandler->setOnFatalRenderer($renderer);
         }
@@ -143,8 +137,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     {
         try {
             $this->uncaughtRenderer = $this->container->get("AppOnCrashHandler");
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->uncaughtRenderer = new \Pyrite\Exception\UncaughtExceptionRendererImpl(false);
         }
 
@@ -169,8 +162,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             if ($kernel instanceof TerminableInterface) {
                 $kernel->terminate($request, $response);
             }
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             $kernel->uncaughtRenderer->render($exception);
         }
     }

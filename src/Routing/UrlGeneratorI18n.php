@@ -5,10 +5,8 @@ namespace Pyrite\Routing;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RequestContext;
-
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
 
 class UrlGeneratorI18n implements UrlGeneratorInterface
 {
@@ -62,8 +60,7 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
         if (count($parts) === 1) {
             $urlGenerator = $this->getUrlGenerator($this->currentLocale);
             $nameWithLocale = $name . "." . $this->currentLocale;
-        }
-        elseif(count($parts) > 1) {
+        } elseif (count($parts) > 1) {
             $locale = end($parts);
             $urlGenerator = $this->getUrlGenerator($locale);
         }
@@ -118,8 +115,7 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
     {
         if (!array_key_exists($locale, $this->routingConfiguration)) {
             throw new UrlGeneratorException("Routing configuration doesn't provide any route for the '$locale' locale");
-        }
-        else {
+        } else {
             $routeCollection = RouteCollectionBuilder::build($this->routingConfiguration[$locale]);
             return new UrlGenerator($routeCollection, $this->context);
         }
