@@ -93,7 +93,7 @@ abstract class PyRestObject
         return $this->filters;
     }
     /**
-     * @param array $value
+     * @param  array      $value
      * @return ObjectREST
      */
     public function setFilters($value)
@@ -110,7 +110,7 @@ abstract class PyRestObject
         return $this->sorts;
     }
     /**
-     * @param array $value
+     * @param  array      $value
      * @return ObjectREST
      */
     public function setSorts($value)

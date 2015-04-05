@@ -21,7 +21,7 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
 
     /**
      * @param string $currentLocale
-     * @param array $availableLocales
+     * @param array  $availableLocales
      */
     public function __construct($currentLocale, array $availableLocales)
     {
@@ -45,7 +45,7 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     }
 
     /**
-     * @param  array  $globalRoutingConfiguration
+     * @param array $globalRoutingConfiguration
      *
      * @return \Symfony\Component\Routing\Generator\UrlGeneratorInterface
      */
@@ -55,7 +55,7 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     }
 
     /**
-     * @param  array  $configuration
+     * @param array $configuration
      *
      * @return array
      */
@@ -93,8 +93,8 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     }
 
     /**
-     * @param  string $currentLocale
-     * @param  array $locales
+     * @param string $currentLocale
+     * @param array  $locales
      *
      * @return boolean
      *

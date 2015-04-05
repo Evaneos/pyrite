@@ -24,7 +24,7 @@ class HTTPException extends \RuntimeException
         return $this->meta;
     }
     /**
-     * @param array $value
+     * @param  array         $value
      * @return HTTPException
      */
     public function setMetas($value)

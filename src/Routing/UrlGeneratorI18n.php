@@ -40,9 +40,9 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
     }
 
     /**
-     * @param  string $name
-     * @param  array  $parameters
-     * @param  mixed  $referenceType
+     * @param string $name
+     * @param array  $parameters
+     * @param mixed  $referenceType
      *
      * @return string
      *
@@ -93,7 +93,7 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
     }
 
     /**
-     * @param  string $locale
+     * @param string $locale
      *
      * @return UrlGenerator
      */
@@ -107,7 +107,7 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
     }
 
     /**
-     * @param  string $locale
+     * @param string $locale
      *
      * @return UrlGenerator
      */

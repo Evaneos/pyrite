@@ -69,7 +69,7 @@ class StackedHttpKernel implements HttpKernelFactory
     /**
      * Get a factory given a service name
      *
-     * @param string $factoryName Service name to get factory from
+     * @param  string            $factoryName Service name to get factory from
      * @throws \RuntimeException Throws a exception if service does not implment HttpKernelFactory
      *
      * @return \Pyrite\Factory\HttpKernelFactory a factory for a service

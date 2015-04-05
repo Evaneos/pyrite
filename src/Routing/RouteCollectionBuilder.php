@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Route;
 class RouteCollectionBuilder
 {
     /**
-     * @param  array $routingConfiguration
+     * @param array $routingConfiguration
      *
      * @return RouteCollection
      */

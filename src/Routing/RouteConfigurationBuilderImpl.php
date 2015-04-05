@@ -21,7 +21,7 @@ class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
     }
 
     /**
-     * @param  array  $config
+     * @param array $config
      *
      * @return array
      *
@@ -37,7 +37,7 @@ class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
     }
 
     /**
-     * @param  RouteCollection $collection
+     * @param RouteCollection $collection
      *
      * @return \Symfony\Component\Routing\Generator\UrlGeneratorInterface
      */

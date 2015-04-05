@@ -31,8 +31,8 @@ class Session implements HttpKernelInterface, TerminableInterface
     /**
      *
      * @param HttpKernelInterface $app
-     * @param string $start
-     * @param array $cookieParams
+     * @param string              $start
+     * @param array               $cookieParams
      */
     public function __construct(HttpKernelInterface $app, $start = false, array $cookieParams = array())
     {
