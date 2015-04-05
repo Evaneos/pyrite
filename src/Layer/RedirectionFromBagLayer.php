@@ -29,8 +29,8 @@ class RedirectionFromBagLayer extends AbstractLayer implements Layer
     public function redirect($actionResult, ResponseBag $bag)
     {
         $redirectionPath = $bag->get(RedirectionFromBagLayer::REDIRECTION_BAG_KEY);
-        $bag->setResultCode(302);
-        header("Location: " . $redirectionPath);
+        $bag->setResultCode(302); //let's the user choose the redirect code ?
+        header("Location: " . $redirectionPath); //should be attach on response bag and be done when the response sended
     }
 
 }

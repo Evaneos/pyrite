@@ -21,9 +21,8 @@ class View {
         if ($name) {
             return $this->getPlaceholderResult($name);
         }
-        else {
-            return $this->bag->getResult();
-        }
+
+        return $this->bag->getResult();
     }
 
     protected function getPlaceholderResult($name) {

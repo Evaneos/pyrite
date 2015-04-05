@@ -10,6 +10,6 @@ class ResourceIdParser implements Parser
 
     public function parse(Request $request)
     {
-        return $request->attributes->get('id', null);
+        return $request->attributes->get('id');
     }
 }

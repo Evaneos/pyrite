@@ -28,9 +28,9 @@ class RedirectionLayer extends AbstractLayer implements Layer
      */
     public function handle(ResponseBag $responseBag)
     {
-        if (count($this->config) == 1 && array_key_exists(0, $this->config)) {
+        if (count($this->config) === 1 && array_key_exists(0, $this->config)) {
             if ($this->config[0][0] == '@') {
-                $url = $this->urlGenerator->generate(substr($this->config[0], 1));
+                $url = $this->urlGenerator->generate(ltrim($this->config[0], '@'));
                 $this->redirect($url);
             } else {
                 $this->redirect($this->config[0]);
@@ -38,7 +38,7 @@ class RedirectionLayer extends AbstractLayer implements Layer
 
         } else {
 
-            $result = $this->aroundNext($responseBag);
+            $this->aroundNext($responseBag);
             $this->after($responseBag);
         }
 
@@ -48,11 +48,10 @@ class RedirectionLayer extends AbstractLayer implements Layer
     public function after(ResponseBag $bag)
     {
         $actionResult    = $bag->get(ResponseBag::ACTION_RESULT, false);
-        $hasActionResult = !(false === $actionResult);
 
         if ($this->hasRedirection($actionResult)) {
             if ($actionResult[0] == '@') {
-                $url = $this->urlGenerator->generate(substr($actionResult, 1));
+                $url = $this->urlGenerator->generate(ltrim($actionResult, '@'));
                 $this->redirect($url);
             } else {
                 $this->redirect($this->config[$actionResult]);
@@ -67,7 +66,7 @@ class RedirectionLayer extends AbstractLayer implements Layer
 
     public function redirect($redirectionPath)
     {
-        header("Location:" .  $redirectionPath);
+        header("Location:" .  $redirectionPath); //Should not be assigned on the fly.
     }
 
 }

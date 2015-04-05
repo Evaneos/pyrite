@@ -12,6 +12,7 @@ class RestParameterTransformerLayer extends AbstractLayer
 
     protected $parameterTransformers = array();
 
+    //typo
     public function addParamaterTransformer(ParameterTransformer $parameterTransformer)
     {
         $this->parameterTransformers[] = $parameterTransformer;

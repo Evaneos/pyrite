@@ -21,12 +21,11 @@ class EmbedParser implements Parser
 
     protected function doParse($string)
     {
-        $explodedEmbed = explode(",", $string);
+        $explodedEmbed = explode(',', $string);
         $result = array();
 
         foreach($explodedEmbed as $key => $value) {
             $arr = explode('.', $value);
-            $count = count($arr);
 
             $pointer = &$result;
             while(false !== current($arr)) {

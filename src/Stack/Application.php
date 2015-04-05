@@ -46,8 +46,7 @@ class Application implements HttpKernelInterface, TerminableInterface
 
                     if($e instanceof $exceptionName) {
                         $handlerFound = true;
-                        $responseBag = call_user_func_array(array($handler, "handleException"), array($e, $responseBag));
-
+                        $handler->handleException($e, $responseBag);
                         break;
                     }
 
