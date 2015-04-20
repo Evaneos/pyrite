@@ -20,4 +20,4 @@ classes:
             pushHandler: [ @AppLoggerHandler ]
     AppLoggerHandler:
         class: \Monolog\Handler\ErrorLogHandler
-        arguments: [ 0, 100 ]
+        arguments: [ 0, 400 ]
