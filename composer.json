@@ -36,7 +36,7 @@
         "symfony/routing": "~2.4.0",
         "symfony/yaml": "2.5.x-dev",
         "symfony/debug": "~2.4.0",
-        "monolog/monolog": "1.11.*@dev",
+        "monolog/monolog": "~1.11",
         "twig/twig": "1.*"
     },
     "require-dev": {
