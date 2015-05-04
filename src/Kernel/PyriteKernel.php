@@ -121,7 +121,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     protected function configureErrors()
     {
         $uncaughtRenderer = $this->configOnCrashOutput();
-        $errorHandler = $this->configPhpErrors($uncaughtRenderer);
+        $this->configPhpErrors($uncaughtRenderer);
     }
 
     private function configPhpErrors(\Pyrite\Exception\UncaughtExceptionRenderer $renderer = null)
@@ -188,8 +188,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     {
         $route      = $this->routeCollection->get($routeParameters['_route']);
         $dispatch   = $route->getOption('dispatch');
-        $services   = array();
-        $parameters = array();
 
         $factory = new StackedHttpKernel($this->container, $dispatch);
         list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $dispatch);

@@ -29,20 +29,19 @@ class ExpectedResultTypeParser implements Parser
         if ($request->getMethod() != 'GET') {
             return null;
         }
-        else {
-            $resourceName = $request->attributes->get('resource', null);
-            $resourceId = $request->attributes->get('id', null);
-            if ($resourceName && $resourceId) {
-                return self::ONE;
-            }
-            elseif ($resourceName) {
-                return self::MANY;
-            }
-            else {
-                return $this->nestedComputation($request);
-            }
+
+        $resourceName = $request->attributes->get('resource', null);
+        $resourceId = $request->attributes->get('id', null);
+
+        if ($resourceName && $resourceId) {
+            return self::ONE;
         }
 
+        if ($resourceName) {
+            return self::MANY;
+        }
+
+        return $this->nestedComputation($request);
     }
 
     protected function nestedComputation(Request $request)
@@ -50,29 +49,28 @@ class ExpectedResultTypeParser implements Parser
         $embed = $request->attributes->get('nested', null);
         $parentResource = $request->attributes->get('filter_resource', null);
 
-        if ($embed && $parentResource) {
-            $builder = $this->builderProvider->getBuilder($parentResource);
-            $rest = $builder->getRESTFQCNImplementation();
-
-            $data = $rest::getEmbeddables();
-            if (array_key_exists($embed, $data)) {
-                if ($data[$embed] instanceof PyRestItem) {
-                    return self::ONE;
-                }
-                elseif ($data[$embed] instanceof PyRestProperty) {
-                    return self::ONE;
-                }
-                elseif ($data[$embed] instanceof PyRestCollection) {
-                    return self::MANY;
-                }
-                else {
-                    return null;
-                }
-            }
-        }
-        else {
+        if(!$embed || !$parentResource){
             return null;
         }
 
+        $builder = $this->builderProvider->getBuilder($parentResource);
+        $rest = $builder->getRESTFQCNImplementation();
+
+        $data = $rest::getEmbeddables();
+
+        if (array_key_exists($embed, $data)) {
+            if ($data[$embed] instanceof PyRestItem) {
+                return self::ONE;
+            }
+            elseif ($data[$embed] instanceof PyRestProperty) {
+                return self::ONE;
+            }
+            elseif ($data[$embed] instanceof PyRestCollection) {
+                return self::MANY;
+            }
+            else {
+                return null;
+            }
+        }
     }
 }

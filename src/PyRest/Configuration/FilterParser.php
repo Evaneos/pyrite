@@ -22,8 +22,8 @@ class FilterParser implements Parser
         }
 
         $attr = $request->attributes;
-        $filterResource = $attr->get(self::FILTER_BY_RESOURCE_NAME, null);
-        $filterResourceId = $attr->get(self::FILTER_BY_RESOURCE_ID, null);
+        $filterResource = $attr->get(self::FILTER_BY_RESOURCE_NAME);
+        $filterResourceId = $attr->get(self::FILTER_BY_RESOURCE_ID);
 
         if($filterResource) {
             $parsedFilters[self::FILTER_BY_RESOURCE_NAME] = $filterResource;

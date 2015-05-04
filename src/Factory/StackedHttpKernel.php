@@ -23,13 +23,6 @@ class StackedHttpKernel implements HttpKernelFactory
      */
     private $container;
 
-    /**
-     * Base name to use when creating services (for Container)
-     *
-     * @var string
-     */
-    private $name;
-
     public function __construct(Container $container, $services)
     {
         $this->services  = $services;
@@ -42,7 +35,7 @@ class StackedHttpKernel implements HttpKernelFactory
     public function register(HttpKernelInterface $app = null, $name = '', array $parameters = array())
     {
         $lastServiceName = call_user_func('end', array_keys($this->services));
-        $lastFactoryName = array_pop($this->services);
+        array_pop($this->services);
         $builder         = new \Stack\Builder();
         $container       = $this->container;
 

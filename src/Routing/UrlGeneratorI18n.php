@@ -61,7 +61,7 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
         $parts = explode('.', $name);
         if (count($parts) === 1) {
             $urlGenerator = $this->getUrlGenerator($this->currentLocale);
-            $nameWithLocale = $name . "." . $this->currentLocale;
+            $nameWithLocale = $name . '.' . $this->currentLocale;
         }
         elseif(count($parts) > 1) {
             $locale = end($parts);

@@ -8,6 +8,10 @@ use Symfony\Component\Routing\Route;
 class RouteCollectionBuilder
 {
     /**
+     * Should not be static. The day of you need to evolve by adding dependencies you'll break all the code.
+     * BTW RouteCollectionBuilder is a dependency itself and we should be able to surrogate this class with a custom
+     * implementation (interface needed)
+     *
      * @param  array $routingConfiguration
      *
      * @return RouteCollection

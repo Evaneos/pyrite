@@ -62,10 +62,12 @@ abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBu
      */
     protected function buildFromFile()
     {
-        if (null !== $this->path && preg_match('/.*php$/', $this->path)) {
+        $fileExtension = pathinfo($this->path, PATHINFO_EXTENSION);
+
+        if (null !== $this->path && 'php' === $fileExtension) {
             $config = new PHP($this->path);
         }
-        else if (null !== $this->path && preg_match('/.*yml$/', $this->path)) {
+        else if (null !== $this->path && 'yml' === $fileExtension) {
             $config = new YML($this->path);
         }
         else {

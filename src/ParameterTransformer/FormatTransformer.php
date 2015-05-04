@@ -8,7 +8,7 @@ use Pyrite\Response\ResponseBag;
 class FormatTransformer implements ParameterTransformer
 {
 
-    private $defautFormat = 'json';
+    private $defaultFormat;
 
     private $contentTypeMapping = array();
 
@@ -52,6 +52,6 @@ class FormatTransformer implements ParameterTransformer
 
     private function getFormatFromQuery(Request $request)
     {
-        return $request->query->get('format', null);
+        return $request->query->get('format');
     }
 }

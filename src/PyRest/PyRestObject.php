@@ -115,6 +115,7 @@ abstract class PyRestObject
         return $this;
     }
 
+    //Sanitize is more appropriated than transform
     public function transform()
     {
         $objectData = get_object_vars($this);

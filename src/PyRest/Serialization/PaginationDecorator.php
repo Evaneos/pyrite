@@ -55,7 +55,7 @@ class PaginationDecorator implements Serializer
             PaginationParser::KEY_NBBYPAGE => PaginationParser::DEFAULT_NB_RESULT_PER_PAGE)
         );
 
-        $resourceName = $restConfiguration->getConfig(ResourceNameParser::NAME);
+//        $resourceName = $restConfiguration->getConfig(ResourceNameParser::NAME);
         $page = $paginationConfig[PaginationParser::KEY_PAGE];
         $nbElements = $paginationConfig[PaginationParser::KEY_NBBYPAGE];
         $nbTotalElements = $totalCount;
@@ -77,17 +77,19 @@ class PaginationDecorator implements Serializer
             return $request->getSchemeAndHttpHost() . $request->getPathInfo() . '?' . urldecode(http_build_query($urlParameter));
         };
 
-        $output['links']['first'] = $urlBuilder(1, $this->config->getRequest());
-        $output['links']['last'] = $urlBuilder($nbPages, $this->config->getRequest());
+        $request = $this->config->getRequest();
+
+        $output['links']['first'] = $urlBuilder(1, $request);
+        $output['links']['last'] = $urlBuilder($nbPages, $request);
 
         if ($page > 1) {
-            $output['links']['previous'] = $urlBuilder($page-1, $this->config->getRequest());
+            $output['links']['previous'] = $urlBuilder($page-1, $request);
         }
 
-        $output['links']['current'] = $urlBuilder($page, $this->config->getRequest());
+        $output['links']['current'] = $urlBuilder($page, $request);
 
         if ($page < $nbPages) {
-            $output['links']['next'] = $urlBuilder($page+1, $this->config->getRequest());
+            $output['links']['next'] = $urlBuilder($page+1, $request);
         }
 
         return $output;

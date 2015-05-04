@@ -100,7 +100,7 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
      *
      * @return boolean
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     protected function validateLocaleConfiguration($currentLocale, array $locales)
     {

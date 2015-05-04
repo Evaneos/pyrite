@@ -141,7 +141,7 @@ class PyRestController extends AbstractLayer
     {
         $this->pycfg->parseRequest($this->request);
         $resourceName = $this->pycfg->getConfig(ResourceNameParser::NAME);
-        $embeds = $this->pycfg->getConfig(EmbedParser::NAME);
+//        $embeds = $this->pycfg->getConfig(EmbedParser::NAME);
 
         $builder = $this->builderProvider->getBuilder($resourceName);
         $impl = $builder->getRESTFQCNImplementation();

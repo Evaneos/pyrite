@@ -23,9 +23,8 @@ class ResourceNameParser implements Parser
         if ($resourceName) {
             return $resourceName;
         }
-        else {
-            return $this->fetchFromNested($request);
-        }
+
+        return $this->fetchFromNested($request);
     }
 
     protected function fetchFromNested(Request $request)
@@ -44,6 +43,7 @@ class ResourceNameParser implements Parser
         $rest = $builder->getRESTFQCNImplementation();
 
         $data = $rest::getEmbeddables();
+
         if (array_key_exists($embed, $data)) {
             $embedDefinitionObject = $data[$embed];
             if ($embedDefinitionObject instanceof PyRestProperty) {
@@ -53,9 +53,7 @@ class ResourceNameParser implements Parser
             $resourceName = $data[$embed]->getResourceType();
             return $resourceName;
         }
-        else {
-            throw new BadRequestException(sprintf("Couldn't find the resource name of '%s' under '%s', maybe not declared as embed of that resource ?", $embed, $parentResource));
-        }
 
+        throw new BadRequestException(sprintf("Couldn't find the resource name of '%s' under '%s', maybe not declared as embed of that resource ?", $embed, $parentResource));
     }
 }
