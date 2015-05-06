@@ -10,6 +10,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class RedirectionLayer extends AbstractLayer implements Layer
 {
+    const MAGIC_KEY_ROUTE_REFERENCE = '@';
+    const MAGIC_KEY_BAG_RESULT      = '$result';
 
     /**
      * @var UrlGeneratorInterface urlGenerator
@@ -29,11 +31,11 @@ class RedirectionLayer extends AbstractLayer implements Layer
     public function handle(ResponseBag $responseBag)
     {
         if (count($this->config) == 1 && array_key_exists(0, $this->config)) {
-            if ($this->config[0][0] == '@') {
+            if ($this->config[0][0] === self::MAGIC_KEY_ROUTE_REFERENCE) {
                 $url = $this->urlGenerator->generate(substr($this->config[0], 1));
-                $this->redirect($url);
+                $this->redirect($url, $bag);
             } else {
-                $this->redirect($this->config[0]);
+                $this->redirect($this->config[0], $bag);
             }
 
         } else {
@@ -51,13 +53,17 @@ class RedirectionLayer extends AbstractLayer implements Layer
         $hasActionResult = !(false === $actionResult);
 
         if ($this->hasRedirection($actionResult)) {
-            if ($actionResult[0] == '@') {
+            if ($actionResult[0] === self::MAGIC_KEY_ROUTE_REFERENCE) {
                 $url = $this->urlGenerator->generate(substr($actionResult, 1));
-                $this->redirect($url);
+                $this->redirect($url, $bag);
+            } elseif ($this->config[$actionResult] === self::MAGIC_KEY_BAG_RESULT) {
+                $this->redirect($bag->getResult(), $bag);
             } else {
-                $this->redirect($this->config[$actionResult]);
+                $this->redirect($this->config[$actionResult], $bag);
             }
         }
+
+        return $bag;
     }
 
     public function hasRedirection($actionResult)
@@ -65,9 +71,8 @@ class RedirectionLayer extends AbstractLayer implements Layer
         return array_key_exists($actionResult, $this->config);
     }
 
-    public function redirect($redirectionPath)
+    public function redirect($redirectionPath, ResponseBag $bag)
     {
-        header("Location:" .  $redirectionPath);
+        $bag->addHeader('Location', $redirectionPath);
     }
-
 }
