@@ -11,7 +11,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class RedirectionLayer extends AbstractLayer implements Layer
 {
     const MAGIC_KEY_ROUTE_REFERENCE = '@';
-    const MAGIC_KEY_BAG_RESULT      = '$result';
 
     /**
      * @var UrlGeneratorInterface urlGenerator
@@ -52,12 +51,10 @@ class RedirectionLayer extends AbstractLayer implements Layer
         $actionResult    = $responseBag->get(ResponseBag::ACTION_RESULT, false);
         $hasActionResult = !(false === $actionResult);
 
-        if ($this->hasRedirection($actionResult)) {
+        if ($hasActionResult && $this->hasRedirection($actionResult)) {
             if ($actionResult[0] === self::MAGIC_KEY_ROUTE_REFERENCE) {
                 $url = $this->urlGenerator->generate(substr($actionResult, 1));
                 $this->redirect($url, $responseBag);
-            } elseif ($this->config[$actionResult] === self::MAGIC_KEY_BAG_RESULT) {
-                $this->redirect($responseBag->getResult(), $responseBag);
             } else {
                 $this->redirect($this->config[$actionResult], $responseBag);
             }
