@@ -7,7 +7,6 @@
             "email" : "olivier@evaneos.com"
         }
     ],
-
     "keywords" : [
         "frameork",
         "php",
@@ -22,25 +21,23 @@
             "url": "git@github.com:Evaneos/dic-it.git"
         }
     ],
-
     "autoload" : {
         "psr-4" : {
             "Pyrite\\" : "src"
         }
     },
     "require" : {
-        "evaneos/dic-it": "~1.0.1",
-        "stack/builder": "~1.0.0",
-        "symfony/http-foundation": "~2.4.0",
-        "symfony/http-kernel": "~2.4.0",
-        "symfony/routing": "~2.4.0",
-        "symfony/yaml": "2.5.x-dev",
-        "symfony/debug": "~2.4.0",
+        "evaneos/dic-it": "~2.0",
+        "stack/builder": "~1.0",
+        "symfony/http-foundation": "~2.6",
+        "symfony/http-kernel": "~2.6",
+        "symfony/routing": "~2.6",
+        "symfony/yaml": "~2.6",
+        "symfony/debug": "~2.6",
         "monolog/monolog": "~1.11",
-        "twig/twig": "1.*"
+        "twig/twig": "~1.0"
     },
     "require-dev": {
-        "stack/session": "dev-master"
-    },
-    "minimum-stability" : "stable"
+        "stack/session": "dev-master#117c2d01d283fbd0f0ba6582687d0b028834a7a0"
+    }
 }
