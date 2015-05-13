@@ -1,9 +1,2 @@
-# Composer
 vendor
 composer.lock
-
-# Eclipse
-.buildpath
-.project
-.settings
-.idea
