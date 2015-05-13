@@ -2,10 +2,8 @@
 
 namespace Pyrite\Layer;
 
-use Pyrite\Response\ResponseBag;
-use Pyrite\Layer\AbstractLayer;
-use Pyrite\Layer\Layer;
 use Pyrite\ParameterTransformer\ParameterTransformer;
+use Pyrite\Response\ResponseBag;
 
 class RestParameterTransformerLayer extends AbstractLayer
 {
@@ -19,8 +17,7 @@ class RestParameterTransformerLayer extends AbstractLayer
 
     protected function before(ResponseBag $responseBag)
     {
-        foreach($this->parameterTransformers as $transformer)
-        {
+        foreach ($this->parameterTransformers as $transformer) {
             $transformer->before($responseBag, $this->request);
         }
     }

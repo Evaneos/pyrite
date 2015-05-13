@@ -2,16 +2,12 @@
 
 namespace Pyrite\Stack;
 
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Session\Session as SymfonySession;
-
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\TerminableInterface;
-
-use Pyrite\Response\ResponseBag;
 
 class Session implements HttpKernelInterface, TerminableInterface
 {
@@ -28,13 +24,13 @@ class Session implements HttpKernelInterface, TerminableInterface
     /**
      * @var array
      */
-    protected $cookieParams= null;
+    protected $cookieParams = null;
 
     /**
      *
      * @param HttpKernelInterface $app
-     * @param string $start
-     * @param array $cookieParams
+     * @param string              $start
+     * @param array               $cookieParams
      */
     public function __construct(HttpKernelInterface $app, $start = false, array $cookieParams = array())
     {

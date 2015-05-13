@@ -10,11 +10,9 @@ class EmbedParser implements Parser
 
     public function parse(Request $request)
     {
-        if($embed = $request->query->get('embed'))
-        {
+        if ($embed = $request->query->get('embed')) {
             return $this->doParse($embed);
-        }
-        else {
+        } else {
             return array();
         }
     }
@@ -24,12 +22,12 @@ class EmbedParser implements Parser
         $explodedEmbed = explode(",", $string);
         $result = array();
 
-        foreach($explodedEmbed as $key => $value) {
+        foreach ($explodedEmbed as $key => $value) {
             $arr = explode('.', $value);
             $count = count($arr);
 
             $pointer = &$result;
-            while(false !== current($arr)) {
+            while (false !== current($arr)) {
                 $current = current($arr);
                 if (!array_key_exists($current, $pointer)) {
                     $pointer[$current] = array();

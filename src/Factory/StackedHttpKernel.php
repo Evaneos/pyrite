@@ -3,9 +3,8 @@
 namespace Pyrite\Factory;
 
 use Pyrite\Container\Container;
-
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\EventDispatcher\Tests\Service;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class StackedHttpKernel implements HttpKernelFactory
 {
@@ -50,7 +49,7 @@ class StackedHttpKernel implements HttpKernelFactory
             $factory       = $this->getFactory($serviceName);
             $configuration = $this->getConfiguration($serviceName, $parameters);
 
-            $builder->push(function ($app) use($container, $factory, $serviceName, $configuration) {
+            $builder->push(function ($app) use ($container, $factory, $serviceName, $configuration) {
                 list($stackName, $stack) = $factory->register($app, $serviceName, $configuration);
                 return $stack;
             });
@@ -70,7 +69,7 @@ class StackedHttpKernel implements HttpKernelFactory
     /**
      * Get a factory given a service name
      *
-     * @param string $factoryName Service name to get factory from
+     * @param  string            $factoryName Service name to get factory from
      * @throws \RuntimeException Throws a exception if service does not implment HttpKernelFactory
      *
      * @return \Pyrite\Factory\HttpKernelFactory a factory for a service

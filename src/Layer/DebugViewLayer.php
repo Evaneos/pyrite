@@ -3,8 +3,6 @@
 namespace Pyrite\Layer;
 
 use Pyrite\Response\ResponseBag;
-use Pyrite\Layer\AbstractLayer;
-use Pyrite\Layer\Layer;
 
 class DebugViewLayer extends AbstractLayer implements Layer
 {
@@ -23,33 +21,40 @@ class DebugViewLayer extends AbstractLayer implements Layer
     }
 
 
-    protected function getRequest() {
+    protected function getRequest()
+    {
         return $this->titleDecorator('request', $_REQUEST);
     }
 
-    protected function getServer() {
+    protected function getServer()
+    {
         return $this->titleDecorator('server', $_SERVER);
     }
 
-    protected function getPost() {
+    protected function getPost()
+    {
         return $this->titleDecorator('post', $_POST);
     }
 
-    protected function getGet() {
+    protected function getGet()
+    {
         return $this->titleDecorator('get', $_GET);
     }
 
-    protected function getSession() {
+    protected function getSession()
+    {
         return $this->titleDecorator('session', $_SESSION);
     }
 
-    protected function dump($what) {
+    protected function dump($what)
+    {
         ob_start();
         var_dump($what);
         return ob_get_clean();
     }
 
-    protected function titleDecorator($name, $what) {
+    protected function titleDecorator($name, $what)
+    {
         return sprintf("<h2>Dumping %s DATA : </h2>\n<br />%s<hr />", $name, nl2br(str_replace(" ", str_repeat("&nbsp;", 4), $this->dump($what))));
     }
 }

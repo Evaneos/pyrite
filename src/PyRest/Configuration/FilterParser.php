@@ -18,22 +18,21 @@ class FilterParser implements Parser
 
         foreach ($filters as $filterKey => $value) {
             // @TODO ask Charles why ?
-            $parsedFilters[str_replace('_','.', $filterKey)] = $value;
+            $parsedFilters[str_replace('_', '.', $filterKey)] = $value;
         }
 
         $attr = $request->attributes;
         $filterResource = $attr->get(self::FILTER_BY_RESOURCE_NAME, null);
         $filterResourceId = $attr->get(self::FILTER_BY_RESOURCE_ID, null);
 
-        if($filterResource) {
+        if ($filterResource) {
             $parsedFilters[self::FILTER_BY_RESOURCE_NAME] = $filterResource;
         }
 
-        if($filterResourceId) {
+        if ($filterResourceId) {
             $parsedFilters[self::FILTER_BY_RESOURCE_ID] = $filterResourceId;
         }
 
         return $parsedFilters;
     }
-
 }

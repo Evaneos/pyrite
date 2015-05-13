@@ -35,9 +35,7 @@ class RedirectionLayer extends AbstractLayer implements Layer
             } else {
                 $this->redirect($this->config[0]);
             }
-
         } else {
-
             $result = $this->aroundNext($responseBag);
             $this->after($responseBag);
         }
@@ -69,5 +67,4 @@ class RedirectionLayer extends AbstractLayer implements Layer
     {
         header("Location:" .  $redirectionPath);
     }
-
 }

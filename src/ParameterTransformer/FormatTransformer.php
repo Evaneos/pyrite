@@ -2,8 +2,8 @@
 
 namespace Pyrite\ParameterTransformer;
 
-use Symfony\Component\HttpFoundation\Request;
 use Pyrite\Response\ResponseBag;
+use Symfony\Component\HttpFoundation\Request;
 
 class FormatTransformer implements ParameterTransformer
 {
@@ -25,12 +25,12 @@ class FormatTransformer implements ParameterTransformer
 
     public function before(ResponseBag $responseBag, Request $request)
     {
-        if($format = $this->getFormatFromQuery($request)){
+        if ($format = $this->getFormatFromQuery($request)) {
             $responseBag->set('format', $format);
             return;
         }
 
-        if($format = $this->getFormatFromHeaders($request)){
+        if ($format = $this->getFormatFromHeaders($request)) {
             $responseBag->set('format', $format);
             return;
         }
@@ -40,10 +40,9 @@ class FormatTransformer implements ParameterTransformer
 
     private function getFormatFromHeaders(Request $request)
     {
-        foreach($request->getAcceptableContentTypes() as $acceptableContentType) {
-
+        foreach ($request->getAcceptableContentTypes() as $acceptableContentType) {
             foreach ($this->contentTypeMapping as $contentType => $format) {
-                if($acceptableContentType === $contentType) {
+                if ($acceptableContentType === $contentType) {
                     return $format;
                 }
             }

@@ -3,9 +3,7 @@
 namespace Pyrite\Factory;
 
 use Pyrite\Container\Container;
-
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Application implements HttpKernelFactory
 {
@@ -18,7 +16,8 @@ class Application implements HttpKernelFactory
         $this->container = $container;
     }
 
-    public function addExceptionHandler($name, \Pyrite\Exception\ExceptionHandler $handler) {
+    public function addExceptionHandler($name, \Pyrite\Exception\ExceptionHandler $handler)
+    {
         $this->exceptionHandlers[$name] = $handler;
         return $this;
     }

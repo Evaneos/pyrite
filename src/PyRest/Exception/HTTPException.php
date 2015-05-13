@@ -2,7 +2,6 @@
 
 namespace Pyrite\PyRest\Exception;
 
-
 class HTTPException extends \RuntimeException
 {
     const CODE = 500;
@@ -20,16 +19,17 @@ class HTTPException extends \RuntimeException
     /**
      * @return array meta
      */
-    public function getMetas() {
+    public function getMetas()
+    {
         return $this->meta;
     }
     /**
-     * @param array $value
+     * @param  array         $value
      * @return HTTPException
      */
-    public function setMetas($value) {
+    public function setMetas($value)
+    {
         $this->meta = $value;
         return $this;
     }
-
 }

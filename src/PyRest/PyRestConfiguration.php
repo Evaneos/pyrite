@@ -2,8 +2,8 @@
 
 namespace Pyrite\PyRest;
 
-use Symfony\Component\HttpFoundation\Request;
 use Pyrite\PyRest\Configuration\Parser;
+use Symfony\Component\HttpFoundation\Request;
 
 class PyRestConfiguration
 {
@@ -29,7 +29,7 @@ class PyRestConfiguration
     public function parseRequest(Request $request)
     {
         $this->request = $request;
-        foreach($this->parsers as $parser) {
+        foreach ($this->parsers as $parser) {
             $this->parsed[$parser::NAME] = $parser->parse($request);
         }
     }

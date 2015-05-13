@@ -3,14 +3,14 @@
 namespace Pyrite\Templating;
 
 use Pyrite\Container\Container;
-use Pyrite\Response\ResponseBag;
 use Pyrite\Templating\Twig\Extension;
 
 class TwigEngine implements Engine
 {
     private $twig;
 
-    public function __construct(Container $container) {
+    public function __construct(Container $container)
+    {
         $rootDir        = $container->getParameter('root_dir');
         $productionMode = $container->getParameter('production_mode');
 
@@ -29,9 +29,8 @@ class TwigEngine implements Engine
 
     public function render($template, array $data)
     {
-       $template = $this->twig->loadTemplate($template);
+        $template = $this->twig->loadTemplate($template);
 
-       return $template->render($data);
+        return $template->render($data);
     }
-
 }

@@ -2,12 +2,10 @@
 
 namespace Pyrite\Exception;
 
-use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-
 use Symfony\Component\Debug\Exception\ContextErrorException;
-use Symfony\Component\Debug\ExceptionHandler;
 
 class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
 {
@@ -73,7 +71,7 @@ class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
         if ($this->enabled) {
             $this->enabled = false;
             restore_error_handler();
-            register_shutdown_function(function() { });
+            register_shutdown_function(function () { });
         }
 
         return $this;
@@ -110,8 +108,7 @@ class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
             $handler->convert2exception = true;
             $handler->convertMinimumLevel = 0;
             $handler->handleError($level, $message, $file, $line, array());
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             if ($handler->onFatalRenderer) {
                 $handler->onFatalRenderer->render($e);
             }
@@ -131,7 +128,7 @@ class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
         $levelToString = isset($this->levels[$level]) ? $this->levels[$level] : $level;
         $messageEnhanced = sprintf('%s: %s in %s line %d', $levelToString, $message, $file, $line);
 
-        switch($level) {
+        switch ($level) {
             case E_WARNING :
             case E_USER_WARNING :
                 $this->logger->warning($messageEnhanced, $context);

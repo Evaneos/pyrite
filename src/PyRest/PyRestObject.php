@@ -1,8 +1,8 @@
 <?php
 namespace Pyrite\PyRest;
 
-use Pyrite\PyRest\Type\PyRestItem;
 use Pyrite\PyRest\Type\PyRestCollection;
+use Pyrite\PyRest\Type\PyRestItem;
 use Pyrite\PyRest\Type\PyRestProperty;
 
 abstract class PyRestObject
@@ -22,7 +22,8 @@ abstract class PyRestObject
 
     private $embedStorage = array();
 
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -30,8 +31,7 @@ abstract class PyRestObject
     {
         if (array_key_exists($name, $this->embedStorage)) {
             return $this->embedStorage[$name];
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -50,13 +50,13 @@ abstract class PyRestObject
     public function pushInEmbed($name, PyRestObject $object)
     {
         $embeddables = static::getEmbeddables();
-        if(array_key_exists($name, $embeddables)) {
-            switch(true) {
+        if (array_key_exists($name, $embeddables)) {
+            switch (true) {
                 case $embeddables[$name] instanceof PyRestItem :
                     $this->embedStorage[$name] = $object;
                     break;
                 case $embeddables[$name] instanceof PyRestCollection :
-                    if(!array_key_exists($name, $this->embedStorage)) {
+                    if (!array_key_exists($name, $this->embedStorage)) {
                         $this->embedStorage[$name] = array();
                     }
                     $this->embedStorage[$name][] = $object;
@@ -67,8 +67,7 @@ abstract class PyRestObject
                 default :
                     throw new \RuntimeException("Unexpected push in embed '$name'");
             }
-        }
-        else {
+        } else {
             throw new \RuntimeException("Can't push in an undeclared embed '$name'");
         }
     }
@@ -81,21 +80,24 @@ abstract class PyRestObject
     /**
      * @return array embeddables
      */
-    public static function getEmbeddables() {
+    public static function getEmbeddables()
+    {
         return static::initEmbeddables();
     }
 
     /**
      * @return array filters
      */
-    public function getFilters() {
+    public function getFilters()
+    {
         return $this->filters;
     }
     /**
-     * @param array $value
+     * @param  array      $value
      * @return ObjectREST
      */
-    public function setFilters($value) {
+    public function setFilters($value)
+    {
         $this->filters = $value;
         return $this;
     }
@@ -103,14 +105,16 @@ abstract class PyRestObject
     /**
      * @return array sorts
      */
-    public function getSorts() {
+    public function getSorts()
+    {
         return $this->sorts;
     }
     /**
-     * @param array $value
+     * @param  array      $value
      * @return ObjectREST
      */
-    public function setSorts($value) {
+    public function setSorts($value)
+    {
         $this->sorts = $value;
         return $this;
     }

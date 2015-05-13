@@ -2,8 +2,8 @@
 
 namespace Pyrite\Layer;
 
-use Pyrite\Response\ResponseBag;
 use Pyrite\Container\Container;
+use Pyrite\Response\ResponseBag;
 
 class ExecutorExtendedLayer extends AbstractLayer implements Layer
 {
@@ -23,8 +23,7 @@ class ExecutorExtendedLayer extends AbstractLayer implements Layer
             ob_start();
             $ret = parent::handle($bag);
             ob_get_clean();
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             ob_get_clean();
             throw $e;
         }
@@ -38,8 +37,7 @@ class ExecutorExtendedLayer extends AbstractLayer implements Layer
 
         try {
             $classInstance = $this->container->get($class);
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new \RuntimeException(sprintf("Couldn't load '%s' from container", $class), 500, $e);
         }
 

@@ -44,12 +44,10 @@ abstract class AbstractLayer implements Layer
 
     protected function before(ResponseBag $responseBag)
     {
-
     }
 
     protected function after(ResponseBag $responseBag)
     {
-
     }
 
     protected function aroundNext(ResponseBag $responseBag)

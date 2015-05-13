@@ -4,7 +4,8 @@ namespace Pyrite\OutputBuilder;
 
 use Pyrite\Response\ResponseBag;
 
-class JsonOutputBuilder implements OutputBuilder {
+class JsonOutputBuilder implements OutputBuilder
+{
 
     public function getHeaders(ResponseBag $bag)
     {

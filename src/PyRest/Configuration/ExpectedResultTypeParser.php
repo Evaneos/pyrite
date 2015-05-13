@@ -2,12 +2,10 @@
 
 namespace Pyrite\PyRest\Configuration;
 
-use Symfony\Component\HttpFoundation\Request;
-use Pyrite\PyRest\PyRestConfiguration;
+use Pyrite\PyRest\Type\PyRestCollection;
 use Pyrite\PyRest\Type\PyRestItem;
 use Pyrite\PyRest\Type\PyRestProperty;
-use Pyrite\PyRest\Type\PyRestCollection;
-
+use Symfony\Component\HttpFoundation\Request;
 
 class ExpectedResultTypeParser implements Parser
 {
@@ -28,21 +26,17 @@ class ExpectedResultTypeParser implements Parser
     {
         if ($request->getMethod() != 'GET') {
             return null;
-        }
-        else {
+        } else {
             $resourceName = $request->attributes->get('resource', null);
             $resourceId = $request->attributes->get('id', null);
             if ($resourceName && $resourceId) {
                 return self::ONE;
-            }
-            elseif ($resourceName) {
+            } elseif ($resourceName) {
                 return self::MANY;
-            }
-            else {
+            } else {
                 return $this->nestedComputation($request);
             }
         }
-
     }
 
     protected function nestedComputation(Request $request)
@@ -58,21 +52,16 @@ class ExpectedResultTypeParser implements Parser
             if (array_key_exists($embed, $data)) {
                 if ($data[$embed] instanceof PyRestItem) {
                     return self::ONE;
-                }
-                elseif ($data[$embed] instanceof PyRestProperty) {
+                } elseif ($data[$embed] instanceof PyRestProperty) {
                     return self::ONE;
-                }
-                elseif ($data[$embed] instanceof PyRestCollection) {
+                } elseif ($data[$embed] instanceof PyRestCollection) {
                     return self::MANY;
-                }
-                else {
+                } else {
                     return null;
                 }
             }
-        }
-        else {
+        } else {
             return null;
         }
-
     }
 }

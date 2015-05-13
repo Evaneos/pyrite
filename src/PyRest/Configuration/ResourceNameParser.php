@@ -2,9 +2,9 @@
 
 namespace Pyrite\PyRest\Configuration;
 
-use Symfony\Component\HttpFoundation\Request;
 use Pyrite\PyRest\Exception\BadRequestException;
 use Pyrite\PyRest\Type\PyRestProperty;
+use Symfony\Component\HttpFoundation\Request;
 
 class ResourceNameParser implements Parser
 {
@@ -22,8 +22,7 @@ class ResourceNameParser implements Parser
         $resourceName = $request->attributes->get('resource', null);
         if ($resourceName) {
             return $resourceName;
-        }
-        else {
+        } else {
             return $this->fetchFromNested($request);
         }
     }
@@ -52,10 +51,8 @@ class ResourceNameParser implements Parser
 
             $resourceName = $data[$embed]->getResourceType();
             return $resourceName;
-        }
-        else {
+        } else {
             throw new BadRequestException(sprintf("Couldn't find the resource name of '%s' under '%s', maybe not declared as embed of that resource ?", $embed, $parentResource));
         }
-
     }
 }

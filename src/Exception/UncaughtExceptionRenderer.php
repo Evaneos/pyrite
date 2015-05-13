@@ -6,5 +6,5 @@ use Psr\Log\LoggerAwareInterface;
 
 interface UncaughtExceptionRenderer extends LoggerAwareInterface
 {
-    function render(\Exception $e);
+    public function render(\Exception $e);
 }

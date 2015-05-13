@@ -2,10 +2,8 @@
 
 namespace Pyrite\Exception;
 
-use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-
 use Symfony\Component\Debug\Exception\FlattenException;
 
 class UncaughtExceptionRendererImpl implements UncaughtExceptionRenderer
@@ -53,7 +51,7 @@ class UncaughtExceptionRendererImpl implements UncaughtExceptionRenderer
             $exceptions[] = $e;
             $all = array_merge($exceptions, $e->getAllPrevious());
 
-            foreach($all as $exception) {
+            foreach ($all as $exception) {
                 sprintf("%s on %s:%s\n%s\n", $exception->getMessage(), $exception->getFile(), $exception->getLine(), $exception->getTraceAsString());
             }
         }

@@ -2,9 +2,8 @@
 
 namespace Pyrite\Layer;
 
-use Pyrite\Response\ResponseBag;
-use Pyrite\Layer\AbstractLayer;
 use Pyrite\OutputBuilder\OutputBuilder;
+use Pyrite\Response\ResponseBag;
 
 class OutputLayer extends AbstractLayer
 {
@@ -25,8 +24,7 @@ class OutputLayer extends AbstractLayer
 
         $data = $builder->buildOutput($bag);
         $headers = $builder->getHeaders($bag);
-        foreach($headers as $header)
-        {
+        foreach ($headers as $header) {
             header($header);
         }
 

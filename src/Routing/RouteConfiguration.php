@@ -2,8 +2,8 @@
 
 namespace Pyrite\Routing;
 
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouteCollection;
 
 class RouteConfiguration
 {
@@ -20,7 +20,8 @@ class RouteConfiguration
     /**
      * @return RouteCollection
      */
-    public function getRouteCollection() {
+    public function getRouteCollection()
+    {
         return $this->routeCollection;
     }
     /**
@@ -28,14 +29,16 @@ class RouteConfiguration
      *
      * @return RouteConfiguration
      */
-    public function setRouteCollection(RouteCollection $value) {
+    public function setRouteCollection(RouteCollection $value)
+    {
         $this->routeCollection = $value;
         return $this;
     }
     /**
      * @return UrlGeneratorInterface
      */
-    public function getUrlGenerator() {
+    public function getUrlGenerator()
+    {
         return $this->urlGenerator;
     }
     /**
@@ -43,7 +46,8 @@ class RouteConfiguration
      *
      * @return RouteConfiguration
      */
-    public function setUrlGenerator(UrlGeneratorInterface $value) {
+    public function setUrlGenerator(UrlGeneratorInterface $value)
+    {
         $this->urlGenerator = $value;
         return $this;
     }

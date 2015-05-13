@@ -3,7 +3,6 @@
 namespace Pyrite\Routing;
 
 use Symfony\Component\HttpFoundation\Request;
-
 use Symfony\Component\Routing\RequestContext;
 
 interface RouteConfigurationBuilder
@@ -11,20 +10,20 @@ interface RouteConfigurationBuilder
     /**
      * @param Request $request
      */
-    function setRequest(Request $request);
+    public function setRequest(Request $request);
 
     /**
      * @param RequestContext $requestContext
      */
-    function setRequestContext(RequestContext $requestContext);
+    public function setRequestContext(RequestContext $requestContext);
 
     /**
      * @param string $path
      */
-    function setConfigurationPath($path);
+    public function setConfigurationPath($path);
 
     /**
      * @return RouteConfiguration
      */
-    function build();
+    public function build();
 }

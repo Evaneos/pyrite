@@ -2,10 +2,8 @@
 
 namespace Pyrite\Templating;
 
-use Pyrite\Container\Container;
 use Pyrite\Exception\TemplateNotFoundException;
 use Pyrite\Response\ResponseBag;
-use Pyrite\Templating\Engine;
 
 class Renderer
 {
@@ -22,10 +20,10 @@ class Renderer
     /**
      * Register a template engine.
      *
-     * @param Engine    $engine         the template engine
-     * @param string    $extensionsStr  list of supported extension, as a
-     *                                  string. Extensions are separated by
-     *                                  commas.
+     * @param Engine $engine        the template engine
+     * @param string $extensionsStr list of supported extension, as a
+     *                              string. Extensions are separated by
+     *                              commas.
      */
     public function registerEngine(Engine $engine, $extensionsStr)
     {
@@ -39,10 +37,11 @@ class Renderer
     /**
      * Render a template
      *
-     * @param string        $template   template path
-     * @param array         $data       data passed to the view
+     * @param string $template template path
+     * @param array  $data     data passed to the view
      */
-    public function render($template, array $data) {
+    public function render($template, array $data)
+    {
         if (is_a($data, 'Pyrite\Response\ResponseBag')) {
             $data = $data->getAll();
         }

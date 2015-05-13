@@ -7,13 +7,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface Layer
 {
-    function setNext(Layer $layer);
-    function setRequest(Request $request);
-    function setConfiguration(array $config = array());
+    public function setNext(Layer $layer);
+    public function setRequest(Request $request);
+    public function setConfiguration(array $config = array());
 
     /**
      * @param  ResponseBag $responseBag
      * @return ResponseBag
      */
-    function handle(ResponseBag $responseBag);
+    public function handle(ResponseBag $responseBag);
 }

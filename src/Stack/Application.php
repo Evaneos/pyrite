@@ -2,15 +2,12 @@
 
 namespace Pyrite\Stack;
 
+use Pyrite\Container\Container;
+use Pyrite\Response\ResponseBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\TerminableInterface;
-
-use Pyrite\Response\ResponseBag;
-
-use Pyrite\Container\Container;
 
 class Application implements HttpKernelInterface, TerminableInterface
 {
@@ -35,25 +32,21 @@ class Application implements HttpKernelInterface, TerminableInterface
         $stackedLayers = $this->buildLayerStack($request, $this->layers);
 
         // run them & get the response bag
-        if(count($stackedLayers)) {
+        if (count($stackedLayers)) {
             try {
                 $responseBag = $stackedLayers->handle($responseBag);
-            }
-            catch(\Exception $e) {
-
+            } catch (\Exception $e) {
                 $handlerFound = false;
-                foreach($this->exceptionHandlers as $exceptionName => $handler) {
-
-                    if($e instanceof $exceptionName) {
+                foreach ($this->exceptionHandlers as $exceptionName => $handler) {
+                    if ($e instanceof $exceptionName) {
                         $handlerFound = true;
                         $responseBag = call_user_func_array(array($handler, "handleException"), array($e, $responseBag));
 
                         break;
                     }
-
                 }
 
-                if(!$handlerFound) {
+                if (!$handlerFound) {
                     throw $e;
                 }
             }
@@ -65,9 +58,10 @@ class Application implements HttpKernelInterface, TerminableInterface
         return $response;
     }
 
-    protected function buildLayerStack(Request $request, array $layers = array()) {
+    protected function buildLayerStack(Request $request, array $layers = array())
+    {
         $layerObjects = array();
-        foreach($layers as $layerName => $configuration) {
+        foreach ($layers as $layerName => $configuration) {
             $layer = $layerName;
             if (preg_match('/\[\d+\]/', $layerName)) { // allow multiple definitions of a layer type
                 $layer = substr($layer, 0, strpos($layer, "["));
@@ -75,7 +69,7 @@ class Application implements HttpKernelInterface, TerminableInterface
 
             $layerInstance = $this->container->get($layer);
 
-            if(!is_array($configuration)) {
+            if (!is_array($configuration)) {
                 throw new \Pyrite\Exception\BadConfigurationException(sprintf("Configuration of layer '%s' must be an array, %s given", $layerName, gettype($configuration)));
             }
 
@@ -93,13 +87,13 @@ class Application implements HttpKernelInterface, TerminableInterface
 
         if (count($layerObjects)) {
             return reset($layerObjects);
-        }
-        else {
+        } else {
             return array();
         }
     }
 
-    protected function buildResponseFromResponseBag(ResponseBag $responseBag) {
+    protected function buildResponseFromResponseBag(ResponseBag $responseBag)
+    {
         $result = $responseBag->getResult();
         $resultCode = $responseBag->getResultCode();
         $headers = $responseBag->getHeaders();
@@ -107,7 +101,8 @@ class Application implements HttpKernelInterface, TerminableInterface
         return new Response($result, $resultCode, $headers);
     }
 
-    public function terminate(Request $request, Response $response) {
+    public function terminate(Request $request, Response $response)
+    {
         exit;
     }
 }

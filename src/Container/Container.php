@@ -2,12 +2,13 @@
 
 namespace Pyrite\Container;
 
-interface Container {
-    function bind($key, $item);
-    function setParameter($key, $value);
-    function getParameter($parameterName);
-    function get($serviceName);
-    function resolve($reference);
-    function resolveMany(array $references = null);
-    function flushRegistry();
+interface Container
+{
+    public function bind($key, $item);
+    public function setParameter($key, $value);
+    public function getParameter($parameterName);
+    public function get($serviceName);
+    public function resolve($reference);
+    public function resolveMany(array $references = null);
+    public function flushRegistry();
 }

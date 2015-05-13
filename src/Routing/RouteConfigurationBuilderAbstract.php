@@ -5,13 +5,10 @@ namespace Pyrite\Routing;
 use DICIT\Config\PHP;
 use DICIT\Config\YML;
 use Pyrite\Config\NullConfig;
-
 use Symfony\Component\HttpFoundation\Request;
-
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
-
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBuilder
 {
@@ -64,11 +61,9 @@ abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBu
     {
         if (null !== $this->path && preg_match('/.*php$/', $this->path)) {
             $config = new PHP($this->path);
-        }
-        else if (null !== $this->path && preg_match('/.*yml$/', $this->path)) {
+        } elseif (null !== $this->path && preg_match('/.*yml$/', $this->path)) {
             $config = new YML($this->path);
-        }
-        else {
+        } else {
             $config = new NullConfig();
         }
 
@@ -76,8 +71,8 @@ abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBu
     }
 
     /**
-     * @param  RouteCollection       $collection
-     * @param  UrlGeneratorInterface $generator
+     * @param RouteCollection       $collection
+     * @param UrlGeneratorInterface $generator
      *
      * @return RouteConfiguration
      */

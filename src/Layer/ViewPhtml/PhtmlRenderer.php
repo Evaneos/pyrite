@@ -2,10 +2,9 @@
 
 namespace Pyrite\Layer\ViewPhtml;
 
-use Pyrite\Response\ResponseBag;
-use Pyrite\Templating\Renderer;
 use Pyrite\Layer\AbstractLayer;
 use Pyrite\Layer\Layer;
+use Pyrite\Response\ResponseBag;
 
 class PhtmlRenderer extends AbstractLayer implements Layer
 {
@@ -14,7 +13,8 @@ class PhtmlRenderer extends AbstractLayer implements Layer
 
     protected $viewPath = '';
 
-    public function __construct($viewPath) {
+    public function __construct($viewPath)
+    {
         $this->viewPath = $viewPath;
     }
 
@@ -34,8 +34,7 @@ class PhtmlRenderer extends AbstractLayer implements Layer
 
         if ($out == self::PLACEHOLDER_DEFAULT) {
             $bag->setResult($content);
-        }
-        else {
+        } else {
             $bag->set('__placeholder__' . $out, $content);
         }
     }

@@ -2,13 +2,13 @@
 
 namespace Pyrite\Routing;
 
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 class RouteCollectionBuilder
 {
     /**
-     * @param  array $routingConfiguration
+     * @param array $routingConfiguration
      *
      * @return RouteCollection
      */

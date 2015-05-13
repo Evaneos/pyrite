@@ -32,5 +32,4 @@ class RedirectionFromBagLayer extends AbstractLayer implements Layer
         $bag->setResultCode(302);
         header("Location: " . $redirectionPath);
     }
-
 }
