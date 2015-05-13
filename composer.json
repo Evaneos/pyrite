@@ -29,6 +29,7 @@
         }
     },
     "require" : {
+        "christophehurpeau/php-var-dump": "~1.0",
         "evaneos/dic-it": "~1.0.1",
         "stack/builder": "~1.0.0",
         "symfony/http-foundation": "~2.4.0",
