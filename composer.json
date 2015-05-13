@@ -39,5 +39,10 @@
     },
     "require-dev": {
         "stack/session": "dev-master#117c2d01d283fbd0f0ba6582687d0b028834a7a0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.1.x-dev"
+        }
     }
 }
