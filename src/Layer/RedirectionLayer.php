@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class RedirectionLayer extends AbstractLayer implements Layer
 {
+    const MAGIC_KEY_ROUTE_REFERENCE = '@';
 
     /**
      * @var UrlGeneratorInterface urlGenerator
@@ -29,11 +30,11 @@ class RedirectionLayer extends AbstractLayer implements Layer
     public function handle(ResponseBag $responseBag)
     {
         if (count($this->config) == 1 && array_key_exists(0, $this->config)) {
-            if ($this->config[0][0] == '@') {
+            if ($this->config[0][0] === self::MAGIC_KEY_ROUTE_REFERENCE) {
                 $url = $this->urlGenerator->generate(substr($this->config[0], 1));
-                $this->redirect($url);
+                $this->redirect($url, $responseBag);
             } else {
-                $this->redirect($this->config[0]);
+                $this->redirect($this->config[0], $responseBag);
             }
         } else {
             $result = $this->aroundNext($responseBag);
@@ -43,19 +44,21 @@ class RedirectionLayer extends AbstractLayer implements Layer
         return $responseBag;
     }
 
-    public function after(ResponseBag $bag)
+    public function after(ResponseBag $responseBag)
     {
-        $actionResult    = $bag->get(ResponseBag::ACTION_RESULT, false);
+        $actionResult    = $responseBag->get(ResponseBag::ACTION_RESULT, false);
         $hasActionResult = !(false === $actionResult);
 
-        if ($this->hasRedirection($actionResult)) {
-            if ($actionResult[0] == '@') {
+        if ($hasActionResult && $this->hasRedirection($actionResult)) {
+            if ($actionResult[0] === self::MAGIC_KEY_ROUTE_REFERENCE) {
                 $url = $this->urlGenerator->generate(substr($actionResult, 1));
-                $this->redirect($url);
+                $this->redirect($url, $responseBag);
             } else {
-                $this->redirect($this->config[$actionResult]);
+                $this->redirect($this->config[$actionResult], $responseBag);
             }
         }
+
+        return $responseBag;
     }
 
     public function hasRedirection($actionResult)
@@ -63,8 +66,8 @@ class RedirectionLayer extends AbstractLayer implements Layer
         return array_key_exists($actionResult, $this->config);
     }
 
-    public function redirect($redirectionPath)
+    public function redirect($redirectionPath, ResponseBag $responseBag)
     {
-        header("Location:" .  $redirectionPath);
+        $responseBag->addHeader('Location', $redirectionPath);
     }
 }
