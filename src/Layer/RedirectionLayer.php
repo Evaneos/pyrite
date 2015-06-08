@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class RedirectionLayer extends AbstractLayer implements Layer
 {
+    const MAGIC_KEY_URL_REFERENCE   = '#';
     const MAGIC_KEY_ROUTE_REFERENCE = '@';
 
     /**
@@ -49,11 +50,13 @@ class RedirectionLayer extends AbstractLayer implements Layer
         $actionResult    = $responseBag->get(ResponseBag::ACTION_RESULT, false);
         $hasActionResult = !(false === $actionResult);
 
-        if ($hasActionResult && $this->hasRedirection($actionResult)) {
-            if ($actionResult[0] === self::MAGIC_KEY_ROUTE_REFERENCE) {
+        if ($hasActionResult) {
+            if ($actionResult[0] === self::MAGIC_KEY_URL_REFERENCE) {
+                $this->redirect(substr($actionResult, 1), $responseBag);
+            } elseif ($actionResult[0] === self::MAGIC_KEY_ROUTE_REFERENCE && $this->hasRedirection($actionResult)) {
                 $url = $this->urlGenerator->generate(substr($actionResult, 1));
                 $this->redirect($url, $responseBag);
-            } else {
+            } elseif($this->hasRedirection($actionResult)) {
                 $this->redirect($this->config[$actionResult], $responseBag);
             }
         }
