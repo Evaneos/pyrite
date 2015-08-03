@@ -4,25 +4,26 @@ namespace Pyrite\Exception;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Symfony\Component\Debug\Exception\ContextErrorException;
 
 class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
 {
     private $levels = array(
-        E_WARNING           => 'Warning',
-        E_NOTICE            => 'Notice',
-        E_USER_ERROR        => 'User Error',
-        E_USER_WARNING      => 'User Warning',
-        E_USER_NOTICE       => 'User Notice',
-        E_STRICT            => 'Runtime Notice',
+        E_WARNING => 'Warning',
+        E_NOTICE => 'Notice',
+        E_USER_ERROR => 'User Error',
+        E_USER_WARNING => 'User Warning',
+        E_USER_NOTICE => 'User Notice',
+        E_STRICT => 'Runtime Notice',
         E_RECOVERABLE_ERROR => 'Catchable Fatal Error',
-        E_DEPRECATED        => 'Deprecated',
-        E_USER_DEPRECATED   => 'User Deprecated',
-        E_ERROR             => 'Error',
-        E_CORE_ERROR        => 'Core Error',
-        E_COMPILE_ERROR     => 'Compile Error',
-        E_PARSE             => 'Parse',
+        E_DEPRECATED => 'Deprecated',
+        E_USER_DEPRECATED => 'User Deprecated',
+        E_ERROR => 'Error',
+        E_CORE_ERROR => 'Core Error',
+        E_COMPILE_ERROR => 'Compile Error',
+        E_PARSE => 'Parse',
     );
 
     protected $logger = null;
@@ -46,13 +47,13 @@ class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
 
     public function enableExceptionConversion($bool)
     {
-        $this->convert2exception = (bool) $bool;
+        $this->convert2exception = (bool)$bool;
         return $this;
     }
 
     public function convertMinimumLevel($level)
     {
-        $this->convertMinimumLevel = (int) $level;
+        $this->convertMinimumLevel = $level;
         return $this;
     }
 
@@ -71,7 +72,9 @@ class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
         if ($this->enabled) {
             $this->enabled = false;
             restore_error_handler();
-            register_shutdown_function(function () { });
+            register_shutdown_function(function () {
+
+            });
         }
 
         return $this;
@@ -86,7 +89,10 @@ class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
     public function handleError($level, $message, $file = 'unknown', $line = 0, $context = array())
     {
         $this->logError($level, $message, $file, $line, $context);
-        if ($this->convert2exception && $level >= $this->convertMinimumLevel) {
+
+        if ($this->convert2exception &&
+            $this->assertMinimumLevelReachedForException($level, $this->convertMinimumLevel)
+        ) {
             $exception = $this->convert2exception($level, $message, $file, $line, $context);
             throw $exception;
         }
@@ -129,34 +135,104 @@ class ErrorHandlerImpl implements ErrorHandler, LoggerAwareInterface
         $messageEnhanced = sprintf('%s: %s in %s line %d', $levelToString, $message, $file, $line);
 
         switch ($level) {
-            case E_WARNING :
-            case E_USER_WARNING :
+            case E_WARNING:
+            case E_USER_WARNING:
                 $this->logger->warning($messageEnhanced, $context);
                 break;
-            case E_NOTICE :
-            case E_USER_NOTICE :
+            case E_NOTICE:
+            case E_USER_NOTICE:
                 $this->logger->notice($messageEnhanced, $context);
                 break;
-            case E_ERROR :
-            case E_USER_ERROR :
+            case E_ERROR:
+            case E_USER_ERROR:
                 $this->logger->error($messageEnhanced, $context);
                 break;
-            case E_CORE_ERROR :
-            case E_COMPILE_ERROR :
-            case E_PARSE :
-            case E_RECOVERABLE_ERROR :
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_PARSE:
+            case E_RECOVERABLE_ERROR:
                 $this->logger->emergency($messageEnhanced, $context);
                 break;
-            case E_DEPRECATED :
-            case E_USER_DEPRECATED :
-            case E_STRICT :
+            case E_DEPRECATED:
+            case E_USER_DEPRECATED:
+            case E_STRICT:
                 $this->logger->critical($messageEnhanced, $context);
                 break;
-            default :
+            default:
                 $this->logger->alert($messageEnhanced, $context);
                 break;
         }
 
         return true;
+    }
+
+    /**
+     * Return true if minimum level reached by the given PHP Error level
+     * Minimum level is inclusive
+     *
+     * @param int       $level            PHP Error Constant
+     * @param string    $minimumLevel     PSR Constant
+     * @return bool
+     */
+    private function assertMinimumLevelReachedForException($level, $minimumLevel)
+    {
+        $assert = false;
+
+        $criticityOrder = array(
+            LogLevel::NOTICE,
+            LogLevel::WARNING,
+            LogLevel::ERROR,
+            LogLevel::CRITICAL,
+            LogLevel::ALERT,
+            LogLevel::EMERGENCY
+        );
+
+        $criticityOrderDESC = array_reverse($criticityOrder);
+
+        $currentLevel = $this->convertLevelToPsrLevel($level);
+        foreach ($criticityOrderDESC as $criticity) {
+            if ($currentLevel == $criticity) {
+                $assert = true;
+                break;
+            }
+
+            if ($criticity === $minimumLevel) {
+                break;
+            }
+        }
+
+        return $assert;
+    }
+
+    /**
+     * Return the PSR constant level for the given PHP Error
+     *
+     * @param $level
+     * @return string
+     */
+    private function convertLevelToPsrLevel($level)
+    {
+        switch ($level) {
+            case E_WARNING:
+            case E_USER_WARNING:
+                return LogLevel::WARNING;
+            case E_NOTICE:
+            case E_USER_NOTICE:
+                return LogLevel::NOTICE;
+            case E_ERROR:
+            case E_USER_ERROR:
+                return LogLevel::ERROR;
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_PARSE:
+            case E_RECOVERABLE_ERROR:
+                return LogLevel::EMERGENCY;
+            case E_DEPRECATED:
+            case E_USER_DEPRECATED:
+            case E_STRICT:
+                return LogLevel::CRITICAL;
+            default:
+                return LogLevel::ALERT;
+        }
     }
 }
