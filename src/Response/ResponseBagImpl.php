@@ -33,6 +33,10 @@ class ResponseBagImpl implements ResponseBag
 
     public function setType($type)
     {
+        if(!in_array($type, array(self::TYPE_STREAMED, self::TYPE_BINARY, self::TYPE_DEFAULT))){
+            throw new \InvalidArgumentException('Unknown response type');
+        }
+
         if ($type === self::TYPE_STREAMED) {
             $this->set('format', 'streamed');
         }
