@@ -3,9 +3,12 @@
 namespace Pyrite\Stack;
 
 use Pyrite\Container\Container;
+use Pyrite\OutputBuilder\BinaryOutputBuilder;
 use Pyrite\Response\ResponseBag;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
@@ -34,7 +37,7 @@ class Application implements HttpKernelInterface, TerminableInterface
         // run them & get the response bag
         if (count($stackedLayers)) {
             try {
-                $responseBag = $stackedLayers->handle($responseBag);
+                $stackedLayers->handle($responseBag);
             } catch (\Exception $e) {
                 $handlerFound = false;
                 foreach ($this->exceptionHandlers as $exceptionName => $handler) {
@@ -97,8 +100,31 @@ class Application implements HttpKernelInterface, TerminableInterface
         $result = $responseBag->getResult();
         $resultCode = $responseBag->getResultCode();
         $headers = $responseBag->getHeaders();
+        $type = $responseBag->getType();
 
-        return new Response($result, $resultCode, $headers);
+        if($type === ResponseBag::TYPE_DEFAULT){
+            return new Response($result, $resultCode, $headers);
+        }
+
+        if($type === ResponseBag::TYPE_STREAMED){
+            $callback = $responseBag->getCallback();
+
+            if(null === $callback){
+                throw new \Exception('Streamed response need callback');
+            }
+
+            return new StreamedResponse($callback, $resultCode, $headers);
+        }
+
+        if($type === ResponseBag::TYPE_BINARY){
+            $filepath = $responseBag->get(BinaryOutputBuilder::FILEPATH, null);
+            $visibility = $responseBag->get(BinaryOutputBuilder::VISIBILITY_PUBLIC, true);
+            $autoEtag = $responseBag->get(BinaryOutputBuilder::AUTO_ETAG, false);
+            $autoLastModified = $responseBag->get(BinaryOutputBuilder::AUTO_LAST_MODIFIED, true);
+            $contentDisposition = $responseBag->get(BinaryOutputBuilder::CONTENT_DISPOSITION, null);
+
+            return new BinaryFileResponse($filepath, $contentDisposition, $visibility, $autoEtag, $autoLastModified);
+        }
     }
 
     public function terminate(Request $request, Response $response)

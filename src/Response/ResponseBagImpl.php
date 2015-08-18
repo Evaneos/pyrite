@@ -4,16 +4,45 @@ namespace Pyrite\Response;
 
 class ResponseBagImpl implements ResponseBag
 {
+    /** @var array  */
     protected $data = array();
+
+    /** @var array  */
     protected $errors = array();
-    protected $result = "";
+
+    /** @var string  */
+    protected $result = '';
+
+    /** @var int  */
     protected $resultCode = 200;
+
+    /** @var array  */
     protected $headers = array();
+
+    /** @var string  */
+    protected $type = self::TYPE_DEFAULT;
+
+    /** @var  Callable */
+    protected $callback;
 
     public function set($key, $value)
     {
         $this->data[$key] = $value;
         return $this;
+    }
+
+    public function setType($type)
+    {
+        if($type === self::TYPE_STREAMED){
+            $this->set('format', 'streamed');
+        }
+
+        $this->type = $type;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     public function get($key, $defaultValue = null)
@@ -43,6 +72,16 @@ class ResponseBagImpl implements ResponseBag
     public function getResult()
     {
         return $this->result;
+    }
+
+    public function setCallback($callback)
+    {
+        $this->callback = $callback;
+    }
+
+    public function getCallback()
+    {
+        return $this->callback;
     }
 
     public function setResultCode($value)
