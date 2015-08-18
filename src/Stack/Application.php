@@ -102,21 +102,21 @@ class Application implements HttpKernelInterface, TerminableInterface
         $headers = $responseBag->getHeaders();
         $type = $responseBag->getType();
 
-        if($type === ResponseBag::TYPE_DEFAULT){
+        if ($type === ResponseBag::TYPE_DEFAULT) {
             return new Response($result, $resultCode, $headers);
         }
 
-        if($type === ResponseBag::TYPE_STREAMED){
+        if ($type === ResponseBag::TYPE_STREAMED) {
             $callback = $responseBag->getCallback();
 
-            if(null === $callback){
+            if (null === $callback) {
                 throw new \Exception('Streamed response need callback');
             }
 
             return new StreamedResponse($callback, $resultCode, $headers);
         }
 
-        if($type === ResponseBag::TYPE_BINARY){
+        if ($type === ResponseBag::TYPE_BINARY) {
             $filepath = $responseBag->get(BinaryOutputBuilder::FILEPATH, null);
             $visibility = $responseBag->get(BinaryOutputBuilder::VISIBILITY_PUBLIC, true);
             $autoEtag = $responseBag->get(BinaryOutputBuilder::AUTO_ETAG, false);

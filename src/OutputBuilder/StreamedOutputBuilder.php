@@ -13,7 +13,7 @@ class StreamedOutputBuilder implements OutputBuilder
 
     public function getHeaders(ResponseBag $bag)
     {
-        if(!$bag->has(self::FILENAME)){
+        if (!$bag->has(self::FILENAME)) {
             throw new \Exception('Mission filename for streamed response');
         }
 
@@ -25,6 +25,5 @@ class StreamedOutputBuilder implements OutputBuilder
 
     public function buildOutput(ResponseBag $bag)
     {
-
     }
 }

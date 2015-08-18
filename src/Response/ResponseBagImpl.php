@@ -33,7 +33,7 @@ class ResponseBagImpl implements ResponseBag
 
     public function setType($type)
     {
-        if($type === self::TYPE_STREAMED){
+        if ($type === self::TYPE_STREAMED) {
             $this->set('format', 'streamed');
         }
 
