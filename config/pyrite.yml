@@ -60,7 +60,7 @@ classes:
     JsonOutputBuilder:
         class: Pyrite\OutputBuilder\JsonOutputBuilder
     HtmlOutputBuilder:
-        class: Pyrite\OutputBuilder\HtmlOutputBuilder
+        class: Pyrite\Outpu tBuilder\HtmlOutputBuilder
     XmlOutputBuilder:
         class: Pyrite\OutputBuilder\XmlOutputBuilder
     BinaryOutputBuilder:
