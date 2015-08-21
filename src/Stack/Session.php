@@ -56,6 +56,7 @@ class Session implements HttpKernelInterface, TerminableInterface
                 $session->setId($cookies->get($session->getName()));
             } else {
                 //starts the session if no session exists
+                $session->start();
                 $session->migrate(false);
             }
 
