@@ -63,6 +63,10 @@ classes:
         class: Pyrite\OutputBuilder\HtmlOutputBuilder
     XmlOutputBuilder:
         class: Pyrite\OutputBuilder\XmlOutputBuilder
+    BinaryOutputBuilder:
+        class: Pyrite\OutputBuilder\BinaryOutputBuilder
+    StreamedOutputBuilder:
+        class: Pyrite\OutputBuilder\StreamedOutputBuilder
 
     #########################
     # TEMPLATING

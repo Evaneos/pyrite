@@ -6,7 +6,6 @@ use Pyrite\Response\ResponseBag;
 
 class JsonOutputBuilder implements OutputBuilder
 {
-
     public function getHeaders(ResponseBag $bag)
     {
         return array('Content-type: application/json; charset=UTF-8');
