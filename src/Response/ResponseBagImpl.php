@@ -37,10 +37,7 @@ class ResponseBagImpl implements ResponseBag
             throw new \InvalidArgumentException('Unknown response type');
         }
 
-        if ($type === self::TYPE_STREAMED) {
-            $this->set('format', 'streamed');
-        }
-
+        $this->set('format', strtolower($type));
         $this->type = $type;
     }
 
