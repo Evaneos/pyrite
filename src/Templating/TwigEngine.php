@@ -14,7 +14,6 @@ class TwigEngine implements Engine
         $rootDir        = $container->getParameter('root_dir');
         $productionMode = $container->getParameter('production_mode');
 
-        \Twig_Autoloader::register();
         $loader = new \Twig_Loader_Filesystem($rootDir);
         $this->twig = new \Twig_Environment($loader, array(
             'cache' => $rootDir . '/tmp',
