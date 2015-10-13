@@ -6,6 +6,10 @@ interface ResponseBag
 {
     const ACTION_RESULT = 'ACTION_RESULT';
 
+    const TYPE_DEFAULT = 'DEFAULT';
+    const TYPE_STREAMED = 'STREAMED';
+    const TYPE_BINARY = 'BINARY';
+
     public function set($key, $value);
     public function get($key, $defaultValue = null);
     public function getAll();
@@ -19,4 +23,10 @@ interface ResponseBag
 
     public function addHeader($key, $value);
     public function getHeaders();
+
+    public function setCallback($callback);
+    public function getCallback();
+
+    public function setType($type);
+    public function getType();
 }
