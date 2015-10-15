@@ -1,7 +1,7 @@
 classes:
     AppErrorHandler:
         class: \Pyrite\Exception\ErrorHandlerImpl
-        arguments: [ 0, true ] # minimum level (taken from constant E_*), 2nd parameter to enable or disable conversion of errors into Exceptions
+        arguments: [ 'error', true ] # minimum level (taken from constant E_*), 2nd parameter to enable or disable conversion of errors into Exceptions
         singleton: true
         call:
             setLogger: [ @AppLogger ]
