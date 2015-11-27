@@ -13,9 +13,13 @@ class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
     public function build()
     {
         $config = $this->buildFromFile();
-        $routeCfgAsArray = $this->getRouteConfigurationFromConfig($config->load());
-        $routeConfiguration = RouteCollectionBuilder::build($routeCfgAsArray);
 
+        $configData = $config->load();
+        $configRoutes = array_key_exists('routes', $configData) ? $configData['routes'] : array();
+
+        $routeCfgAsArray = $this->getRouteConfigurationFromConfig($configData);
+        $routeConfiguration = RouteCollectionBuilder::build($routeCfgAsArray);
+        $routeCollection->addResource(new RoutingConfigurationResource($configRoutes);
         $urlGenerator = $this->buildUrlGenerator($routeConfiguration);
         return $this->buildOutput($routeConfiguration, $urlGenerator);
     }

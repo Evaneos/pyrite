@@ -34,6 +34,7 @@
         "symfony/routing": "~2.6",
         "symfony/yaml": "~2.6",
         "symfony/debug": "~2.6",
+        "symfony/config": "~2.6",
         "monolog/monolog": "~1.11",
         "twig/twig": "~1.0"
     },

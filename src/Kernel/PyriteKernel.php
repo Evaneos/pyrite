@@ -133,9 +133,8 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             //@TODO improve request bindings
             $request->attributes->replace($parameters);
         } catch (ResourceNotFoundException $e) {
-            if ($this->container->getParameter('404')) {
-                $dispatch = $this->getDispatchStackFromKey('404');
-            } else {
+            $dispatch = $this->getDispatchStackFromKey('error404');
+            if (!$dispatch) {
                 throw new NotFoundHttpException(sprintf("No route found for url \"%s\"", $request->getPathInfo()), $e);
             }
         } catch (MethodNotAllowedException $e) {
@@ -170,12 +169,22 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     protected function getDispatchStackFromKey($key)
     {
-        $config = $this->container->getParameter($key);
-        if (isset($config['dispatch'])) {
-            return $config['dispatch'];
+        $dispatch = null;
+        $resources = $this->routeCollection->getResources();
+        foreach ($resources as $resource) {
+            if ($resource instanceof \Pyrite\Routing\RoutingConfigurationResource) {
+                $rawConfig = $resource->getResource();
+                if (array_key_exists($key, $rawConfig)) {
+                    $route = $rawConfig[$key];
+                    if (array_key_exists('dispatch', $route)) {
+                        $dispatch = $route['dispatch'];
+                        break;
+                    }
+                }
+            }
         }
 
-        return null;
+        return $dispatch;
     }
 
     /**
