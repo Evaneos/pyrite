@@ -1,5 +1,4 @@
 <?php
-
 namespace Pyrite\Kernel;
 
 use Monolog\Logger;
@@ -28,6 +27,7 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class PyriteKernel implements HttpKernelInterface, TerminableInterface
 {
+
     /**
      * Route collection
      *
@@ -62,44 +62,29 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     public function __construct(RouteCollection $routeCollection, Container $container)
     {
         // Debug::enable(null, $debug);
-
-        $this->container       = $container;
+        $this->container = $container;
         $this->routeCollection = $routeCollection;
-        $this->logger          = new NullLogger();
+        $this->logger = new NullLogger();
     }
 
     /**
-     * {@inheritDoc}
+     * Load kernel, handle a request from a webserver and send the response
+     *
+     * Utility function for the entrypoint of your application, only use when you are in a request context (from a
+     * webserver)
      */
-    public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+    public static function boot(Request $request, RouteCollection $routeCollection, Container $container)
     {
-        $context  = new RequestContext();
-        $context->fromRequest($request);
-
-        $urlMatcher   = new UrlMatcher($this->routeCollection, $context);
-
         try {
-            $parameters = $urlMatcher->match($request->getPathInfo());
-            //@TODO improve request bindings
-            $request->attributes->replace($parameters);
-        } catch (ResourceNotFoundException $e) {
-            throw new NotFoundHttpException(sprintf("No route found for url \"%s\"", $request->getPathInfo()), $e);
-        } catch (MethodNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getAllowedMethods(), sprintf("Method %s is not allowed for url \"%s\"", $request->getMethod(), $request->getPathInfo()), $e);
-        }
-
-        $this->stack = $this->getStack($parameters);
-
-        return $this->stack->handle($request, $type, $catch);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function terminate(Request $request, Response $response)
-    {
-        if (null !== $this->stack) {
-            $this->stack->terminate($request, $response);
+            $kernel = new self($routeCollection, $container);
+            $kernel->configureErrors();
+            $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
+            $response->send();
+            if ($kernel instanceof TerminableInterface) {
+                $kernel->terminate($request, $response);
+            }
+        } catch (\Exception $exception) {
+            $kernel->uncaughtRenderer->render($exception);
         }
     }
 
@@ -107,20 +92,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     {
         $uncaughtRenderer = $this->configOnCrashOutput();
         $errorHandler = $this->configPhpErrors($uncaughtRenderer);
-    }
-
-    private function configPhpErrors(\Pyrite\Exception\UncaughtExceptionRenderer $renderer = null)
-    {
-        try {
-            $this->errorHandler = $this->container->get("AppErrorHandler");
-        } catch (\Exception $e) {
-            $this->errorHandler = new \Pyrite\Exception\ErrorHandlerImpl(0, false);
-            $this->errorHandler->setOnFatalRenderer($renderer);
-        }
-
-        $this->errorHandler->enable();
-
-        return $this->errorHandler;
     }
 
     private function configOnCrashOutput()
@@ -134,26 +105,112 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         return $this->uncaughtRenderer;
     }
 
-    /**
-     * Load kernel, handle a request from a webserver and send the response
-     *
-     * Utility function for the entrypoint of your application, only use when you are in a request context (from a webserver)
-     */
-    public static function boot(Request $request, RouteCollection $routeCollection, Container $container)
+    private function configPhpErrors(\Pyrite\Exception\UncaughtExceptionRenderer $renderer = null)
     {
         try {
-            $kernel = new self($routeCollection, $container);
-            $kernel->configureErrors();
+            $this->errorHandler = $this->container->get("AppErrorHandler");
+        } catch (\Exception $e) {
+            $this->errorHandler = new \Pyrite\Exception\ErrorHandlerImpl(0, false);
+            $this->errorHandler->setOnFatalRenderer($renderer);
+        }
+        $this->errorHandler->enable();
 
-            $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
+        return $this->errorHandler;
+    }
 
-            $response->send();
-
-            if ($kernel instanceof TerminableInterface) {
-                $kernel->terminate($request, $response);
+    /**
+     * {@inheritDoc}
+     */
+    public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+    {
+        $context = new RequestContext();
+        $context->fromRequest($request);
+        $urlMatcher = new UrlMatcher($this->routeCollection, $context);
+        $dispatch = null;
+        try {
+            $parameters = $urlMatcher->match($request->getPathInfo());
+            $dispatch = $this->getDispatchStackFromRoute($parameters);
+            //@TODO improve request bindings
+            $request->attributes->replace($parameters);
+        } catch (ResourceNotFoundException $e) {
+            $dispatch = $this->getDispatchStackFromKey('error404');
+            if (!$dispatch) {
+                throw new NotFoundHttpException(sprintf("No route found for url \"%s\"", $request->getPathInfo()), $e);
             }
-        } catch (\Exception $exception) {
-            $kernel->uncaughtRenderer->render($exception);
+        } catch (MethodNotAllowedException $e) {
+            throw new MethodNotAllowedHttpException($e->getAllowedMethods(), sprintf("Method %s is not allowed for url \"%s\"", $request->getMethod(), $request->getPathInfo()), $e);
+        }
+        $this->stack = $this->getStackForDispatch($dispatch);
+
+        return $this->stack->handle($request, $type, $catch);
+    }
+
+    /**
+     * Get a Stack configuration for a specific route
+     *
+     * @param array $routeParameters Parameters of the route
+     *
+     * @return string[]
+     */
+    protected function getDispatchStackFromRoute($routeParameters)
+    {
+        $route = $this->routeCollection->get($routeParameters['_route']);
+        $dispatch = $route->getOption('dispatch');
+
+        return $dispatch;
+    }
+
+    /**
+     * Get a Stack configuration for a specific config key
+     *
+     * @param array $routeParameters Parameters of the route
+     *
+     * @return string[]|null
+     */
+    protected function getDispatchStackFromKey($key)
+    {
+        $dispatch = null;
+        $resources = $this->routeCollection->getResources();
+        foreach ($resources as $resource) {
+            if ($resource instanceof \Pyrite\Routing\RoutingConfigurationResource) {
+                $rawConfig = $resource->getResource();
+                if (array_key_exists($key, $rawConfig)) {
+                    $route = $rawConfig[$key];
+                    if (array_key_exists('dispatch', $route)) {
+                        $dispatch = $route['dispatch'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $dispatch;
+    }
+
+    /**
+     * Build a kernel from a dispatch configuration
+     *
+     * Using StackedHttpKernel factory for better reusability
+     *
+     * @param string[] Array of service name to use
+     *
+     * @return \Stack\StackedHttpKernel
+     */
+    protected function getStackForDispatch($dispatch)
+    {
+        $factory = new StackedHttpKernel($this->container, $dispatch);
+        list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $dispatch);
+
+        return $stack;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function terminate(Request $request, Response $response)
+    {
+        if (null !== $this->stack) {
+            $this->stack->terminate($request, $response);
         }
     }
 
@@ -166,13 +223,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      *
      * @return \Stack\StackedHttpKernel
      */
-    protected function getStack($routeParameters)
+    protected function getStackForRoute($routeParameters)
     {
-        $route      = $this->routeCollection->get($routeParameters['_route']);
-        $dispatch   = $route->getOption('dispatch');
-        $services   = array();
-        $parameters = array();
-
+        $route = $this->routeCollection->get($routeParameters['_route']);
+        $dispatch = $route->getOption('dispatch');
         $factory = new StackedHttpKernel($this->container, $dispatch);
         list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $dispatch);
 
