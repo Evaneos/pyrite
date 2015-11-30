@@ -34,10 +34,14 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     public function build()
     {
         $config = $this->buildFromFile();
+        $configData = $config->load();
+        $configRoutes = array_key_exists('routes', $configData) ? $configData['routes'] : array();
 
-        $globalRoutingConfiguration = $this->buildLocalisedRoutingArray($config->load());
+
+        $globalRoutingConfiguration = $this->buildLocalisedRoutingArray($configData);
         $currentLocaleRoutingConfiguration = $globalRoutingConfiguration[$this->currentLocale];
         $routeCollection = RouteCollectionBuilder::build($currentLocaleRoutingConfiguration);
+        $routeCollection->addResource(new RoutingConfigurationResource($configRoutes));
         $generator = $this->buildUrlGenerator($globalRoutingConfiguration);
         return $this->buildOutput($routeCollection, $generator);
     }
