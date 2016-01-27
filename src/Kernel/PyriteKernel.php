@@ -2,23 +2,23 @@
 
 namespace Pyrite\Kernel;
 
-use Monolog\Logger;
+use DICIT\UnknownDefinitionException;
 use Psr\Log\NullLogger;
 use Pyrite\Container\Container;
 use Pyrite\Factory\StackedHttpKernel;
-use Symfony\Component\Debug\Debug;
-use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
@@ -80,12 +80,21 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
 
         try {
             $parameters = $urlMatcher->match($request->getPathInfo());
+
             //@TODO improve request bindings
             $request->attributes->replace($parameters);
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException(sprintf("No route found for url \"%s\"", $request->getPathInfo()), $e);
         } catch (MethodNotAllowedException $e) {
             throw new MethodNotAllowedHttpException($e->getAllowedMethods(), sprintf("Method %s is not allowed for url \"%s\"", $request->getMethod(), $request->getPathInfo()), $e);
+        }
+
+        try{
+            /** @var EventDispatcherInterface $dispatcher */
+            $dispatcher = $this->container->get('EventDispatcher');
+            $dispatcher->dispatch(KernelEvents::REQUEST, new KernelEvent($this, $request, HttpKernelInterface::MASTER_REQUEST));
+        } catch (UnknownDefinitionException $e) {
+
         }
 
         $this->stack = $this->getStack($parameters);
@@ -170,6 +179,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     {
         $route      = $this->routeCollection->get($routeParameters['_route']);
         $dispatch   = $route->getOption('dispatch');
+
         $services   = array();
         $parameters = array();
 
