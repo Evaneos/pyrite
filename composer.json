@@ -35,7 +35,8 @@
         "symfony/yaml": "~2.6",
         "symfony/debug": "~2.6",
         "monolog/monolog": "~1.11",
-        "twig/twig": "~1.0"
+        "twig/twig": "~1.0",
+        "symfony/event-dispatcher": "^3.0"
     },
     "require-dev": {
         "stack/session": "dev-master#117c2d01d283fbd0f0ba6582687d0b028834a7a0"
