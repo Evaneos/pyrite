@@ -91,7 +91,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
 
         try{
             /** @var EventDispatcherInterface $dispatcher */
-            $dispatcher = $this->container->get('EventDispatcher');
+            $dispatcher = $this->container->get('KernelEventDispatcher');
             $dispatcher->dispatch(KernelEvents::REQUEST, new KernelEvent($this, $request, HttpKernelInterface::MASTER_REQUEST));
         } catch (UnknownDefinitionException $e) {
 
