@@ -45,4 +45,12 @@ class Director
         $builder->setConfigurationPath($this->path);
         return $builder->build();
     }
+
+    /**
+     * @return RequestContext
+     */
+    public function getRequestContext()
+    {
+        return $this->requestContext;
+    }
 }

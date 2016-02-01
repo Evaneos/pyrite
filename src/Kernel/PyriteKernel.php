@@ -2,24 +2,23 @@
 
 namespace Pyrite\Kernel;
 
-use DICIT\UnknownDefinitionException;
+use DICIT\Activator;
+use DICIT\ActivatorFactory;
+use DICIT\Config\AbstractConfig;
+use DICIT\Config\ArrayConfig;
+use DICIT\Config\PHP;
+use DICIT\Config\YML;
+use EVFramework\Container\DICITAdapter;
 use Psr\Log\NullLogger;
+use Pyrite\Config\NullConfig;
 use Pyrite\Container\Container;
 use Pyrite\Factory\StackedHttpKernel;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\KernelEvent;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Symfony\Component\Routing\Exception\MethodNotAllowedException;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouteCollection;
 
 /**
  * PyriteKernel
@@ -29,43 +28,55 @@ use Symfony\Component\Routing\RouteCollection;
 class PyriteKernel implements HttpKernelInterface, TerminableInterface
 {
     /**
-     * Route collection
-     *
-     * @var RouteCollection
-     */
-    private $routeCollection;
-
-    /**
-     * DIC
-     *
      * @var Container
      */
     private $container;
 
     /**
-     * @var Pyrite\Exception\UncaughtExceptionRenderer
+     * @var \Stack\StackedHttpKernel
      */
-    private $uncaughtRenderer;
+    private $stack;
 
     /**
-     * @var Pyrite\Exception\ErrorHandler
+     * @var bool
      */
-    private $errorHandler;
+    private $booted;
 
     /**
-     * Stacked kernel
+     * @var string
+     */
+    private $containerConfigPath;
+
+    /**
+     * @var ParameterBag
+     */
+    private $config;
+
+    /**
+     * @var bool
+     */
+    private $started;
+
+    /**
+     * @var array
+     */
+    private $internalConfig;
+
+    /**
+     * PyriteKernel constructor.
      *
-     * @var \Pyrite\Stack\Template
+     * @param $containerConfigPath
      */
-    private $stack = null;
-
-    public function __construct(RouteCollection $routeCollection, Container $container)
+    public function __construct($containerConfigPath)
     {
-        // Debug::enable(null, $debug);
+        mb_internal_encoding('UTF-8');
+        $this->logger = new NullLogger();
+        $this->booted = false;
+        $this->containerConfigPath = $containerConfigPath;
+        $this->started = false;
+        $this->internalConfig = array();
 
-        $this->container       = $container;
-        $this->routeCollection = $routeCollection;
-        $this->logger          = new NullLogger();
+        $this->boot();
     }
 
     /**
@@ -73,119 +84,117 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
-        $context  = new RequestContext();
-        $context->fromRequest($request);
+        $factory = new StackedHttpKernel($this->container, $dispatch = $request->attributes->get('dispatch'));
 
-        $urlMatcher   = new UrlMatcher($this->routeCollection, $context);
-
-        try {
-            $parameters = $urlMatcher->match($request->getPathInfo());
-
-            //@TODO improve request bindings
-            $request->attributes->replace($parameters);
-        } catch (ResourceNotFoundException $e) {
-            throw new NotFoundHttpException(sprintf("No route found for url \"%s\"", $request->getPathInfo()), $e);
-        } catch (MethodNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getAllowedMethods(), sprintf("Method %s is not allowed for url \"%s\"", $request->getMethod(), $request->getPathInfo()), $e);
-        }
-
-        try{
-            /** @var EventDispatcherInterface $dispatcher */
-            $dispatcher = $this->container->get('EventDispatcher');
-            $dispatcher->dispatch(KernelEvents::REQUEST, new KernelEvent($this, $request, HttpKernelInterface::MASTER_REQUEST));
-        } catch (UnknownDefinitionException $e) {
-
-        }
-
-        $this->stack = $this->getStack($parameters);
+        list($name, $this->stack) = $factory->register($this, 'pyrite.root_kernel', $dispatch);
 
         return $this->stack->handle($request, $type, $catch);
     }
 
     /**
-     * {@inheritDoc}
+     * @param Request  $request
+     * @param Response $response
      */
     public function terminate(Request $request, Response $response)
     {
-        if (null !== $this->stack) {
-            $this->stack->terminate($request, $response);
-        }
+        $this->stack->terminate($request, $response);
     }
 
-    protected function configureErrors()
+    public function boot()
     {
-        $uncaughtRenderer = $this->configOnCrashOutput();
-        $errorHandler = $this->configPhpErrors($uncaughtRenderer);
-    }
-
-    private function configPhpErrors(\Pyrite\Exception\UncaughtExceptionRenderer $renderer = null)
-    {
-        try {
-            $this->errorHandler = $this->container->get("AppErrorHandler");
-        } catch (\Exception $e) {
-            $this->errorHandler = new \Pyrite\Exception\ErrorHandlerImpl(0, false);
-            $this->errorHandler->setOnFatalRenderer($renderer);
+        if(true === $this->booted){
+            return;
         }
 
-        $this->errorHandler->enable();
+        $this->internalConfig = $this->getContainerConfiguration($this->containerConfigPath)->load();
+        $this->config = new ParameterBag($this->internalConfig['parameters']);
 
-        return $this->errorHandler;
-    }
-
-    private function configOnCrashOutput()
-    {
-        try {
-            $this->uncaughtRenderer = $this->container->get("AppOnCrashHandler");
-        } catch (\Exception $e) {
-            $this->uncaughtRenderer = new \Pyrite\Exception\UncaughtExceptionRendererImpl(false);
-        }
-
-        return $this->uncaughtRenderer;
+        $this->booted = true;
     }
 
     /**
-     * Load kernel, handle a request from a webserver and send the response
-     *
-     * Utility function for the entrypoint of your application, only use when you are in a request context (from a webserver)
+     * @return DICITAdapter|Container
      */
-    public static function boot(Request $request, RouteCollection $routeCollection, Container $container)
+    public function startContainer()
     {
-        try {
-            $kernel = new self($routeCollection, $container);
-            $kernel->configureErrors();
-
-            $response = $kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
-
-            $response->send();
-
-            if ($kernel instanceof TerminableInterface) {
-                $kernel->terminate($request, $response);
-            }
-        } catch (\Exception $exception) {
-            $kernel->uncaughtRenderer->render($exception);
+        if($this->isStarted()){
+            return;
         }
+
+        $configAsArray = iterator_to_array($this->config->getIterator());
+
+        $this->internalConfig['parameters'] = $configAsArray;
+        $this->container = $this->createContainer(new ArrayConfig($this->internalConfig));
+
+        // Ensure you can't touch it !
+        unset($this->config); //remove references across shared services
+        $this->config = new FrozenParameterBag($configAsArray);
+
+        $this->started = true;
+
+        return $this->container;
     }
 
     /**
-     * Build a kernel for a specific route
-     *
-     * Using StackedHttpKernel factory for better reusability
-     *
-     * @param array $routeParameters Parameters of the route
-     *
-     * @return \Stack\StackedHttpKernel
+     * @return bool
      */
-    protected function getStack($routeParameters)
+    public function isStarted()
     {
-        $route      = $this->routeCollection->get($routeParameters['_route']);
-        $dispatch   = $route->getOption('dispatch');
+        return true === $this->started;
+    }
 
-        $services   = array();
-        $parameters = array();
+    /**
+     * @return ParameterBag
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
 
-        $factory = new StackedHttpKernel($this->container, $dispatch);
-        list($name, $stack) = $factory->register(null, 'pyrite.root_kernel', $dispatch);
+    /**
+     * @param string $containerPath
+     *
+     * @return PHP|YML|NullConfig
+     */
+    private function getContainerConfiguration($containerPath)
+    {
+        $config = new NullConfig();
 
-        return $stack;
+        if (null !== $containerPath && false !== strpos($containerPath, '.yml')) {
+            $config = new YML($containerPath);
+        }
+
+        if (null !== $containerPath && false !== strpos($containerPath, '.php')) {
+            $config = new PHP($containerPath);
+        }
+
+        return $config;
+    }
+
+    /**
+     * @param AbstractConfig $config
+     *
+     * @return DICITAdapter
+     */
+    private function createContainer(AbstractConfig $config)
+    {
+        $activator = new ActivatorFactory();
+        $container = new DICITAdapter($config, $activator);
+
+        /** @var Activator $securityActivator */
+        $securityActivator = $container->get('SecurityActivator');
+
+        $activator->addActivator('security', $securityActivator, false);
+
+        return $container;
+    }
+
+    /**
+     * Until the kernel is not booted NOR started container is null
+     * @return Container
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 }

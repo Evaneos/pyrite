@@ -21,7 +21,7 @@ class Session implements HttpKernelFactory
         }
 
         $cookieParams = $this->container->getParameter('cookie', array());
-        
+
         $start = false;
         if (array_key_exists('start', $parameters)) {
             if (is_scalar($parameters['start'])) {

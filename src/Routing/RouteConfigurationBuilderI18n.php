@@ -2,10 +2,6 @@
 
 namespace Pyrite\Routing;
 
-use DICIT\Config\PHP;
-use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\RouteCollection;
-
 class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
 {
     /**

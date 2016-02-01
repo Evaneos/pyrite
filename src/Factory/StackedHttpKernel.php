@@ -3,7 +3,6 @@
 namespace Pyrite\Factory;
 
 use Pyrite\Container\Container;
-use Symfony\Component\EventDispatcher\Tests\Service;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class StackedHttpKernel implements HttpKernelFactory
@@ -41,11 +40,11 @@ class StackedHttpKernel implements HttpKernelFactory
     public function register(HttpKernelInterface $app = null, $name = '', array $parameters = array())
     {
         $lastServiceName = call_user_func('end', array_keys($this->services));
-        $lastFactoryName = array_pop($this->services);
         $builder         = new \Stack\Builder();
         $container       = $this->container;
 
         foreach ($this->services as $serviceName => $serviceParameters) {
+
             $factory       = $this->getFactory($serviceName);
             $configuration = $this->getConfiguration($serviceName, $parameters);
 
@@ -58,9 +57,6 @@ class StackedHttpKernel implements HttpKernelFactory
         $factory                 = $this->getFactory($lastServiceName);
         $configuration           = $this->getConfiguration($lastServiceName, $parameters);
         list($stackName, $stack) = $factory->register($app, $lastServiceName, $configuration);
-
-        //Register stack in container @TODO
-        //$container->bind($stackName, $stack);
 
         $stackResolved = $builder->resolve($stack);
         return array($name, $stackResolved);

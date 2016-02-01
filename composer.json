@@ -29,17 +29,19 @@
     "require" : {
         "evaneos/dic-it": "~2.0",
         "stack/builder": "~1.0",
-        "symfony/http-foundation": "~2.6, <2.8",
-        "symfony/http-kernel": "~2.6, <2.8",
-        "symfony/routing": "~2.6, <2.8",
-        "symfony/yaml": "~2.6, <2.8",
+        "symfony/http-foundation": "^2.8",
+        "symfony/http-kernel": "^2.8",
+        "symfony/routing": "^2.8",
+        "symfony/yaml": "^2.8",
         "monolog/monolog": "~1.11",
         "twig/twig": "~1.0",
-        "symfony/event-dispatcher": "~2.6, <2.8"
+        "symfony/event-dispatcher": "^2.8",
+        "stack/run": "^1.0",
+        "symfony/dependency-injection": "^2.8"
     },
     "require-dev": {
-        "stack/session": "dev-master#117c2d01d283fbd0f0ba6582687d0b028834a7a0",
-        "symfony/debug": "~2.6, <2.8"
+        "symfony/debug": "^2.8",
+		"symfony/var-dumper": "^2.8"
     },
     "extra": {
         "branch-alias": {
