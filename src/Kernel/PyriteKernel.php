@@ -12,7 +12,10 @@ use EVFramework\Container\DICITAdapter;
 use Psr\Log\NullLogger;
 use Pyrite\Config\NullConfig;
 use Pyrite\Container\Container;
+use Pyrite\Exception\BadConfigurationException;
 use Pyrite\Factory\StackedHttpKernel;
+use Pyrite\Logger\LoggerFactory;
+use Pyrite\Routing\Router;
 use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,11 +66,22 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     private $internalConfig;
 
     /**
+     * @var Router
+     */
+    private $router;
+
+    /**
+     * @var LoggerFactory
+     */
+    private $loggerFactory;
+
+    /**
      * PyriteKernel constructor.
      *
-     * @param $containerConfigPath
+     * @param string $containerConfigPath
+     * @param Router $router
      */
-    public function __construct($containerConfigPath)
+    public function __construct($containerConfigPath, Router $router)
     {
         mb_internal_encoding('UTF-8');
         $this->logger = new NullLogger();
@@ -75,6 +89,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->containerConfigPath = $containerConfigPath;
         $this->started = false;
         $this->internalConfig = array();
+        $this->router = $router;
 
         $this->boot();
     }
@@ -89,6 +104,14 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         list($name, $this->stack) = $factory->register($this, 'pyrite.root_kernel', $dispatch);
 
         return $this->stack->handle($request, $type, $catch);
+    }
+
+    /**
+     * @return LoggerFactory
+     */
+    public function getLoggerFactory()
+    {
+        return $this->loggerFactory;
     }
 
     /**
@@ -108,6 +131,15 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
 
         $this->internalConfig = $this->getContainerConfiguration($this->containerConfigPath)->load();
         $this->config = new ParameterBag($this->internalConfig['parameters']);
+        $this->config->set('debug', !$this->config->get('production_mode', true));
+
+        if(null === $this->config->get('root_dir')){
+            throw new BadConfigurationException('You should define root_dir in config');
+        }
+
+        $this->config->set('log_dir', $this->config->get('root_dir').'../log');
+
+        $this->loggerFactory = new LoggerFactory($this->getConfig()->get('debug'), $this->config->get('log_dir'));
 
         $this->booted = true;
     }
@@ -129,6 +161,24 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         // Ensure you can't touch it !
         unset($this->config); //remove references across shared services
         $this->config = new FrozenParameterBag($configAsArray);
+
+        $currentLocale = $this->config->get('current_locale');
+        $cookieParameters = $this->config->get('cookie_parameters');
+        $domain = $cookieParameters[$currentLocale]['domain'];
+
+        $loggerFactory = new LoggerFactory(
+            $currentLocale,
+            $domain,
+            $this->config->get('debug'),
+            $this->config->get('log_dir')
+        );
+
+        $this->container->bind('LoggerFactory', $loggerFactory);
+
+        // Keep compatibility, use the right type hint in the application as usual (UrlGeneratorInterface, UrlMatcherInterface)
+        $this->container->bind('UrlMatcher', $this->router->getUrlMatcher());
+        $this->container->bind('UrlGenerator', $this->router->getUrlGenerator());
+        $this->container->bind('RouteCollection', $this->router->getRouteCollection());
 
         $this->started = true;
 

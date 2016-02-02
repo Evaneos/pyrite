@@ -2,32 +2,25 @@
 
 namespace Pyrite\KernelStack;
 
-use Pyrite\Kernel\PyriteKernel;
-use Pyrite\Routing\RouteConfigurationBuilderI18n;
-use Pyrite\Routing\RouteConfigurationBuilderImpl;
+use Pyrite\Routing\RouteConfigurationBuilder;
+use Pyrite\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Pyrite\Routing\Director;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\Routing\RequestContext;
 
 class HttpMiddleware implements HttpKernelInterface, TerminableInterface
 {
     /**
-     * @var string
+     * @var Router
      */
-    protected $routingConfigPath;
-
-    /**
-     * @var PyriteKernel
-     */
-    protected $kernel;
+    protected $router;
 
     /**
      * @var HttpKernelInterface
@@ -35,20 +28,25 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
     protected $app;
 
     /**
+     * @var RouteConfigurationBuilder
+     */
+    protected $routeBuilder;
+
+    /**
      * HttpMiddleware constructor.
      *
-     * @param HttpKernelInterface $app
-     * @param PyriteKernel        $kernel
-     * @param                     $routingConfigPath
+     * @param HttpKernelInterface       $app
+     * @param Router                    $router
+     * @param RouteConfigurationBuilder $routeBuilder
      */
     public function __construct(
         HttpKernelInterface $app,
-        PyriteKernel $kernel,
-        $routingConfigPath
+        Router $router,
+        RouteConfigurationBuilder $routeBuilder
     ) {
         $this->app = $app;
-        $this->kernel = $kernel;
-        $this->routingConfigPath = $routingConfigPath;
+        $this->router = $router;
+        $this->routeBuilder = $routeBuilder;
     }
 
     /**
@@ -58,38 +56,21 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
-        // Create container and freeze config
-        $container = $this->kernel->startContainer();
+        $context = new RequestContext();
+        $context->fromRequest($request);
 
-        $director = new Director($request, $this->routingConfigPath);
+        $this->routeBuilder->setRequest($request);
+        $this->routeBuilder->setRequestContext($context);
 
-        $config = $this->kernel->getConfig();
+        $routeCollection = $this->router->getRouteCollection();
 
-        $currentLocal = $config->get('current_locale');
-        $availableLocal = $config->get('available_locales');
-
-        if(null !== $currentLocal && null !== $availableLocal){
-            $routerBuilder = new RouteConfigurationBuilderI18n(
-                $currentLocal,
-                $availableLocal
-            );
-        }else{
-            $routerBuilder = new RouteConfigurationBuilderImpl();
-        }
-
-        $routeConfiguration = $director->build($routerBuilder);
-        $urlMatcher = new UrlMatcher($routeConfiguration->getRouteCollection(), $director->getRequestContext());
-        $container->bind('UrlMatcher', $urlMatcher);
-        $container->bind('UrlGenerator', $routeConfiguration->getUrlGenerator());
-        $container->bind('request', $request);
-
-        $exception = null;
-
-        /** @var UrlMatcherInterface $urlMatcher */
-        $urlMatcher = $container->get('UrlMatcher');
+        $configuration = $this->routeBuilder->build();
+        $routeCollection->addCollection($configuration->getRouteCollection());
+        $this->router->setUrlGenerator($configuration->getUrlGenerator());
+        $this->router->setUrlMatcher(new UrlMatcher($routeCollection, $context));
 
         try {
-            $request->attributes->replace($urlMatcher->match($request->getPathInfo()));
+            $request->attributes->add($this->router->match($request->getPathInfo()));
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException(sprintf(
                 'No route found for url "%s"',
@@ -106,7 +87,7 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
             throw new MethodNotAllowedHttpException($e->getAllowedMethods(), $message, $e);
         }
 
-        $route = $routeConfiguration->getRouteCollection()->get($request->attributes->get('_route'));
+        $route = $routeCollection->get($request->attributes->get('_route'));
         $request->attributes->set('dispatch', $route->getOption('dispatch'));
 
         return $this->app->handle($request, $type, $catch);

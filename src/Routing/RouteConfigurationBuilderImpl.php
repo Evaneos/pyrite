@@ -8,6 +8,16 @@ use Symfony\Component\Routing\RouteCollection;
 class RouteConfigurationBuilderImpl extends RouteConfigurationBuilderAbstract
 {
     /**
+     * RouteConfigurationBuilderI18n constructor.
+     *
+     * @param string $configPath
+     */
+    public function __construct($configPath)
+    {
+        $this->path = $configPath;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function build()

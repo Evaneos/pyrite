@@ -47,14 +47,6 @@ abstract class RouteConfigurationBuilderAbstract implements RouteConfigurationBu
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function setConfigurationPath($path)
-    {
-        $this->path = $path;
-    }
-
-    /**
      * @return DICIT\Config\AbstractConfig
      */
     protected function buildFromFile()

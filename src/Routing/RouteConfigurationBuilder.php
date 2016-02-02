@@ -18,11 +18,6 @@ interface RouteConfigurationBuilder
     public function setRequestContext(RequestContext $requestContext);
 
     /**
-     * @param string $path
-     */
-    public function setConfigurationPath($path);
-
-    /**
      * @return RouteConfiguration
      */
     public function build();

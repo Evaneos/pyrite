@@ -7,26 +7,33 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
     /**
      * @var string
      */
-    protected $currentLocale = null;
+    protected $currentLocale;
     /**
      * @var array
      */
-    protected $availableLocales = null;
+    protected $availableLocales;
 
     /**
-     * @param string $currentLocale
-     * @param array  $availableLocales
+     * RouteConfigurationBuilderI18n constructor.
+     *
+     * @param string $configPath
      */
-    public function __construct($currentLocale, array $availableLocales)
+    public function __construct($configPath)
+    {
+        $this->path = $configPath;
+    }
+
+    /**
+     * @param       $currentLocale
+     * @param array $availableLocales
+     */
+    public function setLocalization($currentLocale, array $availableLocales)
     {
         $this->currentLocale = $currentLocale;
         $this->availableLocales = $availableLocales;
         $this->validateLocaleConfiguration($this->currentLocale, $this->availableLocales);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function build()
     {
         $config = $this->buildFromFile();
@@ -92,7 +99,7 @@ class RouteConfigurationBuilderI18n extends RouteConfigurationBuilderAbstract
      *
      * @return boolean
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     protected function validateLocaleConfiguration($currentLocale, array $locales)
     {
