@@ -37,6 +37,11 @@ final class LoggerFactory
     protected $tagProcessor;
 
     /**
+     * @var LoggerInterface[]
+     */
+    private $loggers;
+
+    /**
      * LoggerFactory constructor.
      *
      * @param bool $debug
@@ -46,6 +51,7 @@ final class LoggerFactory
     {
         $this->debug = $debug;
         $this->logDir = $logDir;
+        $this->loggers = array();
 
         $webProcessor = new WebProcessor();
         $this->tagProcessor = new TagProcessor();
@@ -99,11 +105,28 @@ final class LoggerFactory
     /**
      * @param string $channelName
      *
-     * @return LoggerInterface
+     * @return Logger
      */
     public function create($channelName)
     {
-        $logger = new Logger($channelName, $this->handlers, $this->processors);
-        return $logger;
+        if(!isset($this->loggers[$channelName])){
+            $this->loggers[$channelName] = new Logger($channelName, $this->handlers, $this->processors);
+        }
+
+        return $this->loggers[$channelName];
+    }
+
+    /**
+     * @param $channelName
+     * This method should not exist, but for convinience we need to attach extra handler
+     * @return Logger
+     */
+    public function getLogger($channelName)
+    {
+        if(!isset($this->loggers[$channelName])){
+            throw new \LogicException(sprintf('Channel %s not registered', $channelName));
+        }
+
+        return $this->loggers[$channelName];
     }
 }

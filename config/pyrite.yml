@@ -10,11 +10,10 @@ classes:
     PyriteSessionFactory:
         class: \Pyrite\Factory\Session
         arguments: [ $container ]
+
     PyriteApplicationFactory:
         class: \Pyrite\Factory\Application
         arguments: [ $container ]
-        call:
-            addExceptionHandler[0]: [ \Exception, @ExceptionFallbackCallback ]
 
     # Exceptions
     ExceptionFallbackCallback:

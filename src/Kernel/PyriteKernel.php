@@ -9,6 +9,8 @@ use DICIT\Config\ArrayConfig;
 use DICIT\Config\PHP;
 use DICIT\Config\YML;
 use EVFramework\Container\DICITAdapter;
+use Monolog\ErrorHandler;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Pyrite\Config\NullConfig;
 use Pyrite\Container\Container;
@@ -76,6 +78,28 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     private $loggerFactory;
 
     /**
+     * @var string[]
+     */
+    private $errorLevelMap = array(
+        E_ERROR             => LogLevel::CRITICAL,
+        E_WARNING           => LogLevel::WARNING,
+        E_PARSE             => LogLevel::ALERT,
+        E_NOTICE            => LogLevel::WARNING,
+        E_CORE_ERROR        => LogLevel::CRITICAL,
+        E_CORE_WARNING      => LogLevel::WARNING,
+        E_COMPILE_ERROR     => LogLevel::ALERT,
+        E_COMPILE_WARNING   => LogLevel::WARNING,
+        E_USER_ERROR        => LogLevel::ERROR,
+        E_USER_WARNING      => LogLevel::WARNING,
+        E_USER_NOTICE       => LogLevel::NOTICE,
+        E_STRICT            => LogLevel::WARNING,
+        E_RECOVERABLE_ERROR => LogLevel::ERROR,
+        E_DEPRECATED        => LogLevel::NOTICE,
+        E_USER_DEPRECATED   => LogLevel::NOTICE,
+    );
+
+
+    /**
      * PyriteKernel constructor.
      *
      * @param string $containerConfigPath
@@ -90,7 +114,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->started = false;
         $this->internalConfig = array();
         $this->router = $router;
-
         $this->boot();
     }
 
@@ -140,6 +163,19 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->config->set('log_dir', $this->config->get('root_dir').'../log');
 
         $this->loggerFactory = new LoggerFactory($this->getConfig()->get('debug'), $this->config->get('log_dir'));
+        $appLogger = $this->loggerFactory->create('app');
+
+        if(false === $this->config->get('debug')){
+            error_reporting(E_ALL & ~E_USER_DEPRECATED & ~E_DEPRECATED);
+            ini_set('display_errors', 0);
+            ini_set('error_log', 0);
+        }else{
+            error_reporting(E_ALL);
+            ini_set('display_errors', 1);
+            ini_set('error_log', 1);
+        }
+
+        ErrorHandler::register($appLogger, $this->errorLevelMap);
 
         $this->booted = true;
     }
@@ -179,6 +215,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->container->bind('UrlMatcher', $this->router->getUrlMatcher());
         $this->container->bind('UrlGenerator', $this->router->getUrlGenerator());
         $this->container->bind('RouteCollection', $this->router->getRouteCollection());
+        $this->container->bind('AppLogger', $this->loggerFactory->getLogger('app'));
 
         $this->started = true;
 
