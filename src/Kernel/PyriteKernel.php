@@ -14,6 +14,8 @@ use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Pyrite\Config\NullConfig;
 use Pyrite\Container\Container;
+use Pyrite\Errors\ErrorSubscriber;
+use Pyrite\Errors\ErrorSubscription;
 use Pyrite\Exception\BadConfigurationException;
 use Pyrite\Factory\StackedHttpKernel;
 use Pyrite\Logger\LoggerFactory;
@@ -78,6 +80,11 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     private $loggerFactory;
 
     /**
+     * @var ErrorSubscriber
+     */
+    private $errorSubscriber;
+
+    /**
      * @var string[]
      */
     private $errorLevelMap = array(
@@ -105,7 +112,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      * @param string $containerConfigPath
      * @param Router $router
      */
-    public function __construct($containerConfigPath, Router $router)
+    public function __construct($containerConfigPath, Router $router, ErrorSubscriber $errorSubscriber = null)
     {
         mb_internal_encoding('UTF-8');
         $this->logger = new NullLogger();
@@ -114,7 +121,39 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->started = false;
         $this->internalConfig = array();
         $this->router = $router;
+        $this->errorSubscriber = null === $errorSubscriber ? new ErrorSubscriber() : $errorSubscriber;
         $this->boot();
+    }
+
+    /**
+     * @param Request    $request
+     * @param \Exception $e
+     */
+    private function handleException(Request $request, \Exception $e)
+    {
+        $subscriptions = $this->errorSubscriber->getSubscribedError();
+        $collection = $this->router->getRouteCollection();
+
+        /**
+         * @var string $class
+         * @var ErrorSubscription $subscription
+         */
+        foreach($subscriptions as $class => $subscription){
+            if($e instanceof $class){
+                $code = $subscription->getHttpCode();
+                $routeName = $subscription->getRouteName();
+
+                $request->attributes->set('_route', $routeName);
+                $route = $collection->get($routeName.'.'.$request->attributes->get('locale'));
+                $request->attributes->set('dispatch', $route->getOption('dispatch'));
+                $request->attributes->set('http-status-code', $code);
+
+                break;
+            }
+        }
+
+        $factory = new StackedHttpKernel($this->container, $dispatch = $request->attributes->get('dispatch'));
+        list($name, $this->stack) = $factory->register($this, 'pyrite.root_kernel', $dispatch);
     }
 
     /**
@@ -122,9 +161,20 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
-        $factory = new StackedHttpKernel($this->container, $dispatch = $request->attributes->get('dispatch'));
+        $this->container->bind('Request', $request);
 
+        if(false === $this->config->get('debug')){
+            $this->registerFatalErrorHandler();
+        }
+
+        $factory = new StackedHttpKernel($this->container, $dispatch = $request->attributes->get('dispatch'));
         list($name, $this->stack) = $factory->register($this, 'pyrite.root_kernel', $dispatch);
+
+        try{
+            return $this->stack->handle($request, $type, $catch);
+        } catch(\Exception $e) {
+            $this->handleException($request, $e);
+        }
 
         return $this->stack->handle($request, $type, $catch);
     }
@@ -167,12 +217,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
 
         if(false === $this->config->get('debug')){
             error_reporting(E_ALL & ~E_USER_DEPRECATED & ~E_DEPRECATED);
-            ini_set('display_errors', 0);
-            ini_set('error_log', 0);
+            ini_set('display_errors', 'Off');
         }else{
             error_reporting(E_ALL);
-            ini_set('display_errors', 1);
-            ini_set('error_log', 1);
+            ini_set('display_errors', 'On');
         }
 
         ErrorHandler::register($appLogger, $this->errorLevelMap);
@@ -220,6 +268,36 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->started = true;
 
         return $this->container;
+    }
+
+    private function registerFatalErrorHandler()
+    {
+        $errorLevel = array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR);
+
+        $fatalErrorHandler = function($code, $description, $file, $line) use ($errorLevel) {
+            if (0 === error_reporting() || !in_array($code, $errorLevel)) {
+                return;
+            }
+
+            $this->handleException(
+                $request = $this->container->get('Request'),
+                new \ErrorException($description, $code, 1, $file, $line)
+            );
+
+            $response = $this->stack->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
+            $response->send();
+        };
+
+        register_shutdown_function(function() use ($fatalErrorHandler) {
+            $error = error_get_last();
+
+            $fatalErrorHandler(
+                $error['type'],
+                $error['message'],
+                $error['file'],
+                $error['line']
+            );
+        });
     }
 
     /**

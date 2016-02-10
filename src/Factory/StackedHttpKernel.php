@@ -22,12 +22,11 @@ class StackedHttpKernel implements HttpKernelFactory
     private $container;
 
     /**
-     * Base name to use when creating services (for Container)
+     * StackedHttpKernel constructor.
      *
-     * @var string
+     * @param Container $container
+     * @param           $services
      */
-    private $name;
-
     public function __construct(Container $container, $services)
     {
         $this->services  = $services;

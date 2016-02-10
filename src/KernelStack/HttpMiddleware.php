@@ -6,14 +6,13 @@ use Pyrite\Routing\RouteConfigurationBuilder;
 use Pyrite\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
 
 class HttpMiddleware implements HttpKernelInterface, TerminableInterface
 {
@@ -69,25 +68,9 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
         $this->router->setUrlGenerator($configuration->getUrlGenerator());
         $this->router->setUrlMatcher(new UrlMatcher($routeCollection, $context));
 
-        try {
-            $request->attributes->add($this->router->match($request->getPathInfo()));
-        } catch (ResourceNotFoundException $e) {
-            throw new NotFoundHttpException(sprintf(
-                'No route found for url "%s"',
-                $request->getPathInfo()),
-                $e
-            );
-        } catch (MethodNotAllowedException $e) {
-            $message = sprintf(
-                'Method %s is not allowed for url "%s"',
-                $request->getMethod(),
-                $request->getPathInfo())
-            ;
-
-            throw new MethodNotAllowedHttpException($e->getAllowedMethods(), $message, $e);
-        }
-
+        $request->attributes->add($this->router->match($request->getPathInfo()));
         $route = $routeCollection->get($request->attributes->get('_route'));
+
         $request->attributes->set('dispatch', $route->getOption('dispatch'));
 
         return $this->app->handle($request, $type, $catch);

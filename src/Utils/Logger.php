@@ -21,7 +21,7 @@ class Logger
         }
 
         $ravenClient = new \Raven_Client($callbackUrl);
-        $sentryHandler = new RavenHandler($ravenClient);
+        $sentryHandler = new RavenHandler($ravenClient, \Monolog\Logger::ERROR);
         $sentryHandler->setFormatter(new LineFormatter('%message% %context% %extra%\n'));
         $factory->addHandler($sentryHandler);
         $factory->getLogger('app')->pushHandler($sentryHandler);

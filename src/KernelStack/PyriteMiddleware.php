@@ -11,11 +11,6 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 class PyriteMiddleware implements HttpKernelInterface, TerminableInterface
 {
     /**
-     * @var string
-     */
-    protected $routingConfigPath;
-
-    /**
      * @var PyriteKernel
      */
     protected $kernel;
