@@ -129,8 +129,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      * @param Request    $request
      * @param \Exception $e
      */
-    private function handleException(Request $request, \Exception $e)
+    public function handleException(Request $request, \Exception $e)
     {
+        $this->startContainer();
+
         $subscriptions = $this->errorSubscriber->getSubscribedError();
         $collection = $this->router->getRouteCollection();
 
@@ -154,6 +156,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
 
         $factory = new StackedHttpKernel($this->container, $dispatch = $request->attributes->get('dispatch'));
         list($name, $this->stack) = $factory->register($this, 'pyrite.root_kernel', $dispatch);
+
+        $response = $this->stack->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
+        $response->send();
+        exit;
     }
 
     /**
@@ -283,9 +289,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
                 $request = $this->container->get('Request'),
                 new \ErrorException($description, $code, 1, $file, $line)
             );
-
-            $response = $this->stack->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
-            $response->send();
         };
 
         register_shutdown_function(function() use ($fatalErrorHandler) {

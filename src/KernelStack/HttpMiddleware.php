@@ -2,17 +2,15 @@
 
 namespace Pyrite\KernelStack;
 
+use Pyrite\Kernel\PyriteKernel;
 use Pyrite\Routing\RouteConfigurationBuilder;
 use Pyrite\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Symfony\Component\Routing\Exception\MethodNotAllowedException;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Route;
 
 class HttpMiddleware implements HttpKernelInterface, TerminableInterface
 {
@@ -32,20 +30,28 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
     protected $routeBuilder;
 
     /**
+     * @var PyriteKernel
+     */
+    protected $pyrite;
+
+    /**
      * HttpMiddleware constructor.
      *
      * @param HttpKernelInterface       $app
      * @param Router                    $router
      * @param RouteConfigurationBuilder $routeBuilder
+     * @param PyriteKernel              $pyrite
      */
     public function __construct(
         HttpKernelInterface $app,
         Router $router,
-        RouteConfigurationBuilder $routeBuilder
+        RouteConfigurationBuilder $routeBuilder,
+        PyriteKernel $pyrite
     ) {
         $this->app = $app;
         $this->router = $router;
         $this->routeBuilder = $routeBuilder;
+        $this->pyrite = $pyrite;
     }
 
     /**
@@ -68,7 +74,12 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
         $this->router->setUrlGenerator($configuration->getUrlGenerator());
         $this->router->setUrlMatcher(new UrlMatcher($routeCollection, $context));
 
-        $request->attributes->add($this->router->match($request->getPathInfo()));
+        try{
+            $request->attributes->add($this->router->match($request->getPathInfo()));
+        }catch(\Exception $e){
+            $this->pyrite->handleException($request, $e);
+        }
+
         $route = $routeCollection->get($request->attributes->get('_route'));
 
         $request->attributes->set('dispatch', $route->getOption('dispatch'));
