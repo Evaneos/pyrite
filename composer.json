@@ -29,6 +29,7 @@
     "require" : {
         "evaneos/dic-it": "~2.0",
         "stack/builder": "~1.0",
+	"stack/run": "~1.0",
         "symfony/http-foundation": "~2.6, <2.8",
         "symfony/http-kernel": "~2.6, <2.8",
         "symfony/routing": "~2.6, <2.8",
