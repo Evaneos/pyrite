@@ -271,7 +271,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $appLogger = $this->loggerFactory->create('app');
 
         if(false === $this->config->get('debug')){
-            error_reporting(E_ALL & ~E_USER_DEPRECATED & ~E_DEPRECATED);
+            error_reporting(E_ALL & ~E_USER_DEPRECATED & ~E_DEPRECATED & ~E_NOTICE);
             ini_set('display_errors', 'Off');
         }else{
             error_reporting(E_ALL);
