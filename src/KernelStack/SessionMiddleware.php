@@ -44,6 +44,10 @@ class SessionMiddleware implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
+        if($type === HttpKernelInterface::SUB_REQUEST){
+            return $this->app->handle($request, $type, $catch);
+        }
+
         $parameters = $this->config->get('cookie_parameters');
 
         if(!isset($parameters[$this->config->get('current_locale')])){
@@ -71,7 +75,6 @@ class SessionMiddleware implements HttpKernelInterface, TerminableInterface
         $session->start();
 
         $response = $this->app->handle($request, $type, $catch);
-
         if ($session && $session->isStarted()) {
             $session->save();
             $params = array_merge(

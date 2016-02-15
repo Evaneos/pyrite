@@ -72,9 +72,7 @@ final class LoggerFactory
 
         $streamHandler = new StreamHandler($path, $level, true);
 
-        $this->handlers = array(
-            $streamHandler
-        );
+        $this->handlers[] = $streamHandler;
     }
 
     /**

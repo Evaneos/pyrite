@@ -41,7 +41,12 @@ class PyriteMiddleware implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
+        if($type === HttpKernelInterface::SUB_REQUEST){
+            return $this->app->handle($request, $type, $catch);
+        }
+
         $container = $this->kernel->startContainer();
+
         $container->bind('request', $request);
         $container->bind('LoggerFactory', $this->kernel->getLoggerFactory());
 

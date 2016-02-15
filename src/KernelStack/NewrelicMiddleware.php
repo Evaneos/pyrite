@@ -48,7 +48,12 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
-        if (self::MASTER_REQUEST !== $type) {
+        if($type === HttpKernelInterface::SUB_REQUEST){
+            if($request->attributes->get('exception') instanceof \Exception){
+                $e = $request->attributes->get('exception');
+                $this->newRelic->noticeError($e->getMessage(), $e);
+            }
+
             return $this->app->handle($request, $type, $catch);
         }
 
@@ -62,16 +67,11 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
             $this->newRelic->nameTransaction($routeName[0]);
         }
 
-        try{
-            $response = $this->app->handle($request, $type, $catch);
-        } catch(\Exception $e) {
-            $this->newRelic->noticeError($e->getMessage(), $e);
-            throw $e;
-        }
+        $response = $this->app->handle($request, $type, $catch);
 
         $this->newRelic->addCustomParameter('result_code', $response->getStatusCode());
 
-        return $response;
+        return $this->app->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
     }
 
     /**

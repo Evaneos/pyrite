@@ -20,6 +20,7 @@ use Pyrite\Exception\BadConfigurationException;
 use Pyrite\Factory\StackedHttpKernel;
 use Pyrite\Logger\LoggerFactory;
 use Pyrite\Routing\Router;
+use Stack\Builder;
 use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -84,6 +85,17 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     private $errorSubscriber;
 
+    /** @var Builder */
+    private $builder;
+
+    /**
+     * @var bool
+     */
+    private $isResolved;
+
+    /** @var HttpKernelInterface */
+    private $resolvedApp;
+
     /**
      * @var string[]
      */
@@ -115,14 +127,30 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     public function __construct($containerConfigPath, Router $router, ErrorSubscriber $errorSubscriber = null)
     {
         mb_internal_encoding('UTF-8');
+        $this->builder = new Builder();
         $this->logger = new NullLogger();
         $this->booted = false;
         $this->containerConfigPath = $containerConfigPath;
         $this->started = false;
         $this->internalConfig = array();
         $this->router = $router;
+        $this->isResolved = false;
         $this->errorSubscriber = null === $errorSubscriber ? new ErrorSubscriber() : $errorSubscriber;
         $this->boot();
+    }
+
+    /**
+     * @return $this
+     */
+    public function push()
+    {
+        if (func_num_args() === 0) {
+            throw new \InvalidArgumentException("Missing argument(s) when calling push");
+        }
+
+        call_user_func_array([$this->builder, 'push'], func_get_args());
+
+        return $this;
     }
 
     /**
@@ -131,7 +159,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function handleException(Request $request, \Exception $e)
     {
-        $this->startContainer();
+        if(true === $this->config->get('debug')){
+            throw $e; // Will be handle via the debug stack
+        }
 
         $subscriptions = $this->errorSubscriber->getSubscribedError();
         $collection = $this->router->getRouteCollection();
@@ -149,21 +179,42 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
                 $route = $collection->get($routeName.'.'.$request->attributes->get('locale'));
                 $request->attributes->set('dispatch', $route->getOption('dispatch'));
                 $request->attributes->set('http-status-code', $code);
+                $request->attributes->set('exception', $e);
 
                 break;
             }
         }
 
-        $factory = new StackedHttpKernel($this->container, $dispatch = $request->attributes->get('dispatch'));
-        list($name, $this->stack) = $factory->register($this, 'pyrite.root_kernel', $dispatch);
-
-        $response = $this->stack->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
-        $response->send();
-        exit;
+        $this->run($request, HttpKernelInterface::SUB_REQUEST);
     }
 
     /**
-     * {@inheritDoc}
+     * @param Request $request
+     */
+    public function run(Request $request, $type = HttpKernelInterface::MASTER_REQUEST)
+    {
+        if(false === $this->isResolved){
+            $this->resolvedApp = $this->builder->resolve($this);
+            $this->isResolved = true;
+        }
+
+        $request = $request ?: Request::createFromGlobals();
+
+        $response = $this->resolvedApp->handle($request, $type);
+        $response->send();
+
+        if ($this->resolvedApp instanceof TerminableInterface) {
+            $this->resolvedApp->terminate($request, $response);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param int     $type
+     * @param bool    $catch
+     *
+     * @return Response
+     * @throws \Exception
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
@@ -181,8 +232,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         } catch(\Exception $e) {
             $this->handleException($request, $e);
         }
-
-        return $this->stack->handle($request, $type, $catch);
     }
 
     /**
@@ -199,7 +248,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function terminate(Request $request, Response $response)
     {
-        $this->stack->terminate($request, $response);
+        if($this->stack instanceof TerminableInterface){
+            $this->stack->terminate($request, $response);
+        }
     }
 
     public function boot()
@@ -240,17 +291,13 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     public function startContainer()
     {
         if($this->isStarted()){
-            return;
+            return $this->container;
         }
 
         $configAsArray = iterator_to_array($this->config->getIterator());
 
         $this->internalConfig['parameters'] = $configAsArray;
         $this->container = $this->createContainer(new ArrayConfig($this->internalConfig));
-
-        // Ensure you can't touch it !
-        unset($this->config); //remove references across shared services
-        $this->config = new FrozenParameterBag($configAsArray);
 
         $currentLocale = $this->config->get('current_locale');
         $cookieParameters = $this->config->get('cookie_parameters');
@@ -292,6 +339,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         };
 
         register_shutdown_function(function() use ($fatalErrorHandler) {
+
             $error = error_get_last();
 
             $fatalErrorHandler(

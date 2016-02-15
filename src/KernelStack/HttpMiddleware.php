@@ -61,6 +61,10 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
+        if($type === HttpKernelInterface::SUB_REQUEST){
+            return $this->app->handle($request, $type, $catch);
+        }
+
         $context = new RequestContext();
         $context->fromRequest($request);
 
