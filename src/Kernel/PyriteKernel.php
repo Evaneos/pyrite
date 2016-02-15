@@ -218,8 +218,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
-        $this->container->bind('Request', $request);
-
         if(false === $this->config->get('debug')){
             $this->registerFatalErrorHandler();
         }
@@ -290,7 +288,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function startContainer()
     {
-        if($this->isStarted()){
+        if(true === $this->isStarted()){
             return $this->container;
         }
 
