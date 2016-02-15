@@ -325,12 +325,14 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     {
         $errorLevel = array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR);
 
-        $fatalErrorHandler = function($code, $description, $file, $line) use ($errorLevel) {
+        $that = $this;
+
+        $fatalErrorHandler = function($code, $description, $file, $line) use ($errorLevel, $that) {
             if (0 === error_reporting() || !in_array($code, $errorLevel)) {
                 return;
             }
 
-            $this->handleException(
+            $that->handleException(
                 $request = $this->container->get('Request'),
                 new \ErrorException($description, $code, 1, $file, $line)
             );
