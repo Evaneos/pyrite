@@ -40,7 +40,7 @@ class Logger
             return;
         }
 
-        $slackHandler = new SlackHandler($token, $channel, $username, \Monolog\Logger::WARNING);
+        $slackHandler = new SlackHandler($token, $channel, $username, true, null, \Monolog\Logger::WARNING, true, false, true);
         $factory->addHandler($slackHandler);
         $factory->getLogger('app')->pushHandler($slackHandler);
     }
