@@ -9,6 +9,7 @@ use DICIT\Config\ArrayConfig;
 use DICIT\Config\PHP;
 use DICIT\Config\YML;
 use DICIT\Container;
+use EVFramework\Container\DICITAdapter;
 use Monolog\ErrorHandler;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
@@ -394,7 +395,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     private function createContainer(AbstractConfig $config)
     {
         $activator = new ActivatorFactory();
-        $container = new \DICIT\Container($config, $activator);
+        $container = new DICITAdapter($config, $activator);
 
         /** @var Activator $securityActivator */
         $securityActivator = $container->get('SecurityActivator');
