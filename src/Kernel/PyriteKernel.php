@@ -8,12 +8,12 @@ use DICIT\Config\AbstractConfig;
 use DICIT\Config\ArrayConfig;
 use DICIT\Config\PHP;
 use DICIT\Config\YML;
-use EVFramework\Container\DICITAdapter;
+use DICIT\Container;
 use Monolog\ErrorHandler;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Pyrite\Config\NullConfig;
-use Pyrite\Container\Container;
+use Pyrite\Container\Container as ContainerInterface;
 use Pyrite\Errors\ErrorSubscriber;
 use Pyrite\Errors\ErrorSubscription;
 use Pyrite\Exception\BadConfigurationException;
@@ -21,7 +21,6 @@ use Pyrite\Factory\StackedHttpKernel;
 use Pyrite\Logger\LoggerFactory;
 use Pyrite\Routing\Router;
 use Stack\Builder;
-use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +35,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 class PyriteKernel implements HttpKernelInterface, TerminableInterface
 {
     /**
-     * @var Container
+     * @var ContainerInterface
      */
     private $container;
 
@@ -286,7 +285,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     }
 
     /**
-     * @return DICITAdapter|Container
+     * @return ContainerInterface
      */
     public function startContainer()
     {
@@ -390,12 +389,12 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     /**
      * @param AbstractConfig $config
      *
-     * @return DICITAdapter
+     * @return Container
      */
     private function createContainer(AbstractConfig $config)
     {
         $activator = new ActivatorFactory();
-        $container = new DICITAdapter($config, $activator);
+        $container = new \DICIT\Container($config, $activator);
 
         /** @var Activator $securityActivator */
         $securityActivator = $container->get('SecurityActivator');
