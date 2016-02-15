@@ -181,6 +181,15 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
                 $request->attributes->set('http-status-code', $code);
                 $request->attributes->set('exception', $e);
 
+                if($code >= 500){
+                    $this->loggerFactory->getLogger('app')->critical('Error raised', array(
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                        'line' => $e->getLine(),
+                        'file' => $e->getFile(),
+                    ));
+                }
+
                 break;
             }
         }

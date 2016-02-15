@@ -31,7 +31,6 @@ class Application implements HttpKernelInterface, TerminableInterface
     {
         $responseBag = $this->container->get('PyriteResponseBag');
 
-        // load layers
         $stackedLayers = $this->buildLayerStack($request, $this->layers);
 
         // run them & get the response bag
@@ -127,6 +126,10 @@ class Application implements HttpKernelInterface, TerminableInterface
         }
     }
 
+    /**
+     * @param Request  $request
+     * @param Response $response
+     */
     public function terminate(Request $request, Response $response)
     {
         exit;

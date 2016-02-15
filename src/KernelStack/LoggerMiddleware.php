@@ -65,6 +65,8 @@ class LoggerMiddleware implements HttpKernelInterface, TerminableInterface
      */
     public function terminate(Request $request, Response $response)
     {
+        $this->loggerFactory->flushBuffer();
+
         if($this->app instanceof TerminableInterface){
             $this->app->terminate($request, $response);
         }

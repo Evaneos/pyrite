@@ -43,6 +43,11 @@ final class LoggerFactory
     private $loggers;
 
     /**
+     * @var BufferHandler
+     */
+    private $bufferHandler;
+
+    /**
      * LoggerFactory constructor.
      *
      * @param bool $debug
@@ -70,9 +75,14 @@ final class LoggerFactory
         $path = $this->logDir.'/app.log';
         $level = true === $this->debug ? Logger::DEBUG : Logger::INFO;
 
-        $bufferHandler = new BufferHandler(new StreamHandler($path, $level, true));
+        $this->bufferHandler = new BufferHandler(new StreamHandler($path, $level, true));
 
-        $this->handlers[] = $bufferHandler;
+        $this->handlers[] = $this->bufferHandler;
+    }
+
+    public function flushBuffer()
+    {
+        $this->bufferHandler->close();
     }
 
     /**
