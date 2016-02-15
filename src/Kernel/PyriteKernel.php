@@ -148,7 +148,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             throw new \InvalidArgumentException("Missing argument(s) when calling push");
         }
 
-        call_user_func_array([$this->builder, 'push'], func_get_args());
+        call_user_func_array(array($this->builder, 'push'), func_get_args());
 
         return $this;
     }
