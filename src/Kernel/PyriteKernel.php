@@ -342,7 +342,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             }
 
             $that->handleException(
-                $request = $this->container->get('Request'),
+                $request = $that->container->get('Request'),
                 new \ErrorException($description, $code, 1, $file, $line)
             );
         };
