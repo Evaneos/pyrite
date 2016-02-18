@@ -71,7 +71,7 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
 
         $this->newRelic->addCustomParameter('result_code', $response->getStatusCode());
 
-        return $this->app->handle($request, HttpKernelInterface::MASTER_REQUEST, true);
+        return $response;
     }
 
     /**
