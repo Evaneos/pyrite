@@ -7,6 +7,7 @@ use Pyrite\Routing\RouteConfigurationBuilder;
 use Pyrite\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -78,13 +79,12 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
         $this->router->setUrlGenerator($configuration->getUrlGenerator());
         $this->router->setUrlMatcher(new UrlMatcher($routeCollection, $context));
 
-        try{
-            $request->attributes->add($this->router->match($request->getPathInfo()));
-        }catch(\Exception $e){
-            $this->pyrite->handleException($request, $e);
-        }
-
+        $request->attributes->add($this->router->match($request->getPathInfo()));
         $route = $routeCollection->get($request->attributes->get('_route'));
+
+        if(null === $route->getOption('dispatch')){
+            throw new NotFoundHttpException();
+        }
 
         $request->attributes->set('dispatch', $route->getOption('dispatch'));
 

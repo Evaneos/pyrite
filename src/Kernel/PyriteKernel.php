@@ -202,18 +202,22 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function run(Request $request, $type = HttpKernelInterface::MASTER_REQUEST)
     {
-        if(false === $this->isResolved){
-            $this->resolvedApp = $this->builder->resolve($this);
-            $this->isResolved = true;
-        }
+        try{
+            if(false === $this->isResolved){
+                $this->resolvedApp = $this->builder->resolve($this);
+                $this->isResolved = true;
+            }
 
-        $request = $request ?: Request::createFromGlobals();
+            $request = $request ?: Request::createFromGlobals();
 
-        $response = $this->resolvedApp->handle($request, $type);
-        $response->send();
+            $response = $this->resolvedApp->handle($request, $type);
+            $response->send();
 
-        if ($this->resolvedApp instanceof TerminableInterface) {
-            $this->resolvedApp->terminate($request, $response);
+            if ($this->resolvedApp instanceof TerminableInterface) {
+                $this->resolvedApp->terminate($request, $response);
+            }
+        } catch(\Exception $e){
+            $this->handleException($request, $e);
         }
     }
 
