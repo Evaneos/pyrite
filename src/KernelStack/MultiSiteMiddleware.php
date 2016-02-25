@@ -49,6 +49,8 @@ class MultiSiteMiddleware implements HttpKernelInterface, TerminableInterface
         $this->config->set('side_id', $sid);
         $this->config->set('current_site_id', $sid);
 
+
+
         return $this->app->handle($request, $type, $catch);
     }
 

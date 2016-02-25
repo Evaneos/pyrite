@@ -2,7 +2,6 @@
 
 namespace Pyrite\Kernel;
 
-use DICIT\Activator;
 use DICIT\ActivatorFactory;
 use DICIT\Config\AbstractConfig;
 use DICIT\Config\ArrayConfig;
@@ -96,6 +95,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     /** @var HttpKernelInterface */
     private $resolvedApp;
 
+    /** @var string[] */
+    private $activators;
+
     /**
      * @var string[]
      */
@@ -121,10 +123,11 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
     /**
      * PyriteKernel constructor.
      *
-     * @param string $containerConfigPath
-     * @param Router $router
+     * @param                      $containerConfigPath
+     * @param Router|null               $router
+     * @param ErrorSubscriber|null $errorSubscriber
      */
-    public function __construct($containerConfigPath, Router $router, ErrorSubscriber $errorSubscriber = null)
+    public function __construct($containerConfigPath, Router $router = null, ErrorSubscriber $errorSubscriber = null)
     {
         mb_internal_encoding('UTF-8');
         $this->builder = new Builder();
@@ -133,10 +136,20 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->containerConfigPath = $containerConfigPath;
         $this->started = false;
         $this->internalConfig = array();
+        $this->activators = array();
         $this->router = $router;
         $this->isResolved = false;
         $this->errorSubscriber = null === $errorSubscriber ? new ErrorSubscriber() : $errorSubscriber;
         $this->boot();
+    }
+
+    /**
+     * @param string $name
+     * @param string $serviceName
+     */
+    public function addActivator($name, $serviceName)
+    {
+        $this->activators[$name] =  $serviceName;
     }
 
     /**
@@ -164,6 +177,11 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         }
 
         $subscriptions = $this->errorSubscriber->getSubscribedError();
+
+        if(null === $this->router){ // CLI
+            throw $e;
+        }
+
         $collection = $this->router->getRouteCollection();
 
         /**
@@ -310,23 +328,20 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         $this->internalConfig['parameters'] = $configAsArray;
         $this->container = $this->createContainer(new ArrayConfig($this->internalConfig));
 
-        $currentLocale = $this->config->get('current_locale');
-        $cookieParameters = $this->config->get('cookie_parameters');
-        $domain = $cookieParameters[$currentLocale]['domain'];
-
         $loggerFactory = new LoggerFactory(
-            $currentLocale,
-            $domain,
             $this->config->get('debug'),
             $this->config->get('log_dir')
         );
 
         $this->container->bind('LoggerFactory', $loggerFactory);
 
-        // Keep compatibility, use the right type hint in the application as usual (UrlGeneratorInterface, UrlMatcherInterface)
-        $this->container->bind('UrlMatcher', $this->router->getUrlMatcher());
-        $this->container->bind('UrlGenerator', $this->router->getUrlGenerator());
-        $this->container->bind('RouteCollection', $this->router->getRouteCollection());
+        if(null !== $this->router){
+            // Keep compatibility, use the right type hint in the application as usual (UrlGeneratorInterface, UrlMatcherInterface)
+            $this->container->bind('UrlMatcher', $this->router->getUrlMatcher());
+            $this->container->bind('UrlGenerator', $this->router->getUrlGenerator());
+            $this->container->bind('RouteCollection', $this->router->getRouteCollection());
+        }
+
         $this->container->bind('AppLogger', $this->loggerFactory->getLogger('app'));
 
         $this->started = true;
@@ -402,18 +417,21 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
 
     /**
      * @param AbstractConfig $config
+     * @param array          $activators ['activator_name' => 'service_name']
      *
-     * @return Container
+     * @return DICITAdapter
      */
     private function createContainer(AbstractConfig $config)
     {
-        $activator = new ActivatorFactory();
-        $container = new DICITAdapter($config, $activator);
+        $factory = new ActivatorFactory();
 
-        /** @var Activator $securityActivator */
-        $securityActivator = $container->get('SecurityActivator');
+        $container = new DICITAdapter($config, $factory);
 
-        $activator->addActivator('security', $securityActivator, false);
+        foreach($this->activators as $name => $serviceName){
+            $factory->addActivator($name, $container->get($serviceName), false);
+        }
+
+        $factory->addActivator('security', $container->get('SecurityActivator'), false);
 
         return $container;
     }

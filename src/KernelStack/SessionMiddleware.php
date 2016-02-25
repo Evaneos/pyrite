@@ -49,7 +49,7 @@ class SessionMiddleware implements HttpKernelInterface, TerminableInterface
         }
 
         $parameters = $this->config->get('cookie_parameters');
-
+        
         if(!isset($parameters[$this->config->get('current_locale')])){
             throw new \Exception(sprintf('Domain %s not available', $request->attributes->get('current_locale')));
         }
