@@ -63,7 +63,7 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
             return $this->app->handle($request, $type, $catch);
         }
 
-        foreach($this->pyrite->getContainer('LoggerFactory')->getTags() as $name => $value){
+        foreach($this->pyrite->getContainer()->get('LoggerFactory')->getTags() as $name => $value){
             $this->newRelic->addCustomParameter($name, $value);
         }
 
