@@ -2,6 +2,7 @@
 
 namespace Pyrite\KernelStack;
 
+use Pyrite\Kernel\PyriteKernel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -24,21 +25,21 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
      */
     protected $newRelic;
 
-    /** @var array */
-    protected $extras;
+    /** @var PyriteKernel */
+    protected $pyrite;
 
     /**
      * NewrelicMiddleware constructor.
      *
      * @param HttpKernelInterface $app
-     * @param                     $applicationName
-     * @param array               $extras
+     * @param string                    $applicationName
+     * @param PyriteKernel        $pyrite
      */
-    public function __construct(HttpKernelInterface $app, $applicationName, array $extras = array())
+    public function __construct(HttpKernelInterface $app, $applicationName, PyriteKernel $pyrite)
     {
         $this->app = $app;
         $this->applicationName = $applicationName;
-        $this->extras = $extras;
+        $this->pyrite = $pyrite;
 
         $this->newRelic = new \Intouch\Newrelic\Newrelic(false);
         $this->newRelic->setAppName($applicationName);
@@ -62,7 +63,7 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
             return $this->app->handle($request, $type, $catch);
         }
 
-        foreach($this->extras as $name => $value){
+        foreach($this->pyrite->getContainer('LoggerFactory')->getTags() as $name => $value){
             $this->newRelic->addCustomParameter($name, $value);
         }
 
@@ -75,8 +76,6 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
             $routeName = explode('.', $routeName);
             $this->newRelic->nameTransaction($routeName[0]);
         }
-
-        $this->newRelic->addCustomTracer('Pyrite\Kernel\PyriteKernel::run');
 
         $response = $this->app->handle($request, $type, $catch);
 
