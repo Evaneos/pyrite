@@ -95,7 +95,6 @@ final class LoggerFactory
      */
     public function addTag($name, $value)
     {
-        dump($name, $value);
         $this->tags[$name] = $value;
         $this->tagProcessor->addTags(array($name => $value));
     }
