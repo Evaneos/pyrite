@@ -220,22 +220,37 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
      */
     public function run(Request $request, $type = HttpKernelInterface::MASTER_REQUEST)
     {
+        if($type === self::SUB_REQUEST){
+            $this->doRun($request, $type);
+            return;
+        }
+
         try{
-            if(false === $this->isResolved){
-                $this->resolvedApp = $this->builder->resolve($this);
-                $this->isResolved = true;
-            }
-
-            $request = $request ?: Request::createFromGlobals();
-
-            $response = $this->resolvedApp->handle($request, $type);
-            $response->send();
-
-            if ($this->resolvedApp instanceof TerminableInterface) {
-                $this->resolvedApp->terminate($request, $response);
-            }
-        } catch(\Exception $e){
+            $this->doRun($request, $type);
+            return;
+        } catch(\Exception $e) {
             $this->handleException($request, $e);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param         $type
+     */
+    private function doRun(Request $request, $type)
+    {
+        if(false === $this->isResolved){
+            $this->resolvedApp = $this->builder->resolve($this);
+            $this->isResolved = true;
+        }
+
+        $request = $request ?: Request::createFromGlobals();
+
+        $response = $this->resolvedApp->handle($request, $type);
+        $response->send();
+
+        if ($this->resolvedApp instanceof TerminableInterface) {
+            $this->resolvedApp->terminate($request, $response);
         }
     }
 
@@ -254,13 +269,10 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
         }
 
         $factory = new StackedHttpKernel($this->container, $dispatch = $request->attributes->get('dispatch'));
+
         list($name, $this->stack) = $factory->register($this, 'pyrite.root_kernel', $dispatch);
 
-        try{
-            return $this->stack->handle($request, $type, $catch);
-        } catch(\Exception $e) {
-            $this->handleException($request, $e);
-        }
+        return $this->stack->handle($request, $type, $catch);
     }
 
     /**

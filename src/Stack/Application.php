@@ -132,6 +132,6 @@ class Application implements HttpKernelInterface, TerminableInterface
      */
     public function terminate(Request $request, Response $response)
     {
-        exit;
+        
     }
 }

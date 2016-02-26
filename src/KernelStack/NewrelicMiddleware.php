@@ -67,6 +67,8 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
             $this->newRelic->nameTransaction($routeName[0]);
         }
 
+        $this->newRelic->addCustomTracer('Pyrite\Kernel\PyriteKernel::run');
+
         $response = $this->app->handle($request, $type, $catch);
 
         $this->newRelic->addCustomParameter('result_code', $response->getStatusCode());
