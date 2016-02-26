@@ -24,16 +24,21 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
      */
     protected $newRelic;
 
+    /** @var array */
+    protected $extras;
+
     /**
      * NewrelicMiddleware constructor.
      *
      * @param HttpKernelInterface $app
-     * @param string              $applicationName
+     * @param                     $applicationName
+     * @param array               $extras
      */
-    public function __construct(HttpKernelInterface $app, $applicationName)
+    public function __construct(HttpKernelInterface $app, $applicationName, array $extras = array())
     {
         $this->app = $app;
         $this->applicationName = $applicationName;
+        $this->extras = $extras;
 
         $this->newRelic = new \Intouch\Newrelic\Newrelic(false);
         $this->newRelic->setAppName($applicationName);
@@ -55,6 +60,10 @@ class NewrelicMiddleware implements HttpKernelInterface, TerminableInterface
             }
 
             return $this->app->handle($request, $type, $catch);
+        }
+
+        foreach($this->extras as $name => $value){
+            $this->newRelic->addCustomParameter($name, $value);
         }
 
         $this->newRelic->addCustomParameter('url', $request->getPathInfo());

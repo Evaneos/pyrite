@@ -3,6 +3,7 @@
 namespace Pyrite\Utils;
 
 use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\NewRelicHandler;
 use Monolog\Handler\RavenHandler;
 use Monolog\Handler\SlackHandler;
 use Pyrite\Logger\LoggerFactory;
@@ -43,5 +44,21 @@ class Logger
         $slackHandler = new SlackHandler($token, $channel, $username, true, null, \Monolog\Logger::ERROR, true, false, true);
         $factory->addHandler($slackHandler);
         $factory->getLogger('app')->pushHandler($slackHandler);
+    }
+
+    /**
+     * @param LoggerFactory $factory
+     * @param string              $appName
+     * @param bool              $debug
+     */
+    public static function attachNewRelic(LoggerFactory $factory, $appName, $debug)
+    {
+        if(true === $debug){
+            return;
+        }
+
+        $newRelicHandler = new NewRelicHandler(\Monolog\Logger::ERROR, true, $appName, true);
+        $factory->addHandler($newRelicHandler);
+        $factory->getLogger('app')->pushHandler($newRelicHandler);
     }
 }

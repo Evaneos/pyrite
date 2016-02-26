@@ -47,6 +47,9 @@ final class LoggerFactory
      */
     private $bufferHandler;
 
+    /** @var array */
+    private $tags;
+
     /**
      * LoggerFactory constructor.
      *
@@ -58,6 +61,7 @@ final class LoggerFactory
         $this->debug = $debug;
         $this->logDir = $logDir;
         $this->loggers = array();
+        $this->tags = array();
 
         $webProcessor = new WebProcessor();
         $this->tagProcessor = new TagProcessor();
@@ -91,7 +95,16 @@ final class LoggerFactory
      */
     public function addTag($name, $value)
     {
+        $this->tags[$name] = $value;
         $this->tagProcessor->addTags(array($name => $value));
+    }
+
+    /**
+     * @return array
+     */
+    public function getTags()
+    {
+        return $this->tags;
     }
 
     /**
