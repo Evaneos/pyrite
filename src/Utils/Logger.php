@@ -53,10 +53,10 @@ class Logger
      */
     public static function attachNewRelic(LoggerFactory $factory, $appName, $debug)
     {
-        if(true === $debug){
+        if(true === $debug || !extension_loaded('newrelic')){
             return;
         }
-
+        
         $newRelicHandler = new NewRelicHandler(\Monolog\Logger::ERROR, true, $appName, true);
         $factory->addHandler($newRelicHandler);
         $factory->getLogger('app')->pushHandler($newRelicHandler);
