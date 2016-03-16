@@ -193,12 +193,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
                 $code = $subscription->getHttpCode();
                 $routeName = $subscription->getRouteName();
 
-                $request->attributes->set('_route', $routeName);
-                $route = $collection->get($routeName.'.'.$request->attributes->get('locale'));
-                $request->attributes->set('dispatch', $route->getOption('dispatch'));
-                $request->attributes->set('http-status-code', $code);
-                $request->attributes->set('exception', $e);
-
                 if($code >= 500){
                     $this->loggerFactory->getLogger('app')->critical('Error raised', array(
                         'message' => $e->getMessage(),
@@ -206,6 +200,17 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
                         'line' => $e->getLine(),
                         'file' => $e->getFile(),
                     ));
+                }
+
+                $request->attributes->set('_route', $routeName);
+                $route = $collection->get($routeName.'.'.$request->attributes->get('locale'));
+
+                if(null !== $route){
+                    $request->attributes->set('dispatch', $route->getOption('dispatch'));
+                    $request->attributes->set('http-status-code', $code);
+                    $request->attributes->set('exception', $e);
+                }else{
+                    throw $e;
                 }
 
                 break;
@@ -443,7 +448,9 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             $factory->addActivator($name, $container->get($serviceName), false);
         }
 
-        $factory->addActivator('security', $container->get('SecurityActivator'), false);
+        if(true === $container->has('SecurityActivator')){
+            $factory->addActivator('security', $container->get('SecurityActivator'), false);
+        }
 
         return $container;
     }
