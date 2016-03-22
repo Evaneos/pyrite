@@ -76,6 +76,10 @@ final class LoggerFactory
             $memoryProcess
         );
 
+        if(!file_exists($this->logDir)){
+            mkdir($this->logDir, 0777, true);
+        }
+
         $path = $this->logDir.'/app.log';
         $level = true === $this->debug ? Logger::DEBUG : Logger::INFO;
 
