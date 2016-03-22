@@ -313,7 +313,11 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             throw new BadConfigurationException('You should define root_dir in config');
         }
 
-        $this->config->set('log_dir', $this->config->get('root_dir').'../log');
+        $logDir = $this->config->get('log_dir');
+
+        if(null === $logDir){
+            $this->config->set('log_dir', $this->config->get('root_dir').'../log');
+        }
 
         $this->loggerFactory = new LoggerFactory($this->getConfig()->get('debug'), $this->config->get('log_dir'));
         $appLogger = $this->loggerFactory->create('app');
