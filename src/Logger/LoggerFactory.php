@@ -79,8 +79,9 @@ final class LoggerFactory
         $path = $this->logDir.'/app.log';
         $level = true === $this->debug ? Logger::DEBUG : Logger::INFO;
 
-        $this->bufferHandler = new BufferHandler(new StreamHandler($path, $level, true));
-        $this->bufferHandler->setFormatter(new JsonFormatter());
+        $streamHandler = new StreamHandler($path, $level, true);
+        $streamHandler->setFormatter(new JsonFormatter());
+        $this->bufferHandler = new BufferHandler($streamHandler);
 
         $this->handlers[] = $this->bufferHandler;
     }
