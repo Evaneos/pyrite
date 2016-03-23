@@ -80,10 +80,7 @@ final class LoggerFactory
         $level = true === $this->debug ? Logger::DEBUG : Logger::INFO;
 
         $this->bufferHandler = new BufferHandler(new StreamHandler($path, $level, true));
-
-        if(!$debug){
-            $this->bufferHandler->setFormatter(new JsonFormatter());
-        }
+        $this->bufferHandler->setFormatter(new JsonFormatter());
 
         $this->handlers[] = $this->bufferHandler;
     }
