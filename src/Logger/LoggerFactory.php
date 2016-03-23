@@ -2,6 +2,7 @@
 
 namespace Pyrite\Logger;
 
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\BufferHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
@@ -64,7 +65,7 @@ final class LoggerFactory
         $this->tags = array();
 
         $webProcessor = new WebProcessor();
-        $this->tagProcessor = new TagProcessor();
+        $this->tagProcessor = new TagProcessor(array('debug' => $debug));
 
         $introspectionProcessor = new IntrospectionProcessor(Logger::ERROR);
         $memoryProcess = new MemoryUsageProcessor();
@@ -80,6 +81,10 @@ final class LoggerFactory
         $level = true === $this->debug ? Logger::DEBUG : Logger::INFO;
 
         $this->bufferHandler = new BufferHandler(new StreamHandler($path, $level, true));
+
+        if(true === $debug){
+            $this->bufferHandler->setFormatter(new JsonFormatter());
+        }
 
         $this->handlers[] = $this->bufferHandler;
     }
