@@ -66,7 +66,6 @@ final class LoggerFactory
 
         $webProcessor = new WebProcessor();
         $this->tagProcessor = new TagProcessor(array('debug' => $debug));
-
         $introspectionProcessor = new IntrospectionProcessor(Logger::ERROR);
         $memoryProcess = new MemoryUsageProcessor();
 
@@ -82,7 +81,7 @@ final class LoggerFactory
 
         $this->bufferHandler = new BufferHandler(new StreamHandler($path, $level, true));
 
-        if(true === $debug){
+        if(!$debug){
             $this->bufferHandler->setFormatter(new JsonFormatter());
         }
 
