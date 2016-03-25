@@ -67,16 +67,6 @@ class LoggerMiddleware implements HttpKernelInterface, TerminableInterface
             $this->loggerFactory->addTag('user', $username);
         }
 
-        $logger = $this->loggerFactory->create('app.request');
-
-        $routeName = $request->attributes->get('_route');
-
-        if(null === $routeName){
-            return $this->app->handle($request, $type, $catch);
-        }
-
-        $logger->notice(sprintf('Route %s matched', $routeName));
-
         return $this->app->handle($request, $type, $catch);
     }
 
@@ -86,6 +76,17 @@ class LoggerMiddleware implements HttpKernelInterface, TerminableInterface
      */
     public function terminate(Request $request, Response $response)
     {
+        $logger = $this->loggerFactory->create('app.request');
+
+        $routeName = $request->attributes->get('_route');
+
+        $logger->notice(sprintf('Route %s matched', $routeName), array(
+            'route' => $routeName,
+            'response_code' => $response->getStatusCode(),
+            'response_size' => strlen($response->getContent())
+
+        ));
+
         $this->loggerFactory->flushBuffer();
 
         if($this->app instanceof TerminableInterface){
