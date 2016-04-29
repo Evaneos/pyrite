@@ -43,9 +43,13 @@ class StackedHttpKernel implements HttpKernelFactory
         $container       = $this->container;
 
         foreach ($this->services as $serviceName => $serviceParameters) {
+            $originalServiceName = $serviceName;
+            if (preg_match('`^(.*)\[.+$`i', $serviceName, $matches)) {
+                $serviceName = $matches[1];
+            }
 
             $factory       = $this->getFactory($serviceName);
-            $configuration = $this->getConfiguration($serviceName, $parameters);
+            $configuration = $this->getConfiguration($originalServiceName, $parameters);
 
             $builder->push(function ($app) use ($container, $factory, $serviceName, $configuration) {
                 list($stackName, $stack) = $factory->register($app, $serviceName, $configuration);
