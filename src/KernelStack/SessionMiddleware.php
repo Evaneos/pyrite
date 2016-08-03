@@ -55,6 +55,7 @@ class SessionMiddleware implements HttpKernelInterface, TerminableInterface
         }
 
         $cookieParams = $parameters[$this->config->get('current_locale')];
+        $this->config->set('current_cookie_domain', $cookieParams['domain']);
 
         if (HttpKernelInterface::MASTER_REQUEST !== $type) {
             return $this->app->handle($request, $type, $catch);

@@ -43,7 +43,7 @@ class PyriteMiddleware implements HttpKernelInterface, TerminableInterface
     {
         if(false === $this->kernel->isStarted()){
             $container = $this->kernel->startContainer();
-            $container->bind('request', $request);
+            $container->bind('Request', $request);
             $container->bind('LoggerFactory', $this->kernel->getLoggerFactory());
         }
 
