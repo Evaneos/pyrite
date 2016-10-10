@@ -71,7 +71,7 @@ final class LoggerFactory
             'http_method' => 'REQUEST_METHOD',
             'server'      => 'SERVER_NAME',
             'referrer'    => 'HTTP_REFERER',
-            'user_agent'  => 'HTPP_USER_AGENT',
+            'user_agent'  => 'HTTP_USER_AGENT',
         )
         );
         $this->tagProcessor = new TagProcessor(array('debug' => $debug));
