@@ -64,7 +64,16 @@ final class LoggerFactory
         $this->loggers = array();
         $this->tags = array();
 
-        $webProcessor = new WebProcessor();
+        $webProcessor = new WebProcessor(
+            null, array(
+            'url'         => 'REQUEST_URI',
+            'ip'          => 'REMOTE_ADDR',
+            'http_method' => 'REQUEST_METHOD',
+            'server'      => 'SERVER_NAME',
+            'referrer'    => 'HTTP_REFERER',
+            'user_agent'  => 'USER_AGENT',
+        )
+        );
         $this->tagProcessor = new TagProcessor(array('debug' => $debug));
         $introspectionProcessor = new IntrospectionProcessor(Logger::ERROR);
         $memoryProcess = new MemoryUsageProcessor();
