@@ -38,6 +38,9 @@
         "twig/twig": "~1.0",
         "symfony/event-dispatcher": "~2.7"
     },
+    "suggest": {
+        "ramsey/uuid": "Request ID middleware"
+    },
     "require-dev": {
         "symfony/debug": "~2.7"
     },
