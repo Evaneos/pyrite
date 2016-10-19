@@ -3,6 +3,7 @@
 namespace Pyrite\KernelStack;
 
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -14,30 +15,25 @@ class RequestIdMiddleware implements HttpKernelInterface
     /** @var string  */
     private $header;
 
-    /** @var string|null  */
-    private $responseHeader;
-
-    /** @var string */
-    private $uuid;
+    /** @var ParameterBag */
+    private $config;
 
     /**
      * RequestIdMiddleware constructor.
      *
      * @param HttpKernelInterface $app
      * @param string              $header
-     * @param string|null                $responseHeader
-     * @param string|null  $uuid
+     * @param null                $responseHeader
+     * @param ParameterBag        $config
      */
     public function __construct(
         HttpKernelInterface $app,
         $header = 'X-Request-Id',
-        $responseHeader = null,
-        $uuid = null
+        ParameterBag $config
     ) {
         $this->app            = $app;
         $this->header         = $header;
-        $this->responseHeader = $responseHeader;
-        $this->uuid = $this->uuid = (string) (null === $uuid ? Uuid::uuid4() : $uuid);
+        $this->config = $config;
     }
 
     /**
@@ -46,23 +42,15 @@ class RequestIdMiddleware implements HttpKernelInterface
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
     {
         if ( ! $request->headers->has($this->header)) {
-            $request->headers->set($this->header, $this->uuid);
+            $request->headers->set($this->header, $uuid = Uuid::uuid4());
+            $this->config->set('request_id', (string) $uuid);
+        }else{
+            $this->config->set('request_id', (string) $request->headers->get($this->header));
         }
 
         $response = $this->app->handle($request, $type, $catch);
-
-        if (null !== $this->responseHeader) {
-            $response->headers->set($this->responseHeader, $request->headers->get($this->header));
-        }
+        $response->headers->set($this->header, (string) $this->config->get('request_id'));
 
         return $response;
-    }
-
-    /**
-     * @param string $header
-     */
-    public function enableResponseHeader($header = 'X-Request-Id')
-    {
-        $this->responseHeader = $header;
     }
 }
