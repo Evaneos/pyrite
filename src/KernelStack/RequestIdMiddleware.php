@@ -42,8 +42,9 @@ class RequestIdMiddleware implements HttpKernelInterface
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
     {
         if ( ! $request->headers->has($this->header)) {
-            $request->headers->set($this->header, $uuid = Uuid::uuid4());
-            $this->config->set('request_id', (string) $uuid);
+            $uuid = (string) $uuid = Uuid::uuid4();
+            $request->headers->set($this->header, $uuid);
+            $this->config->set('request_id', $uuid);
         }else{
             $this->config->set('request_id', (string) $request->headers->get($this->header));
         }
