@@ -62,6 +62,7 @@ class LoggerMiddleware implements HttpKernelInterface, TerminableInterface
                 if($auth instanceof BaseAuthentication){
                     $username = $auth->getAuthenticatedUser()->getUsername();
                 }
+                $this->loggerFactory->addTag('session_id', $session->getId());
             }
 
             $this->loggerFactory->addTag('user', $username);
