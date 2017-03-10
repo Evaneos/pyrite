@@ -10,6 +10,7 @@ use DICIT\Config\YML;
 use DICIT\Container;
 use EVFramework\Container\DICITAdapter;
 use Monolog\ErrorHandler;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Pyrite\Config\NullConfig;
@@ -190,11 +191,18 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
          */
         foreach($subscriptions as $class => $subscription){
             if($e instanceof $class){
-                $code = $subscription->getHttpCode();
+                $code = $subscription->getHttpCode($e);
                 $routeName = $subscription->getRouteName();
 
                 if($code >= 500){
-                    $this->loggerFactory->getLogger('app')->critical('Error raised', array(
+                    $this->loggerFactory->getLogger('app')->critical('Server error raised', array(
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                        'line' => $e->getLine(),
+                        'file' => $e->getFile(),
+                    ));
+                } elseif ($code >= 400) {
+                    $this->loggerFactory->getLogger('app')->error('Client error raised', array(
                         'message' => $e->getMessage(),
                         'trace' => $e->getTraceAsString(),
                         'line' => $e->getLine(),
@@ -330,7 +338,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             ini_set('display_errors', 'On');
         }
 
-        ErrorHandler::register($appLogger, $this->errorLevelMap);
+        ErrorHandler::register($appLogger, $this->errorLevelMap, LogLevel::CRITICAL);
 
         $this->booted = true;
     }

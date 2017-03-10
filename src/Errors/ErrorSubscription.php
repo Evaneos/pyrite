@@ -2,6 +2,8 @@
 
 namespace Pyrite\Errors;
 
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+
 class ErrorSubscription
 {
     /** @var string */
@@ -31,10 +33,16 @@ class ErrorSubscription
     }
 
     /**
+     * @param \Exception $e
+     *
      * @return int
      */
-    public function getHttpCode()
+    public function getHttpCode(\Exception $e = null)
     {
+        if ($e instanceof HttpExceptionInterface) {
+            return $e->getStatusCode();
+        }
+
         return $this->httpcode;
     }
 }
