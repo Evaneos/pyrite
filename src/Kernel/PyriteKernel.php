@@ -194,12 +194,7 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
                 $routeName = $subscription->getRouteName();
 
                 if($code >= 500){
-                    $this->loggerFactory->getLogger('app')->critical('Error raised', array(
-                        'message' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
-                        'line' => $e->getLine(),
-                        'file' => $e->getFile(),
-                    ));
+                    $this->loggerFactory->getLogger('app')->emergency($e);
                 }
 
                 $request->attributes->set('_route', $routeName);
