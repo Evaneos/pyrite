@@ -2,25 +2,39 @@
 
 namespace Pyrite\Logger;
 
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 class ExceptionLoggerDecorator implements LoggerInterface
 {
     /**
-     * @var LoggerInterface
+     * @var Logger
      */
     private $logger;
 
     /**
      * ExceptionLoggerDecorator constructor.
      *
-     * @param LoggerInterface $logger
+     * @param Logger $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(Logger $logger)
     {
         $this->logger = $logger;
     }
 
+    /**
+     * @return Logger
+     */
+    public function getDecoratedLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * @param \Exception $error
+     *
+     * @return array
+     */
     private function normalizeData(\Exception $error)
     {
         $data[] = [
@@ -83,6 +97,10 @@ class ExceptionLoggerDecorator implements LoggerInterface
         return $exceptions;
     }
 
+    /**
+     * @param string $message
+     * @param array  $context
+     */
     public function emergency($message, array $context = [])
     {
         if($message instanceof \Exception){
@@ -97,6 +115,10 @@ class ExceptionLoggerDecorator implements LoggerInterface
         }
     }
 
+    /**
+     * @param string $message
+     * @param array  $context
+     */
     public function alert($message, array $context = [])
     {
         if($message instanceof \Exception){
@@ -111,6 +133,10 @@ class ExceptionLoggerDecorator implements LoggerInterface
         }
     }
 
+    /**
+     * @param string $message
+     * @param array  $context
+     */
     public function critical($message, array $context = [])
     {
         if($message instanceof \Exception){
@@ -143,6 +169,10 @@ class ExceptionLoggerDecorator implements LoggerInterface
         }
     }
 
+    /**
+     * @param string $message
+     * @param array  $context
+     */
     public function warning($message, array $context = [])
     {
         if($message instanceof \Exception){
