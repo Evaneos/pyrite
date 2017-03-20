@@ -133,7 +133,9 @@ final class LoggerFactory
     public function create($channelName)
     {
         if(!isset($this->loggers[$channelName])){
-            $this->loggers[$channelName] = new Logger($channelName, $this->handlers, $this->processors);
+            $this->loggers[$channelName] = new ExceptionLoggerDecorator(
+                new Logger($channelName, $this->handlers, $this->processors)
+            );
         }
 
         return $this->loggers[$channelName];

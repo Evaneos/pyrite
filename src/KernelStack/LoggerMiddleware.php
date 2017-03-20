@@ -52,21 +52,6 @@ class LoggerMiddleware implements HttpKernelInterface, TerminableInterface
             $this->loggerFactory->addTag('request_id', $request->headers->get('X-Request-Id'));
         }
 
-        if(class_exists('Trolamine\Core\Authentication\AnonymousAuthenticationToken')){
-            $username = 'anonymous';
-
-            if(null !== $session = $request->getSession()){
-                /** @var BaseAuthentication $auth */
-                $auth = $session->getBag('attributes')->get('authentication');
-
-                if($auth instanceof BaseAuthentication){
-                    $username = $auth->getAuthenticatedUser()->getUsername();
-                }
-            }
-
-            $this->loggerFactory->addTag('user', $username);
-        }
-
         return $this->app->handle($request, $type, $catch);
     }
 
