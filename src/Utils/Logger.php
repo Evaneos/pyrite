@@ -25,7 +25,12 @@ class Logger
         $sentryHandler = new RavenHandler($ravenClient, \Monolog\Logger::ERROR);
         $sentryHandler->setFormatter(new LineFormatter('%message% %context% %extra%\n'));
         $factory->addHandler($sentryHandler);
-        $factory->getLogger('app')->pushHandler($sentryHandler);
+
+        $decoratedLogger = $factory->getLogger('app');
+
+        if($decoratedLogger instanceof \Monolog\Logger){
+            $decoratedLogger->pushHandler($sentryHandler);
+        }
     }
 
     /**
@@ -43,7 +48,12 @@ class Logger
 
         $slackHandler = new SlackHandler($token, $channel, $username, true, null, \Monolog\Logger::ERROR, true, false, true);
         $factory->addHandler($slackHandler);
-        $factory->getLogger('app')->pushHandler($slackHandler);
+
+        $decoratedLogger = $factory->getLogger('app');
+
+        if($decoratedLogger instanceof \Monolog\Logger){
+            $decoratedLogger->pushHandler($slackHandler);
+        }
     }
 
     /**
@@ -56,9 +66,14 @@ class Logger
         if(true === $debug || !extension_loaded('newrelic')){
             return;
         }
-        
+
         $newRelicHandler = new NewRelicHandler(\Monolog\Logger::ERROR, true, $appName, true);
         $factory->addHandler($newRelicHandler);
-        $factory->getLogger('app')->pushHandler($newRelicHandler);
+
+        $decoratedLogger = $factory->getLogger('app');
+
+        if($decoratedLogger instanceof \Monolog\Logger){
+            $factory->getLogger('app')->pushHandler($newRelicHandler);
+        }
     }
 }
