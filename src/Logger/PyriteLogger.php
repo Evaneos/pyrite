@@ -3,33 +3,9 @@
 namespace Pyrite\Logger;
 
 use Monolog\Logger;
-use Psr\Log\LoggerInterface;
 
-class ExceptionLoggerDecorator implements LoggerInterface
+class PyriteLogger extends Logger
 {
-    /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
-     * ExceptionLoggerDecorator constructor.
-     *
-     * @param Logger $logger
-     */
-    public function __construct(Logger $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * @return Logger
-     */
-    public function getDecoratedLogger()
-    {
-        return $this->logger;
-    }
-
     /**
      * @param \Exception $error
      *
@@ -100,6 +76,8 @@ class ExceptionLoggerDecorator implements LoggerInterface
     /**
      * @param string $message
      * @param array  $context
+     *
+     * @return bool
      */
     public function emergency($message, array $context = [])
     {
@@ -108,16 +86,20 @@ class ExceptionLoggerDecorator implements LoggerInterface
 
             foreach($exceptions as $exception){
                 $errorContext = ['exception' => $exception];
-                $this->logger->emergency($exception['message'], array_merge($context, $errorContext));
+                parent::emergency($exception['message'], array_merge($context, $errorContext));
             }
-        }else{
-            $this->logger->emergency($message, $context);
+
+            return true;
         }
+
+        return parent::emergency($message, $context);
     }
 
     /**
      * @param string $message
      * @param array  $context
+     *
+     * @return bool
      */
     public function alert($message, array $context = [])
     {
@@ -126,16 +108,18 @@ class ExceptionLoggerDecorator implements LoggerInterface
 
             foreach($exceptions as $exception){
                 $errorContext = ['exception' => $exception];
-                $this->logger->alert($exception['message'], array_merge($context, $errorContext));
+                parent::alert($exception['message'], array_merge($context, $errorContext));
             }
-        }else{
-            $this->logger->alert($message, $context);
         }
+
+        return parent::alert($message, $context);
     }
 
     /**
      * @param string $message
      * @param array  $context
+     *
+     * @return bool
      */
     public function critical($message, array $context = [])
     {
@@ -144,16 +128,20 @@ class ExceptionLoggerDecorator implements LoggerInterface
 
             foreach($exceptions as $exception){
                 $errorContext = ['exception' => $exception];
-                $this->logger->critical($exception['message'], array_merge($context, $errorContext));
+                parent::error($exception['message'], array_merge($context, $errorContext));
             }
-        }else{
-            $this->logger->critical($message, $context);
+
+            return true;
         }
+
+        return parent::critical($message, $context);
     }
 
     /**
      * @param string $message
      * @param array  $context
+     *
+     * @return bool
      */
     public function error($message, array $context = [])
     {
@@ -162,16 +150,20 @@ class ExceptionLoggerDecorator implements LoggerInterface
 
             foreach($exceptions as $exception){
                 $errorContext = ['exception' => $exception];
-                $this->logger->error($exception['message'], array_merge($context, $errorContext));
+                parent::error($exception['message'], array_merge($context, $errorContext));
             }
-        }else{
-            $this->logger->error($message, $context);
+
+            return true;
         }
+
+        return parent::error($message, $context);
     }
 
     /**
      * @param string $message
      * @param array  $context
+     *
+     * @return bool
      */
     public function warning($message, array $context = [])
     {
@@ -180,48 +172,12 @@ class ExceptionLoggerDecorator implements LoggerInterface
 
             foreach($exceptions as $exception){
                 $errorContext = ['exception' => $exception];
-                $this->logger->warning($exception['message'], array_merge($context, $errorContext));
+                parent::warning($exception['message'], array_merge($context, $errorContext));
             }
-        }else{
-            $this->logger->warning($message, $context);
+
+            return true;
         }
-    }
 
-    /**
-     * @param string $message
-     * @param array  $context
-     */
-    public function notice($message, array $context = [])
-    {
-        $this->logger->notice($message, $context);
+        return parent::warning($message, $context);
     }
-
-    /**
-     * @param string $message
-     * @param array  $context
-     */
-    public function info($message, array $context = [])
-    {
-        $this->logger->info($message, $context);
-    }
-
-    /**
-     * @param string $message
-     * @param array  $context
-     */
-    public function debug($message, array $context = [])
-    {
-        $this->logger->debug($message, $context);
-    }
-
-    /**
-     * @param mixed  $level
-     * @param string $message
-     * @param array  $context
-     */
-    public function log($level, $message, array $context = [])
-    {
-        $this->logger->log($level, $message, $context);
-    }
-
 }
