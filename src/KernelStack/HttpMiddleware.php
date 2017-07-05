@@ -79,7 +79,7 @@ class HttpMiddleware implements HttpKernelInterface, TerminableInterface
         $this->router->setUrlGenerator($configuration->getUrlGenerator());
         $this->router->setUrlMatcher(new UrlMatcher($routeCollection, $context));
 
-        $request->attributes->add($this->router->match($request->getPathInfo()));
+        $request->attributes->add($this->router->match(rawurldecode($request->getPathInfo())));
         $route = $routeCollection->get($request->attributes->get('_route'));
 
         if(null === $route->getOption('dispatch')){
