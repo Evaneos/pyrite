@@ -118,4 +118,20 @@ class UrlGeneratorI18n implements UrlGeneratorInterface
             return new UrlGenerator($routeCollection, $this->context);
         }
     }
+
+    /**
+     * @return array
+     */
+    public function getRoutingConfiguration()
+    {
+        return $this->routingConfiguration;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentLocale()
+    {
+        return $this->currentLocale;
+    }
 }
