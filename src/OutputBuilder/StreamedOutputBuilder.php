@@ -11,7 +11,12 @@ class StreamedOutputBuilder implements OutputBuilder
     /** @see RFC6266 */
     const ATTACHMENT_DISPOSITION = 'output.streamed.attachment_disposition';
 
-    public function getHeaders(ResponseBag $bag)
+    /**
+     * @param ResponseBag $bag
+     *
+     * @throws \Exception
+     */
+    public function buildOutput(ResponseBag $bag)
     {
         if (!$bag->has(self::FILENAME)) {
             throw new \Exception('Missing filename for streamed response');
@@ -22,11 +27,5 @@ class StreamedOutputBuilder implements OutputBuilder
         $bag->addHeader('Transfer-Encoding', 'chunked');
         $bag->addHeader('Content-Type', 'application/force-download');
         $bag->addHeader('Content-Disposition', sprintf('%s; filename="%s"', $bag->get(self::ATTACHMENT_DISPOSITION, 'attachment'), $bag->get(self::FILENAME)));
-
-        return $bag->getHeaders();
-    }
-
-    public function buildOutput(ResponseBag $bag)
-    {
     }
 }
