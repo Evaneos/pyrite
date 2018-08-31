@@ -17,13 +17,13 @@ class StreamedOutputBuilder implements OutputBuilder
             throw new \Exception('Missing filename for streamed response');
         }
 
-        $bag->addHeader('X-Sendfile', $bag->get(self::FILENAME));
-        $bag->addHeader('X-Accel-Buffering', 'no');
-        $bag->addHeader('Transfer-Encoding', 'chunked');
-        $bag->addHeader('Content-Type', 'application/force-download');
-        $bag->addHeader('Content-Disposition', sprintf('%s; filename="%s"', $bag->get(self::ATTACHMENT_DISPOSITION, 'attachment'), $bag->get(self::FILENAME)));
-
-        return $bag->getHeaders();
+        return [
+            'X-Sendfile: '. $bag->get(self::FILENAME),
+            'X-Accel-Buffering: no',
+            'Transfer-Encoding: chunked',
+            'Content-Type: application/force-download',
+            'Content-Disposition: '. sprintf('%s; filename="%s"', $bag->get(self::ATTACHMENT_DISPOSITION, 'attachment'), $bag->get(self::FILENAME))
+        ];
     }
 
     public function buildOutput(ResponseBag $bag)
