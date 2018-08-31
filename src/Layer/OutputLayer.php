@@ -22,13 +22,7 @@ class OutputLayer extends AbstractLayer
 
         $builder = isset($this->outputBuilders[$format]) ? $this->outputBuilders[$format] : $this->defaultOutputBuilder;
 
-        $data = $builder->buildOutput($bag);
-        $headers = $builder->getHeaders($bag);
-        foreach ($headers as $header) {
-            header($header);
-        }
-
-        $bag->setResult($data);
+        $builder->buildOutput($bag);
     }
 
     public function addOutputBuilder($format, OutputBuilder $builder)

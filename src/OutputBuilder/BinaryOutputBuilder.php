@@ -12,13 +12,7 @@ class BinaryOutputBuilder implements OutputBuilder
     const AUTO_ETAG = 'output.binary.auto_etag';
     const AUTO_LAST_MODIFIED = 'output.binary.auto_last_modified';
 
-    public function getHeaders(ResponseBag $bag)
-    {
-        return $bag->getHeaders();
-    }
-
     public function buildOutput(ResponseBag $bag)
     {
-        //nothing
     }
 }
