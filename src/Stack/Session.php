@@ -17,25 +17,27 @@ class Session implements HttpKernelInterface, TerminableInterface
      * @var HttpKernelInterface
      */
     protected $app;
+
     /**
      * @var boolean
      */
-    protected $start = false;
+    protected $start;
+
     /**
      * @var array
      */
-    protected $cookieParams = null;
+    protected $cookieParams;
 
     /**
      *
      * @param HttpKernelInterface $app
-     * @param string              $start
+     * @param bool                $start
      * @param array               $cookieParams
      */
-    public function __construct(HttpKernelInterface $app, $start = false, array $cookieParams = array())
+    public function __construct(HttpKernelInterface $app, $start = false, array $cookieParams = [])
     {
-        $this->app = $app;
-        $this->start = $start;
+        $this->app          = $app;
+        $this->start        = $start;
         $this->cookieParams = $cookieParams;
     }
 
