@@ -7,55 +7,75 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractLayer implements Layer
 {
+    /** @var Layer|null */
     protected $wrappedLayer = null;
+
     protected $request = null;
-    protected $config = array();
+
+    protected $config = [];
 
     public function setNext(Layer $layer)
     {
         $this->wrappedLayer = $layer;
+
         return $this;
     }
 
-    public function setConfiguration(array $config = array())
+    public function setConfiguration(array $config = [])
     {
         $this->config = $config;
+
         return $this;
     }
 
     public function setRequest(Request $request)
     {
         $this->request = $request;
+
         return $this;
     }
 
     /**
-     * @param  ResponseBag $responseBag
+     * @param ResponseBag $bag
+     *
      * @return ResponseBag
+     *
+     * @throws \Exception
      */
-    public function handle(ResponseBag $responseBag)
+    public function handle(ResponseBag $bag)
     {
-        $this->before($responseBag);
-        $result = $this->aroundNext($responseBag);
-        $this->after($responseBag);
+        $this->before($bag);
+        $result = $this->aroundNext($bag);
+        $this->after($bag);
 
         return $result;
     }
 
-    protected function before(ResponseBag $responseBag)
+    /**
+     * @param ResponseBag $bag
+     */
+    protected function before(ResponseBag $bag)
     {
     }
 
-    protected function after(ResponseBag $responseBag)
+    /**
+     * @param ResponseBag $bag
+     */
+    protected function after(ResponseBag $bag)
     {
     }
 
-    protected function aroundNext(ResponseBag $responseBag)
+    /**
+     * @param ResponseBag $bag
+     *
+     * @return ResponseBag
+     */
+    protected function aroundNext(ResponseBag $bag)
     {
         if ($this->wrappedLayer) {
-            return $this->wrappedLayer->handle($responseBag);
+            return $this->wrappedLayer->handle($bag);
         }
 
-        return $responseBag;
+        return $bag;
     }
 }
