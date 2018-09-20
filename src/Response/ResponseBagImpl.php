@@ -5,25 +5,22 @@ namespace Pyrite\Response;
 class ResponseBagImpl implements ResponseBag
 {
     /** @var array */
-    protected $data = [];
-
-    /** @var array */
-    protected $errors = [];
+    private $data = [];
 
     /** @var string */
-    protected $result = '';
+    private $result = '';
 
     /** @var int */
-    protected $resultCode = 200;
+    private $resultCode = 200;
 
     /** @var string[] */
-    protected $headers = [];
+    private $headers = [];
 
     /** @var string */
-    protected $type = self::TYPE_DEFAULT;
+    private $type = self::TYPE_DEFAULT;
 
     /** @var callable */
-    protected $callback;
+    private $callback;
 
     /**
      * @inheritdoc
