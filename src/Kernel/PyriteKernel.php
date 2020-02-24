@@ -244,8 +244,6 @@ class PyriteKernel implements HttpKernelInterface, TerminableInterface
             $this->isResolved = true;
         }
 
-        $request = $request ?: Request::createFromGlobals();
-
         $response = $this->resolvedApp->handle($request, $type);
         $response->send();
 
