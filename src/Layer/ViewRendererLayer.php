@@ -11,6 +11,9 @@ class ViewRendererLayer extends AbstractLayer implements Layer
 
     private $templateRenderer;
 
+    /** @var ResponseBag|null */
+    protected $bag;
+
     public function __construct(Renderer $templateRenderer)
     {
         $this->templateRenderer = $templateRenderer;
