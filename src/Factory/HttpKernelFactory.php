@@ -10,7 +10,7 @@ interface HttpKernelFactory
      * Create an HttpKernelInterface
      *
      * @param HttpKernelInterface $app        The wrapped kernel
-     * @param string              $routeName  Name of the route used
+     * @param string              $name  Name of the route used
      * @param array               $parameters Parameters for this route
      *
      * @return <string, HttpKernelInterface> Return name a kernel and the kernel

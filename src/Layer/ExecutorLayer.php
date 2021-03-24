@@ -6,15 +6,24 @@ use Pyrite\Container\Container;
 use Pyrite\Layer\Executor\Executable;
 use Pyrite\Response\ResponseBag;
 
-class ExecutorLayer extends AbstractLayer implements Layer
+class ExecutorLayer extends AbstractLayer
 {
-    protected $container = null;
+    /** @var Container */
+    private $container;
 
+    /**
+     * ExecutorLayer constructor.
+     *
+     * @param Container $container
+     */
     public function __construct(Container $container)
     {
         $this->container = $container;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function handle(ResponseBag $bag)
     {
         try {
@@ -25,9 +34,16 @@ class ExecutorLayer extends AbstractLayer implements Layer
             ob_get_clean();
             throw $e;
         }
+
         return $ret;
     }
 
+    /**
+     * @inheritdoc
+     *
+     * @throws \RangeException
+     * @throws \RuntimeException
+     */
     protected function before(ResponseBag $bag)
     {
         $class = $this->getServiceNameFromConfig();
@@ -43,7 +59,8 @@ class ExecutorLayer extends AbstractLayer implements Layer
         }
 
         if (!($classInstance instanceof Executable)) {
-            throw new \RuntimeException(sprintf("Expecting instance of Executable, %s given", get_class($classInstance)), 500);
+            throw new \RuntimeException(sprintf("Expecting instance of Executable, %s given",
+                get_class($classInstance)), 500);
         }
 
         $res = $classInstance->execute($this->request, $bag);
@@ -53,11 +70,18 @@ class ExecutorLayer extends AbstractLayer implements Layer
         }
     }
 
+    /**
+     * @return mixed
+     *
+     * @throws \RangeException
+     */
     protected function getServiceNameFromConfig()
     {
         if (1 !== count($this->config)) {
-            throw new \RangeException(sprintf("Number of arguments mismatch in Executor Layer, %d given", count($this->config)), 500);
+            throw new \RangeException(sprintf("Number of arguments mismatch in Executor Layer, %d given",
+                count($this->config)), 500);
         }
+
         return reset($this->config);
     }
 }
