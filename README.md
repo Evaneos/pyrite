@@ -1,4 +1,4 @@
-pyrite
+Pyrite framework
 ======
 
-Stack Framework
+Stack Framework used by many evaneos repos
