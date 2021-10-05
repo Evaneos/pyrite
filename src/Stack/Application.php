@@ -34,9 +34,10 @@ class Application implements HttpKernelInterface, TerminableInterface
         $stackedLayers = $this->buildLayerStack($request, $this->layers);
 
         // run them & get the response bag
-        if (count($stackedLayers)) {
+        if (is_array($stackedLayers) && count($stackedLayers)) {
             try {
-                $stackedLayers->handle($responseBag);
+                $stackedLayer = reset($stackedLayers);
+                $stackedLayer->handle($responseBag);
             } catch (\Exception $e) {
                 $handlerFound = false;
                 foreach ($this->exceptionHandlers as $exceptionName => $handler) {
@@ -88,7 +89,7 @@ class Application implements HttpKernelInterface, TerminableInterface
         }
 
         if (count($layerObjects)) {
-            return reset($layerObjects);
+            return $layerObjects;
         } else {
             return array();
         }
@@ -132,6 +133,6 @@ class Application implements HttpKernelInterface, TerminableInterface
      */
     public function terminate(Request $request, Response $response)
     {
-        
+
     }
 }
