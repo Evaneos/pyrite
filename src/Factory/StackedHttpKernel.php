@@ -38,7 +38,8 @@ class StackedHttpKernel implements HttpKernelFactory
      */
     public function register(HttpKernelInterface $app = null, $name = '', array $parameters = array())
     {
-        $lastServiceName = call_user_func('end', array_keys($this->services));
+        $services = array_keys($this->services);
+        $lastServiceName = end($services);
         $builder         = new \Stack\Builder();
         $container       = $this->container;
 
