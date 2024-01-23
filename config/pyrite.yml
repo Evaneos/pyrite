@@ -29,12 +29,12 @@ classes:
     RedirectionLayer:
         class: \Pyrite\Layer\RedirectionLayer
         call:
-            setUrlGenerator: [ @UrlGenerator ]
+            setUrlGenerator: [ '@UrlGenerator' ]
     RedirectionFromBagLayer:
         class: \Pyrite\Layer\RedirectionFromBagLayer
     ViewRenderer:
         class: \Pyrite\Layer\ViewRendererLayer
-        arguments: [ @TemplateRenderer ]
+        arguments: [ '@TemplateRenderer' ]
         call:
             setRootDir: [ %root_dir ]
     Executor:
@@ -74,7 +74,7 @@ classes:
         class: Pyrite\Templating\Renderer
         arguments: [ %root_dir ]
         call:
-            registerEngine: [ @TwigTemplateEngine, 'twig' ]
+            registerEngine: [ '@TwigTemplateEngine', 'twig' ]
     TwigTemplateEngine:
         class: Pyrite\Templating\TwigEngine
         arguments: [ $container ]
