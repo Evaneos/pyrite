@@ -21,7 +21,7 @@ class PyriteLogger extends Logger
             'type'           => get_class($error),
         ];
 
-        if (null !== $error->getPrevious()) {
+        if ($error->getPrevious() instanceof \Exception) {
             $data = array_merge($data, $this->normalizeData($error->getPrevious()));
         }
 
